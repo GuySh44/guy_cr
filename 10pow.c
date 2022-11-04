@@ -17,8 +17,7 @@ double ten_pow(int n)
 	{
 		result *= base;
 	}
-	printf("%f", result);
-	return base;
+	return result;
 }
 
 int main()
