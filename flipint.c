@@ -31,10 +31,10 @@ int int_length(int num)
 	return count;
 }
 
-int flipint(int num)
+long int flipint(int num)
 {
 	int remainder = 0;
-	int new_num = 0;
+	long int new_num = 0;
 	int tmp_num = num;
 	while (tmp_num % 10 == 0)
 		tmp_num /= 10;
