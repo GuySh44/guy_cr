@@ -1,0 +1,14 @@
+/**
+!.gitignore
+!*.c
+!*.md
+!.myfuncs
+!/c/
+!/ds/
+!/ds/include/
+!/ds/src/
+!/ds/test/
+!/projects/
+!/quizzes/
+!/system_programming/
+
