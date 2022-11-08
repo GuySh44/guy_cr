@@ -43,8 +43,10 @@ void ReverseString(char* s, int s_len)
 
 
 
+
 int main()
 {
+	//char *test = "lmao"; doesnt work, seg fault 
 	char test[] = "lmao";
 	ReverseString(test,4);
 	printf("%s\n", test);
