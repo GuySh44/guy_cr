@@ -37,8 +37,25 @@ similar to strcmp, but the first n bytes are compared.
 return value:
 integer, zero if s1 and s2 are equal in the first n bytes.
 positive if s1 is bigger lexicographically in the first n bytes.
-negative if s2 is smaller lexicographically in the first n bytes. 
+negative if s1 is smaller lexicographically in the first n bytes. 
 */
 int StrNcmp(const char *s1, const char *s2, size_t n);
+
+/*
+similar to strcmp, but isn't case sensitive.
+return value:
+integer, zero if s1 and s2 are equal.
+positive if s1 is bigger lexicographically.
+negative if s1 is smaller lexicographically. 
+*/
+int StrCasecmp(const char *s1, const char *s2);
+
+/*
+The strchr() function returns a pointer to the first occurrence of the character c in the string s.
+return value:
+a pointer to the matched character or NULL if the character  is  not  found.
+The  terminating null byte is considered part of the string, so that if c is specified as '\0', these functions return a pointer to the terminator.
+*/
+char *StrChr(const char *s, int c);
 
 #endif /* __STRING_H__ */
