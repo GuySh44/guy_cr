@@ -1,5 +1,15 @@
 #include"string.h"
 
+size_t StrLen(const char* s)
+{
+	size_t i = 0;
+	while (s[i] != '\0')
+	{
+		i++;
+	}
+	return i;
+}
+
 char *StrCpy(char *dest, const char *src)
 {
 	size_t i = 0;
@@ -8,7 +18,7 @@ char *StrCpy(char *dest, const char *src)
 		(*(dest+i)) = (*(src+i));
 		i++;
 	}
-	(*(dest+i)) = (*(src+i));
+	(*(dest+i)) = '\0';
 	return dest;
 }
 
@@ -35,3 +45,29 @@ char *StrNcpy(char *dest, const char *src, size_t n)
 	}	
 	return dest;
 }
+
+int StrCmp(const char* s1, const char* s2)
+{
+	int j = 0;
+	while (s1[j] != '\0' || s2[j] != '\0')
+	{
+		if (s1[j] != s2[j])
+			return (-1 + 2 * (s1[j] > s2[j]));
+		j++;
+	}
+	return 0;
+}
+
+int StrNcmp(const char *s1, const char *s2, size_t n)
+{
+	int j = 0;
+	while (n > 0 && (s1[j] != '\0' || s2[j] != '\0'))
+	{
+		if (s1[j] != s2[j])
+			return (-1 + 2 * (s1[j] > s2[j]));
+		j++;
+		n--;
+	}
+	return 0;
+}
+

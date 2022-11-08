@@ -53,5 +53,7 @@ int main()
 		printf("%c",*(long_dest+i));
 	printf("\n");
 	
+	printf("original string n compare with high n:%d\n",strncmp("abc","abd",5));
+	
 	return 0;
 }
