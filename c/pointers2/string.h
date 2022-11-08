@@ -1,5 +1,6 @@
 #ifndef __STRING_H__
 #define __STRING_H__
+#include<stddef.h>
 /*
 copy string that src points to, including null terminated byte, to the buffer dest points to.
 the strings may not overlap! and user has to make sure dest is large enough! !!!BEWARE OF BUFFER OVERRUNS!!!
