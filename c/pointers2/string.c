@@ -73,7 +73,7 @@ int StrNcmp(const char *s1, const char *s2, size_t n)
 }
 
 int StrCasecmp(const char *s1, const char *s2)
-{
+{   
 	int j = 0;
 	while ((*(s1+j)) != '\0' || (*(s2+j)) != '\0')
 	{
