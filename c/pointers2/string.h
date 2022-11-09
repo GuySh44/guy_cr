@@ -1,5 +1,5 @@
-#ifndef __STRING_H__
-#define __STRING_H__
+#ifndef __STRINGME_H__
+#define __STRINGME_H__
 #include<stddef.h>
 
 size_t StrLen(const char* s);
@@ -16,7 +16,7 @@ char *StrCpy(char *dest, const char *src);
 
 /*
 similar to strcpy, but at most n byes of src are copied.
--if there is no '\0' among the first n bytes of src, dest will no be null terminated.
+-if there is no '\0' among the first n bytes of src, dest will not be null terminated.
 -if length of src is less than n, dest will be padded with null terminators so a total of n bytes are written.
 return value:
 pointer to the destination string dest
@@ -58,4 +58,7 @@ The  terminating null byte is considered part of the string, so that if c is spe
 */
 char *StrChr(const char *s, int c);
 
-#endif /* __STRING_H__ */
+
+
+
+#endif /* __STRINGME_H__ */
