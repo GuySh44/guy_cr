@@ -1,6 +1,6 @@
 #include<stdio.h>
-#include"string.h"
 #include<string.h>
+#include"string.h"
 
 int main()
 {
@@ -54,6 +54,17 @@ int main()
 	printf("\n");
 	
 	printf("original string n compare with high n:%d\n",strncmp("abc","abd",5));
+	printf("\n");
+	printf("check case compare:\n");
+	printf("mine:%d \n",StrCasecmp("Arz","arz"));
+	printf("original:%d \n",strcasecmp("Arz","arz"));
+	printf("mine:%d \n",StrCasecmp("arz","Arz"));
+	printf("original:%d \n",strcasecmp("arz","Arz"));
+	printf("mine:%d \n",StrCasecmp("arz","Arzsd"));
+	printf("original:%d \n",strcasecmp("bA","Ab"));
+	
+	
+	
 	
 	return 0;
 }
