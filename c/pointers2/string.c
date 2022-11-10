@@ -4,12 +4,12 @@ static int DIFF = 32;
 
 size_t StrLen(const char* s)
 {
-	size_t i = 0;
-	while (s[i] != '\0')
+	size_t count = 0;
+	while (s[count] != '\0')
 	{
-		i++;
+		count++;
 	}
-	return i;
+	return count;
 }
 
 char *StrCpy(char *dest, const char *src)
