@@ -1,8 +1,8 @@
 #ifndef __STRINGME_H__
 #define __STRINGME_H__
-#include<stddef.h>
-#include<stdlib.h>
-#include<assert.h>
+#include<stddef.h> /*size_t*/
+#include<stdlib.h> /*malloc() free()*/
+#include<assert.h> /*assert*/
 
 size_t StrLen(const char* s);
 

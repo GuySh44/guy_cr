@@ -3,15 +3,7 @@
 #include<strings.h>
 #include"string.h"
 
-/*
-void new_test(char* new_test,
-{
-	printf("new test: %s\n", new_test);
-	printf("original string class:
 
-}
-
-*/
 int main()
 {
 	extern char* strdup(const char*);
