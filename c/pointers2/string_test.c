@@ -357,7 +357,6 @@ int main()
 	printf("ORIGINAL STRING:\n");
 	printf("%lu\n",strspn("abcd", "cba c"));
 	
-	
 	printf("MY STRING:\n");
 	printf("%lu\n\n",StrSpn("abcd", "cba c"));
 	
@@ -374,6 +373,13 @@ int main()
 	
 	printf("MY STRING:\n");
 	printf("%lu\n\n",StrSpn("abcd", ""));
+	
+	printf("CASE 4: abz accepting very long set of strings\n\n");
+	printf("ORIGINAL STRING:\n");
+	printf("%lu\n",strspn("abz", "abcdefghijklmnop"));
+	
+	printf("MY STRING:\n");
+	printf("%lu\n\n",StrSpn("abz", "abcdefghijklmnop"));
 	
 	return 0;
 }
