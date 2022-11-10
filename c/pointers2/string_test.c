@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<string.h>
+#include<strings.h>
 #include"string.h"
 
 /*
@@ -13,6 +14,7 @@ void new_test(char* new_test,
 */
 int main()
 {
+	extern char* strdup(const char*);
 	char dest1_org[5];
 	char* src1_org = "abcd";
 	char dest1_my[5];
@@ -38,8 +40,43 @@ int main()
 	char dest5_my[7];
 	char* src5_my = "aceg";
 	
+	char dest6_org[7] = {'a','b','c','d','\0'};
+	char* src6_org = "ef";
+	char dest6_my[7] = {'a','b','c','d','\0'};
+	char* src6_my = "ef";
+	
+	char dest7_org[7] = {'a','b','c','d','\0'};
+	char* src7_org = "";
+	char dest7_my[7] = {'a','b','c','d','\0'};
+	char* src7_my = "";
+	
+	char dest8_org[7] = {'a','b','c','d','\0'};
+	char* src8_org = "ef";
+	char dest8_my[7] = {'a','b','c','d','\0'};
+	char* src8_my = "ef";
+	
+	char dest9_org[7] = {'a','b','c','d','\0'};
+	char* src9_org = "ef";
+	char dest9_my[7] = {'a','b','c','d','\0'};
+	char* src9_my = "ef";
+	
+	char dest10_org[7] = {'a','b','c','d','\0'};
+	char* src10_org = "ef";
+	char dest10_my[7] = {'a','b','c','d','\0'};
+	char* src10_my = "ef";
+	
+	const char* strchr_check = "abc";
+	
+	const char* strstr_check1 = "ccbca";
+	
+	const char* strstr_check2 = "aaccbcca";
+	
+	char* str_dup_original, *str_dup_my;
+
+	
 	dest4_org[4] = 'f';
 	dest4_my[4] = 'f';
+	
 	
 	
 	printf("new test: strcpy\n");	
@@ -152,92 +189,191 @@ int main()
 	printf("\n");
 	
 	
+	printf("\n\nnew test: strcasecmp\n");	
+	printf("test cases:\n");
+	printf("CASE 1: empty string\n\n");
 	
+	printf("ORIGINAL STRING:\n");
+	printf("%d\n",strcasecmp("",""));
 	
+	printf("MY STRING:\n");
+	printf("%d\n\n",StrCasecmp("",""));;
 	
+	printf("CASE 2: s1 </>/= s2 \n\n");
 	
+	printf("ORIGINAL STRING:\n");
+	printf("Abc aBC\t%d\n",strcasecmp("Abc","aBC"));
+	printf("ABC AbC\t%d\n",strcasecmp("ABC","AbC"));
+	printf("abC aBd\t%d\n",strcasecmp("abC","aBd"));
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	/*
-	char src[] = "abcdef";
-	char dest[7];
-	char short_dest[6];
-	char long_dest[9];
-	char emptysrc[] = "";
-	char emptydest[1];
-	int i = 0;
-	printf("old address src:%p, dest:%p\n", (void*)src, (void*)dest);
-	
-	printf("check regular copy:\n");
-	printf("old value src:%s, dest:%s\n", src, dest);
-	StrCpy(dest,src);
-	printf("new value src:%s, dest:%s\n", src, dest);
-	
+	printf("MY STRING:\n");
+	printf("Abc aBC\t%d\n",StrCasecmp("Abc","aBC"));
+	printf("ABC AbC\t%d\n",StrCasecmp("ABC","AbC"));
+	printf("abC aBd\t%d\n",StrCasecmp("abC","aBd"));
 	printf("\n");
 	
-	printf("check empty string copy:\n");
-	printf("old value emptysrc:%s, emptydest:%s\n", emptysrc, emptydest);
-	StrCpy(emptydest,emptysrc);
-	printf("new value emptysrc:%s, emptydest:%s\n", emptysrc, emptydest);
-	
-	printf("\n");
-	
-	printf("check short destination n < src\n");
-	printf("old value src:");
-	for(; i < 7; i++)
-		printf("'%02x'",*(src+i));
-	printf(", short_dest:");
-	for(; i < 6; i++)
-		printf("'%02x'",*(short_dest+i));
 	
 	
+	printf("\n\nnew test: strchr\n");	
+	printf("test cases:\n");
+	printf("CASE 1: find in empty string\n\n");
 	
-	printf("\n");
-	StrNcpy(short_dest,src,6);
+	printf("ORIGINAL STRING:\n");
+	printf("%p\n",strchr("",'a'));
 	
+	printf("MY STRING:\n");
+	printf("%p\n\n",StrChr("",'a'));
 	
-	printf("new value src:");
-	for(; i < 7; i++)
-		printf("'%02x'",*(src+i));
-	printf(", short_dest:");
-	for(; i < 6; i++)
-		printf("'%02x'",*(short_dest+i));
-		
-		
-	printf("\n");
-	printf("\n");
+	printf("CASE 2: find null terminator\n\n");
 	
-	printf("check long destination n > src \n");
-	printf("old value src:%s, long_dest:", src);
-	for(; i < 9; i++)
-		printf("%02x",*(long_dest+i));
-	printf("\n");
-
-	StrNcpy(long_dest,src,9);
-	printf("new value src:%s, long_dest:", src);
-	for(; i < 9; i++)
-		printf("%02x",*(long_dest+i));
-	printf("\n");
+	printf("ORIGINAL STRING:\n");
+	printf("strchr_check %p\n",strchr(strchr_check,'\0'));
 	
-	printf("original string n compare with high n:%d\n",strncmp("abc","abd",5));
-	printf("\n");
-	printf("check case compare:\n");
-	printf("mine:%d \n",StrCasecmp("Arz","arz"));
-
-	printf("mine:%d \n",StrCasecmp("arz","Arz"));
-
-	printf("mine:%d \n",StrCasecmp("arz","Arzsd"));
-
-	*/
+	printf("MY STRING:\n");
+	printf("strchr_check  %p\n\n",StrChr(strchr_check,'\0'));
+	
+	printf("CASE 3: find non-existent char\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+	printf("h in cr3: %p\n",strchr("cr3",'h'));
+	
+	printf("MY STRING:\n");
+	printf("h in cr3: %p\n\n",StrChr("cr3",'h'));
 	
 	
+	printf("\n\nnew test: strdup\n");	
+	printf("test cases:\n");
+	printf("CASE 1: duplicate empty string\n\n");
+	
+	str_dup_original = strdup("");	
+	str_dup_my = StrDup("");
+	
+	printf("ORIGINAL STRING:\n");
+	printf("%p\n",str_dup_original);
+	
+	printf("MY STRING:\n");
+	printf("%p\n\n",str_dup_my);
+	
+	printf("CASE 2: duplicate regular string\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+	printf("%s\n",strdup("abc"));
+	
+	printf("MY STRING:\n");
+	printf("%s\n\n",StrDup("abc"));
+	
+	printf("CASE 3: check free\n\n");
+	
+	free(str_dup_original);
+	free(str_dup_my);
+	
+	printf("I DIDNT CRASH :)\n\n");
+	
+	printf("\n\nnew test: strcat\n");	
+	printf("test cases:\n");
+	printf("CASE 1: cat two regular exact size\n\n");
+	
+	strcat(dest6_org,src6_org);
+	printf("ORIGINAL STRING:\n");
+	printf("%s\n",dest6_org);
+	
+	StrCat(dest6_my,src6_my);
+	printf("MY STRING:\n");
+	printf("%s\n\n",dest6_my);
+	
+	printf("CASE 2: cat empty src to dest\n\n");
+	
+	strcat(dest7_org,src7_org);
+	printf("ORIGINAL STRING:\n");
+	printf("%s\n",dest7_org);
+	
+	StrCat(dest7_my,src7_my);
+	printf("MY STRING:\n");
+	printf("%s\n\n",dest7_my);
+	
+	
+	printf("\n\nnew test: strncat\n");	
+	printf("test cases:\n");
+	printf("CASE 1: ncat two regular add null to end cause n = src-1\n\n");
+	
+	strncat(dest8_org,src8_org,2);
+	printf("ORIGINAL STRING:\n");
+	printf("%s\n",dest8_org);
+	
+	StrNcat(dest8_my,src8_my,2);
+	printf("MY STRING:\n");
+	printf("%s\n\n",dest8_my);
+	
+	printf("CASE 2: ncat n + 2 = src (lose one)\n\n");
+	
+	strncat(dest9_org,src9_org,1);
+	printf("ORIGINAL STRING:\n");
+	printf("%s\n",dest9_org);
+	
+	StrNcat(dest9_my,src9_my,1);
+	printf("MY STRING:\n");
+	printf("%s\n\n",dest9_my);
+	
+	printf("CASE 3: ncat n > src (regular)\n\n");
+	
+	strncat(dest10_org,src10_org,5);
+	printf("ORIGINAL STRING:\n");
+	printf("%s\n",dest10_org);
+	
+	StrNcat(dest10_my,src10_my,5);
+	printf("MY STRING:\n");
+	printf("%s\n\n",dest10_my);
+	
+	printf("\n\nnew test: strstr\n");	
+	printf("test cases:\n");
+	printf("CASE 1: ccbca find cbc\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+ printf("%p\t%s\n",strstr(strstr_check1,"cbc"),strstr(strstr_check1,"cbc"));
+	
+	printf("MY STRING:\n");
+	printf("%p\t%s\n",StrStr(strstr_check1,"cbc"),StrStr(strstr_check1,"cbc"));
+	
+	printf("CASE 2: ccbca find empty string\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+	printf("%p\t%s\n",strstr(strstr_check1,""),strstr(strstr_check1,""));
+	
+	printf("MY STRING:\n");
+	printf("%p\t%s\n",StrStr(strstr_check1,""),StrStr(strstr_check1,""));
+	
+	printf("CASE 3: aaccbcca return first cc\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+		printf("%p\t%s\n",strstr(strstr_check2,"cc"),strstr(strstr_check2,"cc"));
+	
+	printf("MY STRING:\n");
+	printf("%p\t%s\n",StrStr(strstr_check2,"cc"),StrStr(strstr_check2,"cc"));
+	
+	printf("\n\nnew test: strspn\n");	
+	printf("test cases:\n");
+	printf("CASE 1: ""abcd"" accepting ""cba c""\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+	printf("%lu\n",strspn("abcd", "cba c"));
+	
+	
+	printf("MY STRING:\n");
+	printf("%lu\n\n",StrSpn("abcd", "cba c"));
+	
+	printf("CASE 2: ""abcd"" accepting ""cba_d""\n\n");
+	printf("ORIGINAL STRING:\n");
+	printf("%lu\n",strspn("abcd", "cba_d"));
+	
+	printf("MY STRING:\n");
+	printf("%lu\n\n",StrSpn("abcd", "cba_d"));
+	
+	printf("CASE 3: ""abcd"" accepting empty string\n\n");
+	printf("ORIGINAL STRING:\n");
+	printf("%lu\n",strspn("abcd", ""));
+	
+	printf("MY STRING:\n");
+	printf("%lu\n\n",StrSpn("abcd", ""));
 	
 	return 0;
 }
