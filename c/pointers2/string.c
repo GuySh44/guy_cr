@@ -1,6 +1,6 @@
 #include"string.h"
 static int DIFF = 32;
-static size_t SIZE_RULE = 10;
+
 
 size_t StrLen(const char* s)
 {
@@ -170,34 +170,28 @@ char *StrStr(const char *haystack, const char *needle)
 
 size_t StrSpn(const char *s, const char *accept)
 {	
-	size_t count = 0;
+	/*not needed
 	int method_flag = 0;
-	int dict[256] = {0};
 	int found_flag = 1;
-	if (StrLen(accept)>SIZE_RULE)
+	*/
+	size_t count = 0;
+	int dict[256] = {0};
+	while(*accept)
 	{
-		method_flag = 1;
-	}	
-	else
-		method_flag = 2;
-	switch (method_flag)
+		dict[(int)accept[0]] = 1;
+		accept++;
+	}		
+	while(*s)
 	{
-		case 1:
-			while(*accept)
-			{
-				dict[(int)accept[0]] = 1;
-				accept++;
-			}		
-			while(*s)
-			{
-				if (!dict[(int)s[0]])
-					return count;
-				s++;
-				count++;
-			}
+		if (!dict[(int)s[0]])
 			return count;
-		break;
+		s++;
+		count++;
+	}
+	return count;
 		
+		
+		/* not needed
 		case 2:
 			while(*s && found_flag)
 			{
@@ -220,6 +214,6 @@ size_t StrSpn(const char *s, const char *accept)
 			return count;
 		break;
 	}
-	return -1;
+	*/
 }
 
