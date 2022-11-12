@@ -63,6 +63,8 @@ int main()
 	
 	const char* strstr_check2 = "aaccbcca";
 	
+	const char* strstr_check3 = "";
+	
 	char* str_dup_original, *str_dup_my;
 
 	
@@ -246,13 +248,19 @@ int main()
 	printf("MY STRING:\n");
 	printf("%p\n\n",str_dup_my);
 	
+	free(str_dup_original);
+	free(str_dup_my);
+	
 	printf("CASE 2: duplicate regular string\n\n");
 	
+	
+	str_dup_original = strdup("abc");	
+	str_dup_my = StrDup("abc");
 	printf("ORIGINAL STRING:\n");
-	printf("%s\n",strdup("abc"));
+	printf("%s\n",str_dup_original);
 	
 	printf("MY STRING:\n");
-	printf("%s\n\n",StrDup("abc"));
+	printf("%s\n\n",str_dup_my);
 	
 	printf("CASE 3: check free\n\n");
 	
@@ -341,6 +349,14 @@ int main()
 	
 	printf("MY STRING:\n");
 	printf("%p\t%s\n",StrStr(strstr_check2,"cc"),StrStr(strstr_check2,"cc"));
+	
+	printf("CASE 4: empty string in empty string\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+		printf("%p\t%s\n",strstr(strstr_check3,""),strstr(strstr_check3,""));
+	
+	printf("MY STRING:\n");
+	printf("%p\t%s\n",StrStr(strstr_check3,""),StrStr(strstr_check3,""));
 	
 	printf("\n\nnew test: strspn\n");	
 	printf("test cases:\n");
