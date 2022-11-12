@@ -65,6 +65,8 @@ int main()
 	
 	const char* strstr_check3 = "";
 	
+	const char* strstr_check4 = "ac";
+	
 	char* str_dup_original, *str_dup_my;
 
 	
@@ -329,7 +331,7 @@ int main()
 	printf("CASE 1: ccbca find cbc\n\n");
 	
 	printf("ORIGINAL STRING:\n");
- printf("%p\t%s\n",strstr(strstr_check1,"cbc"),strstr(strstr_check1,"cbc"));
+ 	printf("%p\t%s\n",strstr(strstr_check1,"cbc"),strstr(strstr_check1,"cbc"));
 	
 	printf("MY STRING:\n");
 	printf("%p\t%s\n",StrStr(strstr_check1,"cbc"),StrStr(strstr_check1,"cbc"));
@@ -353,10 +355,19 @@ int main()
 	printf("CASE 4: empty string in empty string\n\n");
 	
 	printf("ORIGINAL STRING:\n");
-		printf("%p\t%s\n",strstr(strstr_check3,""),strstr(strstr_check3,""));
+	printf("%p\t%s\n",strstr(strstr_check3,""),strstr(strstr_check3,""));
 	
 	printf("MY STRING:\n");
 	printf("%p\t%s\n",StrStr(strstr_check3,""),StrStr(strstr_check3,""));
+	
+	printf("CASE 5: string not found return NULL\n\n");
+	
+	printf("ORIGINAL STRING:\n");
+	printf("%p\t%s\n",strstr(strstr_check4,"vvv"),strstr(strstr_check4,"vvv"));
+	
+	printf("MY STRING:\n");
+	printf("%p\t%s\n",StrStr(strstr_check4,"vvv"),StrStr(strstr_check4,"vvv"));
+	
 	
 	printf("\n\nnew test: strspn\n");	
 	printf("test cases:\n");
