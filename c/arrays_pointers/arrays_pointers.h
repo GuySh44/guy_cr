@@ -7,5 +7,6 @@
 
 size_t josephus(size_t n, size_t start);
 
+void printCTypes();
 
 #endif /* __ARRAYS_POINTERS_H__ */

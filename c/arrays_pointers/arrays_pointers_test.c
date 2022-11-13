@@ -6,6 +6,7 @@ int main()
 	printf("index for 40 is: %lu\n",josephus(40,0));	
 	printf("index for 50 is: %lu\n",josephus(50,0));
 	printf("index for 100 is: %lu\n",josephus(100,0));
+	printCTypes();
 	return 0;
 }
 
