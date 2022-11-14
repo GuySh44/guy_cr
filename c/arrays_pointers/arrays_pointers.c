@@ -67,18 +67,7 @@ void rowCalc(int array[][4], int *res, int row_size, int col_size)
 
 
 
-
-
-void envExercise(char *envp[])
-{
-	size_t env_size = envLen(envp);
-	char **new_env = envCreate(envp, env_size);
-	envCopy(new_env,envp);
-	envPrint(new_env,env_size);
-	envFree(new_env,env_size);
-}
-
-char **envCreate(char *envp[], size_t env_size)
+static char **envCreate(char *envp[], size_t env_size)
 {
 	char **new_env = malloc(sizeof(char*) * (env_size));
 	char **new_start = new_env;
@@ -104,18 +93,15 @@ char **envCreate(char *envp[], size_t env_size)
 }
 
 
-size_t envLen(char *envp[])
+static size_t envLen(char *envp[])
 {
-	size_t count = 0;
+	char **start = envp;
 	while (*envp)
-	{
-		count++;
 		envp++;
-	}
-	return count;
+	return (envp-start);
 }
 
-void envCopy(char **new_envp, char *envp[])
+static void envCopy(char **new_envp, char *envp[])
 {
 	while(*envp)
 	{
@@ -131,20 +117,22 @@ void envCopy(char **new_envp, char *envp[])
 		new_envp++;
 		envp++;
 	}
+	new_envp = NULL;
 }
 
-void envFree(char *env[], size_t env_size)
+static void envFree(char *env[], size_t env_size)
 {
 	size_t i = 0;
 	while (i < env_size)
 	{
 		free(env[i]);
+		env[i] = NULL;
 		i++;
 	}
 	free(env);
 }
 
-void envPrint(char **new_envp, size_t env_size)
+static void envPrint(char **new_envp, size_t env_size)
 {
 	size_t i = 0;
 	while (i < env_size)
@@ -153,3 +141,14 @@ void envPrint(char **new_envp, size_t env_size)
 		i++;
 	}
 }
+
+void envExercise(char *envp[])
+{
+	size_t env_size = envLen(envp);
+	char **new_env = envCreate(envp, env_size);
+	envCopy(new_env,envp);
+	envPrint(new_env,env_size);
+	envFree(new_env,env_size);
+}
+
+
