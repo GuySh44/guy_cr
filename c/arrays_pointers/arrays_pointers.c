@@ -35,3 +35,37 @@ void printCTypes()
 	printf("pointer %lu\n",sizeof(size_t*));
 }
 
+void array1(int array[][4])
+{
+	printf("array[][] size is: %lu\n",sizeof(array));
+}
+
+void array2(int **array)
+{
+	printf("**array size is: %lu\n",sizeof(array));
+}
+
+void array3(int *array[])
+{
+	printf("*array[] size is: %lu\n",sizeof(array));
+}
+
+void rowCalc(int array[][4], int *res, int row_size, int col_size)
+{
+	int i=0;
+	for(; i < row_size; i++)
+	{
+		int j=0;
+		int sum = 0;
+		for(; j < col_size; j++)
+		{
+			sum += array[i][j];
+		}
+		*res++ = sum;
+	}
+}
+
+
+
+
+
