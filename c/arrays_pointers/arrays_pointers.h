@@ -5,6 +5,7 @@
 #include<stddef.h>
 #include<stdio.h>
 #include<string.h>
+#include<ctype.h> /* tolower() */ 
 
 size_t josephus(size_t n, size_t start);
 
@@ -21,12 +22,13 @@ void rowCalc(int array[][4], int *res, int row_size, int col_size);
 
 void envExercise(char *envp[]);
 
-char **envCreate(char *envp[]);
+char **envCreate(char *envp[], size_t env_size);
 
 size_t envLen(char *envp[]);
 
-void envCopy(char **dest, char *src[]); 
+void envCopy(char **new_envp, char *envp[]);
 
-void envFree(char **env);
+void envFree(char **env, size_t env_size);
 
+void envPrint(char **new_envp, size_t env_size);
 #endif /* __ARRAYS_POINTERS_H__ */

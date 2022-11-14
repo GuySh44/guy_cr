@@ -71,63 +71,85 @@ void rowCalc(int array[][4], int *res, int row_size, int col_size)
 
 void envExercise(char *envp[])
 {
-	char **new_env = envCreate(envp);
+	size_t env_size = envLen(envp);
+	char **new_env = envCreate(envp, env_size);
 	envCopy(new_env,envp);
-	envFree(new_env);
+	envPrint(new_env,env_size);
+	envFree(new_env,env_size);
 }
 
-char **envCreate(char *envp[])
+char **envCreate(char *envp[], size_t env_size)
 {
-	size_t env_size = envLen(envp);
-	char **new_env = malloc(sizeof(char*) * env_size);
-	int i = 0;
+	char **new_env = malloc(sizeof(char*) * (env_size));
+	char **new_start = new_env;
 	if (!new_env)
 		return NULL;
-	while (envp[i])
+	while (*envp)
 	{
-		new_env[i] = malloc(strlen(envp[i]) + 1);
-		if (!new_env[i])
+		*new_env = malloc(strlen(*envp) + 1);
+		if (!*new_env)
 		{
-			i--;
-			while (i >= 0)
+			new_env--;
+			while (new_start != new_env)
 			{
-				free(new_env[i]);
-				i--;
+				free(*new_env);
+				new_env--;
 			}		
 			return NULL;
 		}
-		i++;
+		new_env++;
+		envp++;
 	}
-	return new_env;
+	return new_start;
 }
 
 
 size_t envLen(char *envp[])
 {
 	size_t count = 0;
-	while (*envp++)
+	while (*envp)
 	{
 		count++;
+		envp++;
 	}
 	return count;
 }
 
-void envCopy(char **dest, char *src[])
+void envCopy(char **new_envp, char *envp[])
 {
-	size_t i = 0;
-	while(src[i])
+	while(*envp)
 	{
-		strcpy(dest[i],src[i]);
-		i++;
+		char *tmp_new_envp = *new_envp;
+		char *tmp_envp = *envp;
+		while(*tmp_envp)
+		{
+			*tmp_new_envp = tolower(*tmp_envp);
+			(tmp_envp)++;
+			(tmp_new_envp)++;	
+		}	
+		*tmp_new_envp = '\0';
+		new_envp++;
+		envp++;
 	}
 }
 
-void envFree(char **env)
+void envFree(char *env[], size_t env_size)
 {
-	int i = 0;
-	while (env[i])
+	size_t i = 0;
+	while (i < env_size)
 	{
-		free(env[i++]);
+		free(env[i]);
+		i++;
 	}
 	free(env);
+}
+
+void envPrint(char **new_envp, size_t env_size)
+{
+	size_t i = 0;
+	while (i < env_size)
+	{
+		printf("%s\n",new_envp[i]);
+		i++;
+	}
 }
