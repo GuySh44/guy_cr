@@ -34,7 +34,7 @@ void printCTypes()
 	printf("size_t %lu\n",sizeof(size_t));
 	printf("pointer %lu\n",sizeof(size_t*));
 }
-
+/*
 void array1(int array[][4])
 {
 	printf("array[][] size is: %lu\n",sizeof(array));
@@ -49,7 +49,7 @@ void array3(int *array[])
 {
 	printf("*array[] size is: %lu\n",sizeof(array));
 }
-
+*/
 void rowCalc(int array[][4], int *res, int row_size, int col_size)
 {
 	int i=0;
@@ -69,3 +69,65 @@ void rowCalc(int array[][4], int *res, int row_size, int col_size)
 
 
 
+void envExercise(char *envp[])
+{
+	char **new_env = envCreate(envp);
+	envCopy(new_env,envp);
+	envFree(new_env);
+}
+
+char **envCreate(char *envp[])
+{
+	size_t env_size = envLen(envp);
+	char **new_env = malloc(sizeof(char*) * env_size);
+	int i = 0;
+	if (!new_env)
+		return NULL;
+	while (envp[i])
+	{
+		new_env[i] = malloc(strlen(envp[i]) + 1);
+		if (!new_env[i])
+		{
+			i--;
+			while (i >= 0)
+			{
+				free(new_env[i]);
+				i--;
+			}		
+			return NULL;
+		}
+		i++;
+	}
+	return new_env;
+}
+
+
+size_t envLen(char *envp[])
+{
+	size_t count = 0;
+	while (*envp++)
+	{
+		count++;
+	}
+	return count;
+}
+
+void envCopy(char **dest, char *src[])
+{
+	size_t i = 0;
+	while(src[i])
+	{
+		strcpy(dest[i],src[i]);
+		i++;
+	}
+}
+
+void envFree(char **env)
+{
+	int i = 0;
+	while (env[i])
+	{
+		free(env[i++]);
+	}
+	free(env);
+}
