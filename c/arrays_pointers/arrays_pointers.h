@@ -1,10 +1,10 @@
 #ifndef __ARRAYS_POINTERS_H__
 #define __ARRAYS_POINTERS_H__
 
-#include<stdlib.h>
-#include<stddef.h>
-#include<stdio.h>
-#include<string.h>
+#include<stdlib.h> /* malloc */
+#include<stddef.h> /* size_t */
+#include<stdio.h> /* printf() */
+#include<string.h> /* strlen() */
 #include<ctype.h> /* tolower() */ 
 
 size_t josephus(size_t n, size_t start);

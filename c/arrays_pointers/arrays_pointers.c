@@ -73,10 +73,10 @@ static char **envCreate(char *envp[], size_t env_size)
 	char **new_start = new_env;
 	if (!new_env)
 		return NULL;
-	while (*envp)
+	while (NULL != *envp)
 	{
 		*new_env = malloc(strlen(*envp) + 1);
-		if (!*new_env)
+		if (NULL == *new_env)
 		{
 			new_env--;
 			while (new_start != new_env)
@@ -96,18 +96,18 @@ static char **envCreate(char *envp[], size_t env_size)
 static size_t envLen(char *envp[])
 {
 	char **start = envp;
-	while (*envp)
+	while (NULL != *envp)
 		envp++;
 	return (envp-start);
 }
 
 static void envCopy(char **new_envp, char *envp[])
 {
-	while(*envp)
+	while(NULL != *envp)
 	{
 		char *tmp_new_envp = *new_envp;
 		char *tmp_envp = *envp;
-		while(*tmp_envp)
+		while('\0' != *tmp_envp)
 		{
 			*tmp_new_envp = tolower(*tmp_envp);
 			(tmp_envp)++;
@@ -122,23 +122,24 @@ static void envCopy(char **new_envp, char *envp[])
 
 static void envFree(char *env[], size_t env_size)
 {
-	size_t i = 0;
-	while (i < env_size)
+	char **env_running = env;
+	char **end = env + env_size;
+	while (env_running != end)
 	{
-		free(env[i]);
-		env[i] = NULL;
-		i++;
+		free(*env_running);
+		*env_running = NULL;
+		env_running++;
 	}
 	free(env);
 }
 
 static void envPrint(char **new_envp, size_t env_size)
 {
-	size_t i = 0;
-	while (i < env_size)
+	char **end = new_envp + env_size;
+	while (new_envp != end)
 	{
-		printf("%s\n",new_envp[i]);
-		i++;
+		printf("%s\n",*new_envp);
+		new_envp++;
 	}
 }
 
