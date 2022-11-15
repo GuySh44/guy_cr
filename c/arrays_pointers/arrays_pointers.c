@@ -1,3 +1,4 @@
+/*Reviewer: Arthur*/
 #include"arrays_pointers.h"
 size_t josephus(size_t n, size_t start)
 {
@@ -131,6 +132,7 @@ static void envFree(char *env[], size_t env_size)
 		env_running++;
 	}
 	free(env);
+	env = NULL;
 }
 
 static void envPrint(char **new_envp, size_t env_size)

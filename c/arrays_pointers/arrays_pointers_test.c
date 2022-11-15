@@ -10,8 +10,9 @@ int main(int argc, char *argv[], char *envp[])
 	*/
 	int k = 0, i = 0;
 	printf("index for 5 is: %lu\n",josephus(5,0));
-	printf("index for 30 is: %lu\n",josephus(30,0));	
-	printf("index for 40 is: %lu\n",josephus(40,0));	
+	printf("index for 30 is:%lu\n",josephus(30,0));	
+	printf("index for 40 is: %lu\n",josephus(40,0));
+	printf("index for 41 is:%lu\n",josephus(41,0));	
 	printf("index for 50 is: %lu\n",josephus(50,0));
 	printf("index for 100 is: %lu\n",josephus(100,0));
 	printCTypes();
