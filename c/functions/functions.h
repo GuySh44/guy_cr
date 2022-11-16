@@ -1,3 +1,4 @@
+/*reviewer: raz*/
 #ifndef __FUNCTIONS_H__
 #define __FUNCTIONS_H__
 #include<stdio.h>
@@ -6,4 +7,4 @@
 void ifImplement();
 void switchImplement();
 void lutImplement();
-#endif
+#endif /* __FUNCTIONS_H__ */
