@@ -16,3 +16,40 @@ void firstExercise()
 		array[i].Print(array[i].num);
 	}
 }
+
+void manageLogger(char *file_name)
+{
+	char BUFFER[1024];
+	printf("Welcome to the logger, please dont overflow my buffer\n");
+	while(scanf("%s\n",BUFFER) >= 0)
+	{
+		commands command;
+		FILE *file_ptr = fopen(file_name);
+		if(NULL == file_ptr)
+		{
+			break;
+		}
+		
+		command = parseInput(BUFFER);
+		executeLogger(BUFFER, file_ptr, command);
+		
+	}
+	printf("%s\n", strerror(errno));
+}
+
+commands parseInput(char *buffer)
+{
+	
+}
+
+void executeLogger(char *buffer, FILE *file, commands command)
+{
+
+}
+
+void appendLine(char *buffer, FILE *file, commands command)
+{
+
+}
+
+

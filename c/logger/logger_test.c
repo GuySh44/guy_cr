@@ -1,7 +1,7 @@
 #include"logger.h"
 
-int main()
+int main(int argc,char *argv[])
 {
-	firstExercise();
+	manageLogger(argv[1]);
 	return 0;
 }
