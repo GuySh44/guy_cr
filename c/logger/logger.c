@@ -57,7 +57,7 @@ int main(int argc,char *argv[])
 		(*(ex2_commands + command_index)).Execute(BUFFER, file_name);
 
 	}
-	printf("error\n"));
+	printf("error\n");
 	return 0;
 }
 
@@ -116,7 +116,7 @@ void closeFile(FILE *file)
 	if(0 != fclose(file))
 	{
 		printf("error\n");
-		return
+		return;
 	}
 }
 
