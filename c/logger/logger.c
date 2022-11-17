@@ -23,11 +23,8 @@ EXERCISE 2
 
 */
 
-int main(int argc,char *argv[])
+static void insertCommands(commands *ex2_commands)
 {
-	char BUFFER[1024];
-	char *file_name = argv[1];
-	commands ex2_commands[5];
 	ex2_commands[0].command = "-remove\n";
 	ex2_commands[0].Compare = &strcmp;
 	ex2_commands[0].Execute = &executeEmpty;
@@ -43,9 +40,17 @@ int main(int argc,char *argv[])
 	ex2_commands[4].command = "append";
 	ex2_commands[4].Compare = &strcmp;
 	ex2_commands[4].Execute = &executeAppend;
+}
+
+int main(int argc,char *argv[])
+{
+	char BUFFER[BUFFER_SIZE];
+	char *file_name = argv[1];
+	commands ex2_commands[NUM_OF_COMMANDS];
+	insertCommands(ex2_commands);
 	
 	printf("Welcome to the logger, please dont overflow my buffer\n");
-	while(NULL != fgets(BUFFER, 1024, stdin))
+	while(NULL != fgets(BUFFER, BUFFER_SIZE, stdin))
 	{
 		size_t command_index;
 		command_index = parseInput(BUFFER, ex2_commands);
@@ -75,7 +80,7 @@ size_t parseInput(char *buffer, commands *ex2_commands)
 
 void executeAppend(char *buffer, char *file_name)
 {
-	FILE *file = openFile(file_name, 4);
+	FILE *file = openFile(file_name, APPEND_INDEX);
 	if(fputs(buffer, file) < 0)
 	{
 		printf("%s\n", strerror(errno));
@@ -90,7 +95,7 @@ FILE* openFile(char *file_name, size_t command_index)
 	FILE *file_ptr;
 	switch(command_index)
 	{
-		case 4:
+		case APPEND_INDEX:
 			file_ptr = fopen(file_name, "a");
 			if(NULL == file_ptr)
 			{

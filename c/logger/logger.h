@@ -4,6 +4,9 @@
 #include<errno.h>
 #include<string.h> /* strcmp */
 #include<stdlib.h> /*exit*/
+#define BUFFER_SIZE 1024
+#define NUM_OF_COMMANDS 5
+#define APPEND_INDEX 4
 
 void printNum(int num);
 
