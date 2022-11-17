@@ -2,31 +2,45 @@
 #define __LOGGER_H__
 #include<stdio.h>
 #include<errno.h>
-#include<string.h>
+#include<string.h> /* strcmp */
 #include<stdlib.h> /*exit*/
+
+void printNum(int num);
+
+void firstExercise();
 
 struct print_me
 {
 	int num;
 	void (*Print)(int);
 };
-
+/*
 typedef enum commands {append} commands;
+*/
 
-void manageLogger(char *file_name);
+/*
 
-void printNum(int num);
+EXERCISE 2
 
-void firstExercise();
+*/
 
-commands parseInput(char *buffer);
+typedef struct commands_t
+{
+	char *command;
+	int (*Compare)(const char*, const char*);
+	void (*Execute)(char*, char*);
+} commands;
+
+size_t parseInput(char *buffer, commands *ex2_commands);
 
 void executeLogger(char *buffer, FILE *file, commands command);
 
-void appendLine(char *buffer, FILE *file);
+void executeAppend(char *buffer, char *file_name);
 
-FILE* openFile(char *file_name, commands command);
+FILE* openFile(char *file_name, size_t command_index);
 
 void closeFile(FILE *file);
+
+void executeEmpty(char *buffer, char *file_name);
 
 #endif

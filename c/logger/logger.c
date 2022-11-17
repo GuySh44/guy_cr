@@ -23,77 +23,81 @@ EXERCISE 2
 
 */
 
-void manageLogger(char *file_name)
+int main(int argc,char *argv[])
 {
 	char BUFFER[1024];
+	char *file_name = argv[1];
+	commands ex2_commands[5];
+	ex2_commands[0].command = "-remove\n";
+	ex2_commands[0].Compare = &strcmp;
+	ex2_commands[0].Execute = &executeEmpty;
+	ex2_commands[1].command = "-count\n";
+	ex2_commands[1].Compare = &strcmp;
+	ex2_commands[1].Execute = &executeEmpty;
+	ex2_commands[2].command = "-exit\n";
+	ex2_commands[2].Compare = &strcmp;
+	ex2_commands[2].Execute = &executeEmpty;
+	ex2_commands[3].command = "<";
+	ex2_commands[3].Compare = &strcmp;
+	ex2_commands[3].Execute = &executeEmpty;
+	ex2_commands[4].command = "append";
+	ex2_commands[4].Compare = &strcmp;
+	ex2_commands[4].Execute = &executeAppend;
+	
 	printf("Welcome to the logger, please dont overflow my buffer\n");
-	while(scanf("%s\n",BUFFER) >= 0)
+	while(NULL != fgets(BUFFER, 1024, stdin))
 	{
-		commands command;
-		FILE *file_ptr;
-		command = parseInput(BUFFER);
-		file_ptr = openFile(file_name, command);
-		executeLogger(BUFFER, file_ptr, command);
-		
-		closeFile(file_ptr);
+		size_t command_index;
+		command_index = parseInput(BUFFER, ex2_commands);
+		(*(ex2_commands + command_index)).Execute(BUFFER, file_name);
+
 	}
 	printf("%s\n", strerror(errno));
+	return 0;
 }
 
-commands parseInput(char *buffer)
-{
-	commands command = append;
-	/*
-	
-	soon to be command check
-	
-	
-	*/
-	return command;
-}
 
-void executeLogger(char *buffer, FILE *file, commands command)
+size_t parseInput(char *buffer, commands *ex2_commands)
 {
-	switch(command)
+	commands *start = ex2_commands;
+	while (0 != strcmp("append",(*ex2_commands).command))
 	{
-		case append:
-			appendLine(buffer, file);
+		if(0 == (*ex2_commands).Compare((*ex2_commands).command, buffer))
+		{
 			break;
-	/*
-	
-	soon to be command check
-	
-	
-	*/
+		}
+		ex2_commands++;
 	}
+
+	return ex2_commands - start;
 }
 
-void appendLine(char *buffer, FILE *file)
+
+void executeAppend(char *buffer, char *file_name)
 {
+	FILE *file = openFile(file_name, 4);
 	if(fputs(buffer, file) < 0)
 	{
 		printf("%s\n", strerror(errno));
 		exit(errno);
 	}
-	if(fputc('\n', file) < 0)
-	{
-		printf("%s\n", strerror(errno));
-		exit(errno);
-	}
+	fseek(file, 0, SEEK_END);
+	closeFile(file);
 }
 
-FILE* openFile(char *file_name, commands command)
+FILE* openFile(char *file_name, size_t command_index)
 {
 	FILE *file_ptr;
-	switch(command)
+	switch(command_index)
 	{
-		case append:
+		case 4:
 			file_ptr = fopen(file_name, "a");
 			if(NULL == file_ptr)
 			{
 				printf("%s\n", strerror(errno));
 				exit(errno);
-			}		
+			}
+			break;
 	}
 	return file_ptr;
 }
@@ -106,3 +110,5 @@ void closeFile(FILE *file)
 		exit(errno);
 	}
 }
+
+void executeEmpty(char *buffer, char *file_name){}
