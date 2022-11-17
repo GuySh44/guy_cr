@@ -57,7 +57,7 @@ int main(int argc,char *argv[])
 		(*(ex2_commands + command_index)).Execute(BUFFER, file_name);
 
 	}
-	printf("%s\n", strerror(errno));
+	printf("error\n"));
 	return 0;
 }
 
@@ -81,10 +81,14 @@ size_t parseInput(char *buffer, commands *ex2_commands)
 void executeAppend(char *buffer, char *file_name)
 {
 	FILE *file = openFile(file_name, APPEND_INDEX);
+	if (NULL == file)
+	{
+		return;
+	}
 	if(fputs(buffer, file) < 0)
 	{
-		printf("%s\n", strerror(errno));
-		exit(errno);
+		printf("error\n");
+		return;
 	}
 	fseek(file, 0, SEEK_END);
 	closeFile(file);
@@ -99,8 +103,8 @@ FILE* openFile(char *file_name, size_t command_index)
 			file_ptr = fopen(file_name, "a");
 			if(NULL == file_ptr)
 			{
-				printf("%s\n", strerror(errno));
-				exit(errno);
+				printf("error\n");
+				return NULL;
 			}
 			break;
 	}
@@ -111,8 +115,8 @@ void closeFile(FILE *file)
 {
 	if(0 != fclose(file))
 	{
-		printf("%s\n", strerror(errno));
-		exit(errno);
+		printf("error\n");
+		return
 	}
 }
 
