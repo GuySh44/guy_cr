@@ -17,6 +17,12 @@ void firstExercise()
 	}
 }
 
+/*
+
+EXERCISE 2
+
+*/
+
 void manageLogger(char *file_name)
 {
 	char BUFFER[1024];
@@ -24,32 +30,79 @@ void manageLogger(char *file_name)
 	while(scanf("%s\n",BUFFER) >= 0)
 	{
 		commands command;
-		FILE *file_ptr = fopen(file_name);
-		if(NULL == file_ptr)
-		{
-			break;
-		}
-		
+		FILE *file_ptr;
 		command = parseInput(BUFFER);
+		file_ptr = openFile(file_name, command);
 		executeLogger(BUFFER, file_ptr, command);
 		
+		closeFile(file_ptr);
 	}
 	printf("%s\n", strerror(errno));
 }
 
 commands parseInput(char *buffer)
 {
+	commands command = append;
+	/*
 	
+	soon to be command check
+	
+	
+	*/
+	return command;
 }
 
 void executeLogger(char *buffer, FILE *file, commands command)
 {
-
+	switch(command)
+	{
+		case append:
+			appendLine(buffer, file);
+			break;
+	/*
+	
+	soon to be command check
+	
+	
+	*/
+	}
 }
 
-void appendLine(char *buffer, FILE *file, commands command)
+void appendLine(char *buffer, FILE *file)
 {
-
+	if(fputs(buffer, file) < 0)
+	{
+		printf("%s\n", strerror(errno));
+		exit(errno);
+	}
+	if(fputc('\n', file) < 0)
+	{
+		printf("%s\n", strerror(errno));
+		exit(errno);
+	}
 }
 
+FILE* openFile(char *file_name, commands command)
+{
+	FILE *file_ptr;
+	switch(command)
+	{
+		case append:
+			file_ptr = fopen(file_name, "a");
+			if(NULL == file_ptr)
+			{
+				printf("%s\n", strerror(errno));
+				exit(errno);
+			}		
+	}
+	return file_ptr;
+}
 
+void closeFile(FILE *file)
+{
+	if(0 != fclose(file))
+	{
+		printf("%s\n", strerror(errno));
+		exit(errno);
+	}
+}
