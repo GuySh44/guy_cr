@@ -40,6 +40,8 @@ void executeLogger(char *buffer, FILE *file, commands command);
 
 void executeAppend(char *buffer, char *file_name);
 
+void executeRemove(char *buffer, char *file_name);
+
 FILE* openFile(char *file_name, size_t command_index);
 
 void closeFile(FILE *file);

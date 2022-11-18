@@ -27,7 +27,7 @@ static void insertCommands(commands *ex2_commands)
 {
 	ex2_commands[0].command = "-remove\n";
 	ex2_commands[0].Compare = &strcmp;
-	ex2_commands[0].Execute = &executeEmpty;
+	ex2_commands[0].Execute = &executeRemove;
 	ex2_commands[1].command = "-count\n";
 	ex2_commands[1].Compare = &strcmp;
 	ex2_commands[1].Execute = &executeEmpty;
@@ -118,6 +118,20 @@ void closeFile(FILE *file)
 		printf("error\n");
 		return;
 	}
+}
+
+void executeRemove(char *buffer, char *file_name)
+{
+	buffer = NULL;
+	if(remove(file_name) == 0)
+	{
+		return;
+	}
+	else
+	{
+		printf("error\n");
+	}
+	return; 
 }
 
 void executeEmpty(char *buffer, char *file_name){}
