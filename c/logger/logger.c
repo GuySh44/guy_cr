@@ -30,13 +30,13 @@ static void insertCommands(commands *ex2_commands)
 	ex2_commands[0].Execute = &executeRemove;
 	ex2_commands[1].command = "-count\n";
 	ex2_commands[1].Compare = &strcmp;
-	ex2_commands[1].Execute = &executeEmpty;
+	ex2_commands[1].Execute = &executeCount;
 	ex2_commands[2].command = "-exit\n";
 	ex2_commands[2].Compare = &strcmp;
-	ex2_commands[2].Execute = &executeEmpty;
+	ex2_commands[2].Execute = &executeExit;
 	ex2_commands[3].command = "<";
-	ex2_commands[3].Compare = &strcmp;
-	ex2_commands[3].Execute = &executeEmpty;
+	ex2_commands[3].Compare = &CmpStartAppend;
+	ex2_commands[3].Execute = &executeStartAppend;
 	ex2_commands[4].command = "append";
 	ex2_commands[4].Compare = &strcmp;
 	ex2_commands[4].Execute = &executeAppend;
@@ -48,16 +48,17 @@ int main(int argc,char *argv[])
 	char *file_name = argv[1];
 	commands ex2_commands[NUM_OF_COMMANDS];
 	insertCommands(ex2_commands);
-	
+	argc = argc;	
 	printf("Welcome to the logger, please dont overflow my buffer\n");
 	while(NULL != fgets(BUFFER, BUFFER_SIZE, stdin))
 	{
 		size_t command_index;
 		command_index = parseInput(BUFFER, ex2_commands);
-		(*(ex2_commands + command_index)).Execute(BUFFER, file_name);
-
+		if(Fail == (*(ex2_commands + command_index)).Execute(BUFFER, file_name))
+		{
+			printf("error\n");
+		}
 	}
-	printf("error\n");
 	return 0;
 }
 
@@ -78,35 +79,25 @@ size_t parseInput(char *buffer, commands *ex2_commands)
 }
 
 
-void executeAppend(char *buffer, char *file_name)
-{
-	FILE *file = openFile(file_name, APPEND_INDEX);
-	if (NULL == file)
-	{
-		return;
-	}
-	if(fputs(buffer, file) < 0)
-	{
-		printf("error\n");
-		return;
-	}
-	fseek(file, 0, SEEK_END);
-	closeFile(file);
-}
-
 FILE* openFile(char *file_name, size_t command_index)
 {
 	FILE *file_ptr;
 	switch(command_index)
 	{
+		case COUNT_INDEX:
+			file_ptr = fopen(file_name, "r+");
+			break;
+		case START_APPEND_INDEX:
+			file_ptr = fopen(file_name, "r+");
+			break;
 		case APPEND_INDEX:
 			file_ptr = fopen(file_name, "a");
-			if(NULL == file_ptr)
-			{
-				printf("error\n");
-				return NULL;
-			}
 			break;
+	}
+	if(NULL == file_ptr)
+	{
+		printf("error opening file\n");
+		return NULL;
 	}
 	return file_ptr;
 }
@@ -115,23 +106,121 @@ void closeFile(FILE *file)
 {
 	if(0 != fclose(file))
 	{
-		printf("error\n");
+		printf("error closing file\n");
 		return;
 	}
 }
 
-void executeRemove(char *buffer, char *file_name)
-{
-	buffer = NULL;
+OperStatus executeRemove(char *buffer, char *file_name)
+{	
+	buffer = buffer;
 	if(remove(file_name) == 0)
 	{
-		return;
+		return Success;
+	}
+	return Fail; 
+}
+
+OperStatus executeCount(char *buffer, char *file_name)
+{
+	size_t count = 0;
+	char c;
+	FILE *file = openFile(file_name, COUNT_INDEX);
+	buffer = buffer;
+	if (NULL == file)
+	{
+		return Fail;
+	}
+	c = fgetc(file);
+	while(EOF != c)
+	{
+		if(c == '\n')
+		{
+			++count;
+		}
+	c = fgetc(file);
+	}
+	printf("num of lines: %lu\n",count);
+	closeFile(file);
+	return Success;
+}
+
+OperStatus executeExit(char *buffer, char *file_name)
+{
+	file_name = file_name;
+	buffer = buffer;
+	exit(0);
+	return Success;
+}
+
+OperStatus executeStartAppend(char *buffer, char *file_name)
+{
+	FILE *file;
+	if(-1 == rename(file_name,"tmptmp"))
+	{
+		if (ENOENT == errno){
+			executeAppend(buffer+1,file_name);
+			return Success;
+		}
+		else
+		{
+			return Fail;
+		}
+	}
+	executeAppend(buffer+1,file_name);
+	file = openFile("tmptmp", START_APPEND_INDEX);
+	while(NULL != fgets(buffer, BUFFER_SIZE, file))
+	{
+		executeAppend(buffer, file_name);
+	}
+	if (feof(file))
+	{
+		remove("tmptmp");
 	}
 	else
 	{
+		rename("tmptmp", file_name);
 		printf("error\n");
 	}
-	return; 
+	closeFile(file);
+	return Success;
 }
 
-void executeEmpty(char *buffer, char *file_name){}
+OperStatus executeAppend(char *buffer, char *file_name)
+{
+	FILE *file = openFile(file_name, APPEND_INDEX);
+	if (NULL == file)
+	{
+		return Fail;
+	}
+	fseek(file, 0, SEEK_END);
+	if(fputs(buffer, file) < 0)
+	{
+		return Fail;
+	}
+	closeFile(file);
+	return Success;
+}
+
+OperStatus executeEmpty(char *buffer, char *file_name)
+{
+	buffer = buffer;
+	file_name = file_name;
+	return Success;
+}
+
+
+int CmpStartAppend(const char *str1, const char *str2)
+{
+	return strncmp(str1, str2, 1);
+} 
+
+
+
+
+
+
+
+
+
+
