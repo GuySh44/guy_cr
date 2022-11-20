@@ -21,6 +21,8 @@ void firstExercise()
 
 EXERCISE 2
 
+reviewer: raz
+20/11/2022
 */
 
 static void insertCommands(commands *ex2_commands)
