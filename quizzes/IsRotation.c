@@ -10,7 +10,7 @@ int IsRotation(char* s1, char* s2)
 	{
 		return 0;
 	}
-	for(; i < s2_len; i++)
+	for(; i < s1_len; i++)
 	{
 		int j = 0;
 		while(s1[j%s1_len] == s2[(i+j)%s2_len] && j <= s1_len)
@@ -32,5 +32,6 @@ int main()
 {
 	printf("Is 45123 rotation of 12345?\t%d\n",IsRotation("12345","45123"));
 	printf("Is 123412 rotation of 121234?\t%d\n",IsRotation("121234","123412"));
+	printf("Is 123413 rotation of 121234?\t%d\n",IsRotation("121234","123413"));
 	return 0;
 }
