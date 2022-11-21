@@ -67,5 +67,11 @@ int main()
 	printf("two or six 00100010\t%d\n",NoIfTwoOrSix(34));
 	printf("two or six 00100011\t%d\n",NoIfTwoOrSix(35));
 	printf("two or six 11111111\t%d\n",NoIfTwoOrSix(255));
+	
+	printf("third to fifth 00000000\t%d\n",SwapThirdFifth(0));
+	printf("third to fifth 00000101\t%d\n",SwapThirdFifth(5));
+	printf("third to fifth 00010001\t%d\n",SwapThirdFifth(17));
+	printf("third to fifth 00010101\t%d\n",SwapThirdFifth(21));
+	printf("third to fifth 11111111\t%d\n",SwapThirdFifth(255));
 	return 0;
 }
