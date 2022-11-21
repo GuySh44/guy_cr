@@ -4,6 +4,7 @@
 
 int main()
 {
+	size_t var1_swap = 3, var2_swap = 5, var3_swap = 0, var4_swap = 7, var5_swap = 4, var6_swap = 4, var7_swap = -5, var8_swap = 106;
 	unsigned int three_bits[10] = {0, 1, 7, 11, 8, 65, 33, 1029, 55, 12};
 	printf("5 times 2^4\t%ld\n",Pow2((unsigned int)5,(unsigned int)4));
 
@@ -73,5 +74,27 @@ int main()
 	printf("third to fifth 00010001\t%d\n",SwapThirdFifth(17));
 	printf("third to fifth 00010101\t%d\n",SwapThirdFifth(21));
 	printf("third to fifth 11111111\t%d\n",SwapThirdFifth(255));
+	
+	printf("Closest 16 multiplier to 5\t%d\n",CloseSixteen(5));
+	printf("Closest 16 multiplier to 32\t%d\n",CloseSixteen(32));
+	printf("Closest 16 multiplier to 33\t%d\n",CloseSixteen(33));
+	printf("Closest 16 multiplier to 40\t%d\n",CloseSixteen(40));
+	printf("Closest 16 multiplier to 49\t%d\n",CloseSixteen(49));
+	printf("Closest 16 multiplier to 165\t%d\n",CloseSixteen(165));
+	printf("Closest 16 multiplier to 180\t%d\n",CloseSixteen(180));
+
+	
+	printf("var1 before swap:\t%lu\nvar2 before swap:\t%lu\n",var1_swap,var2_swap);
+	SwapBitwise(&var1_swap, &var2_swap);
+	printf("var1 after swap:\t%lu\nvar2 after swap:\t%lu\n",var1_swap,var2_swap);
+	printf("var3 before swap:\t%lu\nvar4 before swap:\t%lu\n",var3_swap,var4_swap);
+	SwapBitwise(&var3_swap, &var4_swap);
+	printf("var3 after swap:\t%lu\nvar4 after swap:\t%lu\n",var3_swap,var4_swap);
+	printf("var5 before swap:\t%lu\nvar6 before swap:\t%lu\n",var5_swap,var6_swap);
+	SwapBitwise(&var5_swap, &var6_swap);
+	printf("var5 after swap:\t%lu\nvar6 after swap:\t%lu\n",var5_swap,var6_swap);
+	printf("var7 before swap:\t%lu\nvar8 before swap:\t%lu\n",var7_swap,var8_swap);
+	SwapBitwise(&var7_swap, &var8_swap);
+	printf("var7 after swap:\t%lu\nvar8 after swap:\t%lu\n",var7_swap,var8_swap);
 	return 0;
 }

@@ -137,4 +137,20 @@ unsigned char SwapThirdFifth(unsigned char byte)
 }
 
 
+/* reviewer: raz */
+unsigned int CloseSixteen(unsigned int num)
+{
+	num >>= 4;
+	return num<<4;
+}
+
+
+void SwapBitwise(size_t* var1, size_t* var2)
+{
+	*var1 ^= *var2;
+	*var2 ^= *var1;
+	*var1 ^= *var2;
+}
+
+
 

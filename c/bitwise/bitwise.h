@@ -23,4 +23,8 @@ int NoIfTwoOrSix(unsigned char byte);
 
 unsigned char SwapThirdFifth(unsigned char byte);
 
+unsigned int CloseSixteen(unsigned int num);
+
+void SwapBitwise(size_t* var1, size_t* var2);
+
 #endif
