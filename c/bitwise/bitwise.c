@@ -7,7 +7,7 @@ long Pow2(unsigned int x, unsigned int y)
 }
 
 
-
+/* reviewer: or */
 int IsPow2A(unsigned int n)
 {
 	unsigned int count = 2;
@@ -23,8 +23,8 @@ int IsPow2A(unsigned int n)
 }
 
 int IsPow2B(unsigned int n)
-{
-	
+{	
+	return ((n) && !(n & (n-1))); /* if n = 0 return 0, otherwise if n is power of 2, n and n-1 share no same bits */
 }
 
 
@@ -64,6 +64,10 @@ void PrintThreeBits(unsigned int * array, size_t arr_size)
 		}
 	}
 	printf("\n");
+}
+
+void ByteMirror(unsigned char byte)
+{
 	
 }
 
