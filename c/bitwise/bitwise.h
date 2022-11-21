@@ -17,4 +17,10 @@ void ByteMirrorLoop(unsigned char byte);
 
 void ByteMirrorNoLoop(unsigned char byte);
 
+int NoIfTwoAndSix(unsigned char byte);
+
+int NoIfTwoOrSix(unsigned char byte);
+
+unsigned char SwapThirdFifth(unsigned char byte);
+
 #endif
