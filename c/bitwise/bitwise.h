@@ -13,6 +13,8 @@ int AddOne(int n);
 
 void PrintThreeBits(unsigned int * array, size_t arr_size);
 
-void ByteMirror(unsigned char byte);
+void ByteMirrorLoop(unsigned char byte);
+
+void ByteMirrorNoLoop(unsigned char byte);
 
 #endif

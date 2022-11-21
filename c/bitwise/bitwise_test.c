@@ -31,6 +31,20 @@ int main()
 	printf("add 1 to -10\t%d\n",AddOne(-10));
 		
 	PrintThreeBits(three_bits, 10);
+	
+	printf("loop mirror 00000001\n");
+	ByteMirrorLoop(1);
+	printf("loop mirror 00000010\n");
+	ByteMirrorLoop(2);
+	printf("loop mirror 00010000\n");
+	ByteMirrorLoop(16);
+	
+	printf("no loop mirror 00000001\n");
+	ByteMirrorNoLoop(1);
+	printf("no loop mirror 00000010\n");
+	ByteMirrorNoLoop(2);
+	printf("no loop mirror 00010000\n");
+	ByteMirrorNoLoop(16);
 
 	return 0;
 }
