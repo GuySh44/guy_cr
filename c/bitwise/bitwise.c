@@ -144,13 +144,58 @@ unsigned int CloseSixteen(unsigned int num)
 	return num<<4;
 }
 
-
+/* reviewer: raz */
+/* when adding both vars we might overflow the memory containing one var and lose data */
 void SwapBitwise(size_t* var1, size_t* var2)
-{
-	*var1 ^= *var2;
-	*var2 ^= *var1;
-	*var1 ^= *var2;
+{		
+	*var1 ^= *var2;			/* add both vars into var1 */
+	*var2 ^= *var1;			/* sub var1 from both vars */
+	*var1 ^= *var2;			/* sub var2 from both vars */
 }
 
+/* reviewer: raz */
+int SetBitsCountA(int num)
+{
+	int count = 0;
+	while(num)
+	{
+		if(num & 1)		/* while num != 0 check if LSB is 1 and if so increment count, "increment" num */
+		{
+			count++;
+		}
+		num >>= 1;
+	}
+	return count;
+}
 
+/* reviewer: raz */
+int SetBitsCountB(int num)
+{
+	int table[256] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+			  1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+			  1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+			  2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+			  1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
+			  2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+			  2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+			  3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+/*   LUT :)    */	  1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 
+			  2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+			  2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+			  3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+			  2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6, 
+			  3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+			  3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7, 
+			  4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
+			  
+			  
+	int count = table[num & 0xff];   					/* check num of set bits in first 8 bits 0xff = 11111111 */
+	num = num >> 8;								/* move bits 9-16 to spots 1-8 */
+	count += table[num & 0xff];						/* add number of set bits there, and so on... */
+	num = num >> 8;
+	count += table[num & 0xff];
+	num = num >> 8;
+	count += table[num & 0xff];
+	return count;
+} 
 

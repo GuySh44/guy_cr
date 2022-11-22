@@ -27,4 +27,8 @@ unsigned int CloseSixteen(unsigned int num);
 
 void SwapBitwise(size_t* var1, size_t* var2);
 
+int SetBitsCountA(int num);
+
+int SetBitsCountB(int num);
+
 #endif
