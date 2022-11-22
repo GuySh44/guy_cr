@@ -96,21 +96,27 @@ int main()
 	SwapBitwise(&var7_swap, &var8_swap);
 	printf("var7 after swap:\t%lu\nvar8 after swap:\t%lu\n",var7_swap,var8_swap);
 	
-	printf("Loop set bits count 00000000\t%d\n",SetBitsCountA(0));
-	printf("Loop set bits count 00000010\t%d\n",SetBitsCountA(2));
-	printf("Loop set bits count 00000011\t%d\n",SetBitsCountA(3));
-	printf("Loop set bits count 00100000\t%d\n",SetBitsCountA(32));
-	printf("Loop set bits count 00100010\t%d\n",SetBitsCountA(34));
-	printf("Loop set bits count 00100011\t%d\n",SetBitsCountA(35));
-	printf("Loop set bits count 11111111\t%d\n",SetBitsCountA(255));
+	printf("Loop set bits count 11111111 11111111 11111111 01110011\t%d\n",SetBitsCountA(-141));
+	printf("Loop set bits count 11111111 11111111 11111111 11001010\t%d\n",SetBitsCountA(-54));
+	printf("Loop set bits count 11111111 11111111 11111111 11111111\t%d\n",SetBitsCountA(-1));
+	printf("Loop set bits count 00000000 00000000 00000000 00000000\t%d\n",SetBitsCountA(0));
+	printf("Loop set bits count 00000000 00000000 00000000 00000010\t%d\n",SetBitsCountA(2));
+	printf("Loop set bits count 00000000 00000000 00000000 00000011\t%d\n",SetBitsCountA(3));
+	printf("Loop set bits count 00000000 00000000 00000000 00100000\t%d\n",SetBitsCountA(32));
+	printf("Loop set bits count 00000000 00000000 00000000 00100010\t%d\n",SetBitsCountA(34));
+	printf("Loop set bits count 00000000 00000000 00000000 00100011\t%d\n",SetBitsCountA(35));
+	printf("Loop set bits count 00000000 00000000 00000000 11111111\t%d\n",SetBitsCountA(255));
 	
-	printf("No Loop set bits count 00000000\t%d\n",SetBitsCountB(0));
-	printf("No Loop set bits count 00000010\t%d\n",SetBitsCountB(2));
-	printf("No Loop set bits count 00000011\t%d\n",SetBitsCountB(3));
-	printf("No Loop set bits count 00100000\t%d\n",SetBitsCountB(32));
-	printf("No Loop set bits count 00100010\t%d\n",SetBitsCountB(34));
-	printf("No Loop set bits count 00100011\t%d\n",SetBitsCountB(35));
-	printf("No Loop set bits count 11111111\t%d\n",SetBitsCountB(255));
+	printf("No Loop set bits count 11111111 11111111 11111111 01110011\t%d\n",SetBitsCountB(-141));
+	printf("No Loop set bits count 11111111 11111111 11111111 11001010\t%d\n",SetBitsCountB(-54));
+	printf("No Loop set bits count 11111111 11111111 11111111 11111111\t%d\n",SetBitsCountB(-1));
+	printf("No Loop set bits count 00000000 00000000 00000000 00000000\t%d\n",SetBitsCountB(0));
+	printf("No Loop set bits count 00000000 00000000 00000000 00000010\t%d\n",SetBitsCountB(2));
+	printf("No Loop set bits count 00000000 00000000 00000000 00000011\t%d\n",SetBitsCountB(3));
+	printf("No Loop set bits count 00000000 00000000 00000000 00100000\t%d\n",SetBitsCountB(32));
+	printf("No Loop set bits count 00000000 00000000 00000000 00100010\t%d\n",SetBitsCountB(34));
+	printf("No Loop set bits count 00000000 00000000 00000000 00100011\t%d\n",SetBitsCountB(35));
+	printf("No Loop set bits count 00000000 00000000 00000000 11111111\t%d\n",SetBitsCountB(255));
 	
 	PrintFloatBinary(0);
 	PrintFloatBinary(5);

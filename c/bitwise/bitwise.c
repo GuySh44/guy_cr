@@ -90,7 +90,6 @@ void ByteMirrorNoLoop(unsigned char byte)
 {
 const unsigned char TableBitReverse[256] = 
 					{
-
 					  0x00, 0x80, 0x40, 0xC0, 0x20, 0xA0, 0x60, 0xE0, 0x10, 0x90, 0x50, 0xD0, 0x30, 0xB0, 0x70, 0xF0, 
 					  0x08, 0x88, 0x48, 0xC8, 0x28, 0xA8, 0x68, 0xE8, 0x18, 0x98, 0x58, 0xD8, 0x38, 0xB8, 0x78, 0xF8, 
 					  0x04, 0x84, 0x44, 0xC4, 0x24, 0xA4, 0x64, 0xE4, 0x14, 0x94, 0x54, 0xD4, 0x34, 0xB4, 0x74, 0xF4, 
@@ -156,14 +155,15 @@ void SwapBitwise(size_t* var1, size_t* var2)
 /* reviewer: raz */
 int SetBitsCountA(int num)
 {
+	unsigned int unsigned_num = (unsigned int) num;
 	int count = 0;
-	while(num)
+	while(unsigned_num)
 	{
-		if(num & 1)		/* while num != 0 check if LSB is 1 and if so increment count, "increment" num */
+		if(unsigned_num & 1)		/* while num != 0 check if LSB is 1 and if so increment count, "increment" num */
 		{
 			count++;
 		}
-		num >>= 1;
+		unsigned_num >>= 1;
 	}
 	return count;
 }
@@ -171,6 +171,7 @@ int SetBitsCountA(int num)
 /* reviewer: raz */
 int SetBitsCountB(int num)
 {
+	unsigned int unsigned_num = (unsigned int) num;
 	int table[256] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
 			  1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
 			  1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
@@ -189,13 +190,13 @@ int SetBitsCountB(int num)
 			  4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8};
 			  
 			  
-	int count = table[num & 0xff];   					/* check num of set bits in first 8 bits 0xff = 11111111 */
-	num = num >> 8;								/* move bits 9-16 to spots 1-8 */
-	count += table[num & 0xff];						/* add number of set bits there, and so on... */
-	num = num >> 8;
-	count += table[num & 0xff];
-	num = num >> 8;
-	count += table[num & 0xff];
+	int count = table[unsigned_num & 0xff];   					/* check num of set bits in first 8 bits 0xff = 11111111 */
+	unsigned_num = unsigned_num >> 8;								/* move bits 9-16 to spots 1-8 */
+	count += table[unsigned_num & 0xff];						/* add number of set bits there, and so on... */
+	unsigned_num = unsigned_num >> 8;
+	count += table[unsigned_num & 0xff];
+	unsigned_num = unsigned_num >> 8;
+	count += table[unsigned_num & 0xff];
 	return count;
 } 
 
