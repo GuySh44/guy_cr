@@ -1,4 +1,3 @@
-
 #include"bitwise.h"
 
 
@@ -112,6 +111,12 @@ int main()
 	printf("No Loop set bits count 00100010\t%d\n",SetBitsCountB(34));
 	printf("No Loop set bits count 00100011\t%d\n",SetBitsCountB(35));
 	printf("No Loop set bits count 11111111\t%d\n",SetBitsCountB(255));
+	
+	PrintFloatBinary(0);
+	PrintFloatBinary(5);
+	PrintFloatBinary(-4);
+	PrintFloatBinary(1.23);
+	PrintFloatBinary(-55.66);
 	
 	return 0;
 }

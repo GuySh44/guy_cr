@@ -1,7 +1,7 @@
 #ifndef __BITWISE_H__
 #define __BITWISE_H__
-#include<stddef.h>
-#include<stdio.h>
+#include<stddef.h> /* size_t */
+#include<stdio.h> /* printf */
 
 long Pow2(unsigned int x, unsigned int y);
 
@@ -30,5 +30,7 @@ void SwapBitwise(size_t* var1, size_t* var2);
 int SetBitsCountA(int num);
 
 int SetBitsCountB(int num);
+
+void PrintFloatBinary(float num);
 
 #endif

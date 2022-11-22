@@ -199,3 +199,21 @@ int SetBitsCountB(int num)
 	return count;
 } 
 
+
+/* reviewer: or */
+void PrintFloatBinary(float num)
+{
+	int* read_as_int = (int *)&num;			/* read 32 bits as int for bitwise functionality */
+	int int_num = *read_as_int;			/* run through the integer and print its bits */
+	unsigned int index = 1;
+	index <<= 31;
+	printf("%f in binary is:\n", num);
+	while (index)
+	{
+		printf("%d ", 1 && (int_num & index));
+		index >>= 1;
+	}
+	printf("\n");
+}
+
+
