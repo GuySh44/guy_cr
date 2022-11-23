@@ -2,6 +2,7 @@
 #define __BITWISE_H__
 #include<stddef.h> /* size_t */
 #include<stdio.h> /* printf */
+#include<assert.h>/* assert */
 
 long Pow2(unsigned int x, unsigned int y);
 

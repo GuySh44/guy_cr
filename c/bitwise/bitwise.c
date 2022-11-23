@@ -45,6 +45,8 @@ int AddOne(int n)
 void PrintThreeBits(unsigned int * array, size_t arr_size)
 {
 	unsigned int * finish = array + arr_size;		/* end of array */
+	assert(NULL != array);
+	assert(arr_size != 0);
 	printf("Three bits on:\n");
 	for (;array != finish; array++)				/* running on array */
 	{
@@ -147,6 +149,8 @@ unsigned int CloseSixteen(unsigned int num)
 /* when adding both vars we might overflow the memory containing one var and lose data */
 void SwapBitwise(size_t* var1, size_t* var2)
 {		
+	assert (NULL != var1);
+	assert (NULL != var2);
 	*var1 ^= *var2;			/* add both vars into var1 */
 	*var2 ^= *var1;			/* sub var1 from both vars */
 	*var1 ^= *var2;			/* sub var2 from both vars */

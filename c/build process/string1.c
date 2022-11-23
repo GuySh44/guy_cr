@@ -1,0 +1,160 @@
+#include"string.h"
+static int DIFF = 32;
+
+int StrNcmp(const char *s1, const char *s2, size_t n)
+{
+	int j = 0;
+	while (n > 0 && ((*(s1+j) != '\0' || (*(s2+j)) != '\0')))
+	{
+		if ((*(s1+j)) != (*(s2+j)))
+			return (-1 + 2 * ((*(s1+j)) > (*(s2+j))));
+		j++;
+		n--;
+	}
+	return 0;
+}
+
+int StrCasecmp(const char *s1, const char *s2)
+{   
+	int j = 0;
+	while ((*(s1+j)) != '\0' || (*(s2+j)) != '\0')
+	{
+		char tmp_s1 = (*(s1+j));
+		char tmp_s2 = (*(s2+j));
+		if (tmp_s1 >= 'A' && tmp_s1 <= 'Z')
+			tmp_s1 += DIFF;	
+		if (tmp_s2 >= 'A' && tmp_s2 <= 'Z')
+			tmp_s2 += DIFF;
+		if (tmp_s1 != tmp_s2)
+			return (-1 + 2 * (tmp_s1 > tmp_s2));
+		j++;
+	}
+	return 0;
+}
+
+char *StrChr(const char *s, int c)
+{
+	int i = 0;
+	while ((*(s+i)) != (char)c)
+	{
+		if ((*(s+i)) == '\0')
+			return NULL;
+		i++;
+	}
+	return ((char*)(s+i));
+}
+
+char *StrDup(const char *s)
+{
+	size_t s_len = StrLen(s);
+	char* new_s = malloc((s_len*sizeof(char))+1);
+	if (new_s == NULL)
+		return ((char*)NULL);
+	StrCpy(new_s, s);
+	new_s[s_len] = '\0';
+	return new_s;
+}
+
+char *StrNcat(char *dest, const char *src, size_t n)
+{
+	char * dest_start = dest;
+	while(*dest)
+		dest++;
+	assert(*dest == '\0');
+	while (n > 0)
+	{
+		*dest = *src;
+		if (*src == '\0')
+			return dest_start;
+		dest++;
+		src++;
+		n--;
+	}
+	*dest = '\0';
+	return dest_start;
+}
+
+char *StrCat(char *dest, const char *src)
+{
+	char* dest_start = dest;
+	while(*dest)
+		dest++;
+	assert(*dest == '\0');
+	while (*src)
+	{
+		*dest =*src;
+		src++;
+		dest++;
+	}
+	*dest = '\0';
+	return dest_start;
+}
+
+char *StrStr(const char *haystack, const char *needle)
+{
+	if (*needle == '\0')
+		return (char*)haystack;
+	while(*haystack)
+	{
+		const char * tmp_hay = haystack;
+		const char * tmp_needle = needle;
+		while(tmp_hay[0] == tmp_needle[0])
+		{
+			if(*(++tmp_needle) == '\0')
+				return (char*)haystack;
+			tmp_hay++;
+		}
+		haystack++;
+	}
+	return (char*)NULL;
+}
+
+size_t StrSpn(const char *s, const char *accept)
+{	
+	/*not needed
+	int method_flag = 0;
+	int found_flag = 1;
+	*/
+	size_t count = 0;
+	int dict[256] = {0};
+	while(*accept)
+	{
+		dict[(int)accept[0]] = 1;
+		accept++;
+	}		
+	while(*s)
+	{
+		if (!dict[(int)s[0]])
+			return count;
+		s++;
+		count++;
+	}
+	return count;
+		
+		
+		/* not needed
+		case 2:
+			while(*s && found_flag)
+			{
+				const char* tmp_accept = accept;
+				found_flag = 0;
+				while(*tmp_accept)
+				{
+					if(s[0] == tmp_accept[0])
+					{
+						found_flag = 1;
+						break;
+					}
+					tmp_accept++;
+				}
+				if(!found_flag)
+					break;
+				s++;
+				count++;
+			}
+			return count;
+		break;
+	}
+	*/
+}
+
