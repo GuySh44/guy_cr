@@ -28,6 +28,12 @@ void swapB(int *num1, int *num2)
 	*num1 ^= *num2;
 }
 
+void swapC(int *num1, int *num2)
+{
+	*num1 = (*num1 & *num2) + (*num1 | *num2);
+	*num2 = *num1 + (~*num2) + 1;	
+	*num1 = *num1 + (~*num2) + 1;
+}
 int setBitsLoop(long num)
 {
 	int count = 0;
