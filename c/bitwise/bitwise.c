@@ -3,7 +3,8 @@
 /* reviewer: raz */
 long Pow2(unsigned int x, unsigned int y)
 {
-	return (x << y);
+	long res_long = x;
+	return (res_long << y);
 }
 
 
@@ -72,7 +73,7 @@ void PrintThreeBits(unsigned int * array, size_t arr_size)
 void ByteMirrorLoop(unsigned char byte)
 {
 	unsigned char mirror = 0, byte_index = 1, mirror_index = 1 , count = 1;
-	mirror_index <<= 7;							/* indexes are "1's" at different bits throughout a variable and i use them to "work" on seperate parts of the variable */
+	mirror_index <<= 7;							/* indexes are "1's" at different bits throughout a variable and i 											use them to "work" on seperate parts of the variable */
 	count <<= 7;								/* 1 at MSB used as counter, logical rotation right decrements it */						
 	while (count)
 	{
