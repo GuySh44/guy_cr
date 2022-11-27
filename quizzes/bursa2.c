@@ -11,7 +11,7 @@ void Bursa2(int* arr, size_t size, int* res_arr)
 	res_arr[2] = arr[1] - arr[0];
 	for(; i < size; ++i)
 	{
-		if(arr[i] < arr[i-1])
+		if(arr[i] < arr[min_index])
 		{
 			min_index = i;
 			max_index = i;
