@@ -12,9 +12,16 @@ put c in the first n bytes starting in s
 return:
 pointer to start of s	
 */
-void *MemSet(void *s, int c, size_t n);
+void *Memset(void *s, int c, size_t n);
 
 
+/*
+copy n bytes from src to dest, the areas must not overlap.
+
+return:
+pointer to start of dest
+*/
+void *Memcpy(void *dest, const void *src, size_t n);
 
 
 
