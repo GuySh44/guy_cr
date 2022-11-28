@@ -1,40 +1,39 @@
 #include "word_boundary.h"
 #define BYTE_SIZE 8
 
+/* memset reviewer: arthur */
 void *MemSet(void *s, int c, size_t n)
 {
-	void* start = s;
-	size_t i = 1;
-	size_t word_size = sizeof(long);
-	long template = (long)((char)c);
-	size_t address = (size_t)s;
-	size_t times_to_align = (word_size - (address % word_size)) % word_size;
+	void* start = s;								/* for returning */
+	size_t i = 1;									/* for creating template */
+	size_t word_size = sizeof(long);						/* word size kinda */		
+	long template = (long)((char)c);						/* set start value of template */
+	size_t address = (size_t)s;							/* get address as number */
+	size_t times_to_align = (word_size - (address % word_size)) % word_size;	/* get number of bytes before next aligned address */
 	size_t word_chunks;
 	assert(n != 0);
 	assert(c >= 0);
 	assert(s);
-	
-	for (;times_to_align > 0 && n > 0; --times_to_align, --n)
+	for (;times_to_align > 0 && n > 0; --times_to_align, --n)			/* align the memory address while copying byte to byte */
 	{
 		*((char*)s) = (char)c;
 		s = (void*)(((char*)s) + 1);
 		assert(printf("single byte operation\n"));
 	}
-	for(;i < word_size; ++i)
+	for(;i < word_size; ++i)							/* create the template used for copying c's */
 	{
 		template <<= BYTE_SIZE;
 		template |= (long)((char)c);
-		
 	}
-	word_chunks = n / word_size;
-	for (;word_chunks > 0;--word_chunks)
+	word_chunks = n / word_size;							/* calculate number of whole words left to copy */
+	for (;word_chunks > 0;--word_chunks)						/* copy whole words using template */
 	{
 		*((long*)s) = template;
 		n -= word_size;
 		s = (void*)(((char*)s) + word_size);
 		assert(printf("whole word operation\n"));
 	}
-	for (; n > 0; n--)
+	for (; n > 0; n--)								/* copy trailing bytes that dont fit into words */ 
 	{
 		*((char*)s) = (char)c;
 		s = (void*)(((char*)s) + 1);

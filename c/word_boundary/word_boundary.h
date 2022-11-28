@@ -2,9 +2,9 @@
 #define __WORD_BOUNDARY_H__
 
 #include<assert.h>
-#include<stddef.h>
-#include<stdlib.h>
-#include<stdio.h>
+#include<stddef.h> /* size_t */
+#include<stdlib.h> /* malloc */
+#include<stdio.h> /* printf */
 
 /*
 put c in the first n bytes starting in s 
