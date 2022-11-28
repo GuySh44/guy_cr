@@ -1,13 +1,31 @@
 #include"word_boundary.h"
-
-
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 
 int main()
 {
-
-
-
-
+	void* mem1_original = malloc(5);
+	void* mem1_my = malloc(5);
+	void* mem2_original = malloc(33);
+	void* mem2_my = malloc(33);
+	void* mem3_original = malloc(36);
+	void* mem3_my = malloc(36);
+	int c = 65;
+	mem2_original = (void*)(((char*)mem2_original) + 1);
+	mem2_my = (void*)(((char*)mem2_my) + 1);
+	printf("mem1_original pointer address:\t%p\n",mem1_original);
+	printf("mem1_my pointer address:\t%p\n",mem1_my);
+	memset(mem1_original,c,5);
+	MemSet(mem1_my,c,5);
+	printf("mem2_original pointer address:\t%p\n",mem2_original);
+	printf("mem2_my pointer address:\t%p\n",mem2_my);
+	memset(mem2_original,c,32);
+	MemSet(mem2_my,c,32);
+	printf("mem3_original pointer address:\t%p\n",mem3_original);
+	printf("mem3_my pointer address:\t%p\n",mem3_my);
+	memset(mem3_original,c,36);
+	MemSet(mem3_my,c,36);
 
 	return 0;
 }
