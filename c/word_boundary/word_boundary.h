@@ -24,8 +24,13 @@ pointer to start of dest
 void *Memcpy(void *dest, const void *src, size_t n);
 
 
+/*
+copy n bytes from src to dest, the areas can overlap.
 
-
+return:
+pointer to start of dest
+*/
+void *Memmove(void *dest, const void *src, size_t n);
 
 
 

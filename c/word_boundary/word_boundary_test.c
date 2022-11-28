@@ -19,7 +19,14 @@ int main()
 	void* mem5_my = malloc(32);
 	void* mem6_original = malloc(10);
 	void* mem6_my = malloc(10);
+	void* mem7_original = malloc(10);
+	void* mem7_my = malloc(10);
+	void* mem8_original = malloc(10);
+	void* mem8_my = malloc(10);
+	void* mem9_original = malloc(10);
+	void* mem9_my = malloc(10);
 	int c = 65;
+	int i = 0;
 	mem2_original = (void*)(((char*)mem2_original_start) + 1);
 	mem2_my = (void*)(((char*)mem2_my_start) + 1);
 	printf("mem1_original pointer address:\t%p\n",mem1_original);
@@ -47,6 +54,28 @@ int main()
 	printf("Mem6\n");
 	Memcpy(mem6_my,"GuyGuyaye",10);
 	
+	for(;i < 10;i++)
+	{
+		((char*)mem7_original)[i] = i;
+		((char*)mem8_original)[i] = i;
+		((char*)mem9_original)[i] = i;
+		((char*)mem7_my)[i] = i;
+		((char*)mem8_my)[i] = i;
+		((char*)mem9_my)[i] = i;
+	}
+	
+	printf("src bigger than dest\n");
+	memmove(mem7_original, (void*)((char*)mem7_original + 4), 6);
+	Memmove(mem7_my, (void*)((char*)mem7_my + 4), 6);
+	
+	printf("dest bigger than src\n");
+	memmove((void*)((char*)mem8_original + 4),mem8_original, 6);
+	Memmove((void*)((char*)mem8_my + 4),mem8_my, 6);
+	
+	printf("src equal to dest\n");
+	memmove(mem9_original, mem9_original, 10);
+	Memmove(mem9_my, mem9_my, 10);
+	
 	free(mem1_original);
 	free(mem2_original_start);
 	free(mem3_original);
@@ -59,6 +88,12 @@ int main()
 	free(mem4_my);
 	free(mem5_my);
 	free(mem6_my);
-
+	free(mem7_original);
+	free(mem8_original);
+	free(mem9_original);
+	free(mem7_my);
+	free(mem8_my);
+	free(mem9_my);
+	
 	return 0;
 }

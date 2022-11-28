@@ -73,8 +73,34 @@ void *Memcpy(void *dest, const void *src, size_t n)
 }
 
 
-
-
+/* memmove reviewer: arthur */
+void *Memmove(void *dest, const void *src, size_t n)
+{
+	void *start = dest;						/* for returning */
+	size_t src_address = (size_t)src;				/* for calculating relative spot */
+	size_t dest_address = (size_t)dest;
+	assert(dest);
+	assert(src);
+	if(dest_address > src_address)					/* only "special" case, we need to copy from end to start */
+	{
+		char *dest_end = ((char*)dest_address + (n-1));
+		char *src_end = ((char*)src_address + (n-1));
+		assert(printf("Memmove:\n"));
+		for(;n > 0; --n)
+		{
+			*(dest_end) = *(src_end);
+			--dest_end;
+			--src_end;
+			assert(printf("single byte operation\n"));
+		}
+		assert(printf("finished\n"));
+	}
+	else								/* Memcpy is just fine in other cases */
+	{
+		Memcpy(dest,src,n);
+	}
+	return start;
+}
 
 
 
