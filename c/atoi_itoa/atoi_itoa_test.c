@@ -45,5 +45,27 @@ int main()
 	printTest("123456789",strcmp(str11,"123456789"));
 	printTest("-123456789",strcmp(str12,"-123456789"));
 	
+	printTest("MAX_INT",!(INT_MAX == stringToInt("2147483647")));
+	printTest("MIN_INT",!(INT_MIN == stringToInt("-2147483648")));
+	printTest("10",!(10 == stringToInt("10")));
+	printTest("+10",!(10 == stringToInt("+10")));
+	printTest("-10",!(-10 == stringToInt("-10")));
+	printTest("100",!(100 == stringToInt("100")));
+	printTest("+100",!(100 == stringToInt("+100")));
+	printTest("-100",!(-100 == stringToInt("-100")));
+	printTest("1010",!(1010 == stringToInt("1010")));
+	printTest("+1010",!(1010 == stringToInt("+1010")));
+	printTest("-1010",!(-1010 == stringToInt("-1010")));
+	printTest("1001",!(1001 == stringToInt("1001")));
+	printTest("+1001",!(1001 == stringToInt("+1001")));
+	printTest("-1001",!(-1001 == stringToInt("-1001")));
+	printTest("123456789",!(123456789 == stringToInt("123456789")));
+	printTest("+123456789",!(123456789 == stringToInt("+123456789")));
+	printTest("-123456789",!(-123456789 == stringToInt("-123456789")));
+	printTest("Test spaces then 100:",!(100 == stringToInt("    100")));
+	printTest("Test spaces then 100 then non dig:",!(100 == stringToInt("    100 l")));
+	printTest("Test spaces then +100 then non dig:",!(100 == stringToInt("    +100 l")));
+	printTest("Test spaces then -100 then non dig:",!(-100 == stringToInt("    -100 l")));
+
 	return 0;
 }
