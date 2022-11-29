@@ -5,5 +5,4 @@
 !**/*.md
 !**/*.h
 !**/*.a
-**/my_tests/
 !.myfuncs
