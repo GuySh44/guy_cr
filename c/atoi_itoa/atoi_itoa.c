@@ -46,6 +46,11 @@ void intToString(int num, char *str, int base)
 	str[digit_count+neg_flag] = '\0';
 }
 
+void intToStringBaseTen(int num, char *str)
+{
+	intToString(num,str,10);
+}
+
 int stringToInt(char *str, int base)
 {
 	char *str_num_end = NULL;
@@ -99,6 +104,10 @@ int stringToInt(char *str, int base)
 	return res;
 }
 
+int stringToIntBaseTen(char *str)
+{
+	return stringToInt(str, 10);
+}
 
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

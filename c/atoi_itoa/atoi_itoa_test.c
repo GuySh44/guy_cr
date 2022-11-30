@@ -12,7 +12,6 @@ static void atoiCompare(char *str)
 
 int main()
 {
-	unsigned short x = (*(unsigned short *)"\0\xff");
 	char arr1[8] = {'a' , 'a', 'b', 'c', 'd', 'e', 'f', 'g'};
 	char arr2[6] = {'b', 'c', 'd', 'e', 'f', 'g'};	
 	char arr3[6] = {'d', 'e', 'f', 'g', 'z', 'h'};
