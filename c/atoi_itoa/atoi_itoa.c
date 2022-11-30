@@ -1,5 +1,15 @@
 #include"atoi_itoa.h"
 
+static int intPow(int num, int pow)
+{
+	int res = 1;
+	for(; pow > 0; --pow)
+	{
+		res *= num;
+	}
+	return res;
+}
+
 void intToString(int num, char *str, int base)
 {
 	int i;
@@ -38,7 +48,7 @@ void intToString(int num, char *str, int base)
 
 int stringToInt(char *str, int base)
 {
-	char *str_num_start;
+	char *str_num_end = NULL;
 	int base_pow = 1;
 	int neg_flag = 0;
 	int res = 0;
@@ -58,14 +68,15 @@ int stringToInt(char *str, int base)
 	{
 		++str;
 	}
-	str_num_start = str;
-	dig_extend = (base > 10) ? 9 : base;
-	while (('0' <= (*(str_num_start + 1)) && ((*(str_num_start + 1)) < '0' + dig_extend)) ||
-	 ('a' <= *(str_num_start + 1) && *(str_num_start + 1) < ('a' + base - 11)))
+	str_num_end = str;
+	dig_extend = (base > 10) ? 10 : base;
+	while (('0' <= (*(str_num_end)) && ((*(str_num_end)) < '0' + dig_extend)) ||
+	 ('a' <= *(str_num_end) && *(str_num_end) < ('a' + base - 11)))
 	{
-		base_pow *= base;
-		++str_num_start;
+		++str_num_end;
 	}
+	base_pow = intPow(base,str_num_end - str - 1);
+
 	while (('0' <= (*(str)) && ((*(str)) < '0' + dig_extend)) || ('a' <= *str && *str <= ('a' + base - 11)))
 	{
 		assert(isalnum(*str));

@@ -1,6 +1,6 @@
 #ifndef __ATOI_ITOA_H__
 #define __ATOI_ITOA_H__
-#include<ctype.h> /*isalnum isdig*/
+#include<ctype.h> /*isalnum isdig isspace*/
 #include<assert.h>
 #include<stdio.h>/* printf */
 

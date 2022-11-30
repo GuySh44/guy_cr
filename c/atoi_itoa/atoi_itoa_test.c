@@ -106,6 +106,8 @@ int main()
 	atoiCompare("1001");
 	atoiCompare("-001001");
 	
+	printTest("19 base 25 is 34",!(34 == stringToInt("19",25)));
+	
 	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	
 	appearsTwo(arr1,8,arr2,6,arr3,6);
