@@ -128,7 +128,24 @@ void appearsTwo(char *arr1, int arr1_size, char *arr2, int arr2_size, char *arr3
 	printf("\n");
 }
 
+	
+	/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	
+void checkLittleEndian()
+{
+	unsigned int x = 0x76543210;
+	char *c = (char*) &x;
 
+	printf ("*c is: 0x%x\n", *c);
+	if (*c == 0x10)
+	{
+		printf ("Underlying architecture is little endian. \n");
+	}
+	else
+	{
+		printf ("Underlying architecture is big endian. \n");
+	}
+}
 
 
 
