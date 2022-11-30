@@ -3,6 +3,8 @@
 #include<ctype.h> /*isalnum isdig isspace*/
 #include<assert.h>
 #include<stdio.h>/* printf */
+#define IS_BIG_ENDIAN (*(unsigned short *)"\0\xff" < 0x0100)
+
 
 void intToString(int num, char *str, int base);
 

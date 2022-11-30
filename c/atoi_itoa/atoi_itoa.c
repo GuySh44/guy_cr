@@ -71,13 +71,14 @@ int stringToInt(char *str, int base)
 	str_num_end = str;
 	dig_extend = (base > 10) ? 10 : base;
 	while (('0' <= (*(str_num_end)) && ((*(str_num_end)) < '0' + dig_extend)) ||
-	 ('a' <= *(str_num_end) && *(str_num_end) < ('a' + base - 11)))
+		('a' <= *(str_num_end) && *(str_num_end) < ('a' + base - 11)))
 	{
 		++str_num_end;
 	}
 	base_pow = intPow(base,str_num_end - str - 1);
 
-	while (('0' <= (*(str)) && ((*(str)) < '0' + dig_extend)) || ('a' <= *str && *str <= ('a' + base - 11)))
+	while (('0' <= (*(str)) && ((*(str)) < '0' + dig_extend)) || 
+		('a' <= *str && *str <= ('a' + base - 11)))
 	{
 		assert(isalnum(*str));
 		if(isdigit(*(str)))
@@ -133,7 +134,7 @@ void appearsTwo(char *arr1, int arr1_size, char *arr2, int arr2_size, char *arr3
 	
 void checkLittleEndian()
 {
-	unsigned int x = 0x76543210;
+	unsigned int x = 0x3210;
 	char *c = (char*) &x;
 
 	printf ("*c is: 0x%x\n", *c);
