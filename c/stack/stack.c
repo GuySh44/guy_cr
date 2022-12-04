@@ -42,6 +42,7 @@ void StackPush(stack_t *stack ,const void *elem)
 {
 	assert(NULL != stack);
 	assert(NULL != elem);
+	assert(StackSize(stack) <= StackCapacity(stack));
 	memcpy((stack->top), elem, stack->elem_size);
 	stack->top = (void*)(((char*)stack->top) + stack->elem_size);
 }
@@ -49,16 +50,19 @@ void StackPush(stack_t *stack ,const void *elem)
 void *StackPeek(const stack_t *stack)
 {
 	assert(NULL != stack);
+	assert(IsStackEmpty(stack));
 	return (void*)(((char*)stack->top) - stack->elem_size);
 }
 
 void StackPop(stack_t *stack)
 {
+	assert(IsStackEmpty(stack));
 	stack->top = (void*)(((char*)stack->top) - stack->elem_size);
 }
 
 int IsStackEmpty(const stack_t *stack)
 {
+	assert((char*)stack->top >= (char*)stack->base);
 	return ((char*)stack->top - (char*)stack->base);
 }
 

@@ -62,8 +62,8 @@ void StackPop(stack_t *stack);
 check if the stack is empty 
 
 return value:
-0 if empty
-not 0 if not empty
+1 if empty
+not 1 if not empty
 */
 int IsStackEmpty(const stack_t *stack);
 
