@@ -1,19 +1,20 @@
 OBJS = foo.o main.o
-CC = gcc
+CC = @gcc
 CFLAGS = -ansi -pedantic-errors -Wall -Wextra
 DEBUG = -g 
 RELEASE = -DNDEBUG
+GD = $(CC) $(CFLAGS) $(DEBUG) $(OBJS)
 
 fooer : $(OBJS)
-	cc $(CFLAGS) $(DEBUG) $(OBJS) -o fooer.out
+	$(GD) -o fooer.out
 
-all: main.o foo.o	
+all: main.o foo.o
 main.o : foo.h
 foo.o : foo.h foo.c
 
 .PHONY : clean debug release
 clean:
-	@rm fooer.out $(OBJS)
+	@-rm fooer.out $(OBJS)
 debug: fooer
 release: $(OBJS)
-	cc $(CFLAGS) $(RELEASE) $(OBJS) -o fooer.out
+	$(CC) $(CFLAGS) $(RELEASE) $(OBJS) -o fooer.out

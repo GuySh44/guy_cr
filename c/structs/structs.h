@@ -26,6 +26,14 @@ void (*clean)(void*);
 void (*print)(void*);
 } ElementsArray;
 
+/* create new element */
+
+ElementsArray createInt(int num);
+
+ElementsArray createFloat(float num);
+
+ElementsArray createString(char *str);
+
 /* "cleaning" functions to free each type */
 
 void cleanInt(void* num);

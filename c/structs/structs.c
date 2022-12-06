@@ -1,4 +1,5 @@
 #include"structs.h"
+extern char* strdup(const char*);
 
 static char* intToString(int num)
 {
@@ -31,14 +32,43 @@ static char* intToString(int num)
 	return new_string;
 }
 
+
+ElementsArray createInt(int num)
+{
+	ElementsArray new_element;
+	*((int*)&new_element.data) = num;
+	new_element.add = &addInt;
+	new_element.clean = &cleanInt;
+	new_element.print = &printInt;
+	return new_element;
+}
+
+ElementsArray createFloat(float num)
+{
+	ElementsArray new_element;
+	*((float*)&new_element.data) = num;
+	new_element.add = &addFloat;
+	new_element.clean = &cleanFloat;
+	new_element.print = &printFloat;
+	return new_element;
+}
+
+ElementsArray createString(char *str)
+{
+	ElementsArray new_element;
+	*((char**)&new_element.data) = strdup(str);
+	new_element.add = &addString;
+	new_element.clean = &cleanString;
+	new_element.print = &printString;
+	return new_element;
+}
+
 void cleanInt(void* data)
 {
-	free((int*)data);
 }
 
 void cleanFloat(void* data)
 {
-	free((float*)data);
 }
 
 void cleanString(void* str)
@@ -65,7 +95,7 @@ void addString(void *data, int num)
 	{
 		return;
 	}
-	new_string_size = strlen(*((char**)data))+ strlen(str_to_add);
+	new_string_size = strlen((char*)data)+ strlen(str_to_add);
 	new_string = (char*)calloc(new_string_size + 1, sizeof(char));
 	if(NULL == new_string)
 	{
@@ -73,26 +103,26 @@ void addString(void *data, int num)
 		return;
 	}
 	new_string[new_string_size] = '\0';
-	strcat(new_string, *((char**)data));
+	strcat(new_string, ((char*)data));
 	strcat(new_string, str_to_add);
-	free(*((char**)data));
-	*((char**)data) = new_string;
+	free(((char*)data));
+	*((char**)&data) = new_string;
 	free(str_to_add);
 }
 
 void printInt(void *data)
 {
-	printf("Element is: %d\n", *((int*)data));
+	printf("Element is: %d\n", *((int*)&data));
 }
 
 void printFloat(void *data)
 {
-	printf("Element is: %f\n", *((float*)data));
+	printf("Element is: %f\n", *((float*)&data));
 }
 
 void printString(void *data)
 {
-	printf("Element is: %s\n", *((char**)data));
+	printf("Element is: %s\n", (*((char**)&data)));
 }
 
 
