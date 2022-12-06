@@ -169,11 +169,7 @@ char *StrStr(const char *haystack, const char *needle)
 }
 
 size_t StrSpn(const char *s, const char *accept)
-{	
-	/*not needed
-	int method_flag = 0;
-	int found_flag = 1;
-	*/
+{
 	size_t count = 0;
 	int dict[256] = {0};
 	while(*accept)
@@ -189,31 +185,5 @@ size_t StrSpn(const char *s, const char *accept)
 		count++;
 	}
 	return count;
-		
-		
-		/* not needed
-		case 2:
-			while(*s && found_flag)
-			{
-				const char* tmp_accept = accept;
-				found_flag = 0;
-				while(*tmp_accept)
-				{
-					if(s[0] == tmp_accept[0])
-					{
-						found_flag = 1;
-						break;
-					}
-					tmp_accept++;
-				}
-				if(!found_flag)
-					break;
-				s++;
-				count++;
-			}
-			return count;
-		break;
-	}
-	*/
 }
 
