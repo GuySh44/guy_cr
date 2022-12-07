@@ -73,7 +73,7 @@ void cleanFloat(void* data)
 
 void cleanString(void* str)
 {
-	free(*((char**)str));
+	free(*((char**)&str));
 }
 
 void addInt(void *data ,int num)
@@ -95,7 +95,7 @@ void addString(void *data, int num)
 	{
 		return;
 	}
-	new_string_size = strlen((char*)data)+ strlen(str_to_add);
+	new_string_size = strlen(*(char**)data)+ strlen(str_to_add);
 	new_string = (char*)calloc(new_string_size + 1, sizeof(char));
 	if(NULL == new_string)
 	{
@@ -103,10 +103,10 @@ void addString(void *data, int num)
 		return;
 	}
 	new_string[new_string_size] = '\0';
-	strcat(new_string, ((char*)data));
+	strcat(new_string, *((char**)data));
 	strcat(new_string, str_to_add);
-	free(((char*)data));
-	*((char**)&data) = new_string;
+	free(*((char**)data));
+	*((char**)data) = new_string;
 	free(str_to_add);
 }
 

@@ -4,25 +4,20 @@ struct stack
 {
 	size_t capacity;
 	size_t elem_size;
-	void* base;
 	void* top;
+	void* base;
 };
 
 stack_t *StackCreate(const size_t capacity,const size_t elem_size)
 {
-	stack_t *new_stack =(stack_t*)malloc(sizeof(stack_t));
+	stack_t *new_stack =(stack_t*)malloc(sizeof(stack_t) + capacity * elem_size);
 	assert(capacity);
 	assert(elem_size);
 	if (NULL == new_stack)
 	{
 		return NULL;
 	}
-	new_stack->base = malloc(capacity * elem_size);
-	if (NULL == new_stack->base)
-	{
-		free(new_stack);
-		return NULL;
-	}
+	new_stack->base = (void*)((char*)new_stack + (sizeof(size_t) + sizeof(size_t) + sizeof(void*)));
 	new_stack->top = new_stack->base;
 	new_stack->capacity = capacity;
 	new_stack->elem_size = elem_size;
@@ -32,7 +27,6 @@ stack_t *StackCreate(const size_t capacity,const size_t elem_size)
 int StackDestroy(stack_t *stack)
 {
 	assert(NULL != stack);
-	free(stack->base);
 	free(stack);
 	return 0;
 }
@@ -42,7 +36,6 @@ void StackPush(stack_t *stack ,const void *elem)
 {
 	assert(NULL != stack);
 	assert(NULL != elem);
-	assert(StackSize(stack) <= StackCapacity(stack));
 	memcpy((stack->top), elem, stack->elem_size);
 	stack->top = (void*)(((char*)stack->top) + stack->elem_size);
 }
@@ -62,7 +55,6 @@ void StackPop(stack_t *stack)
 
 int IsStackEmpty(const stack_t *stack)
 {
-	assert((char*)stack->top >= (char*)stack->base);
 	return ((char*)stack->top - (char*)stack->base);
 }
 
