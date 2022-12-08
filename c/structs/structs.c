@@ -65,10 +65,12 @@ ElementsArray createString(char *str)
 
 void cleanInt(void* data)
 {
+	(void)(data);
 }
 
 void cleanFloat(void* data)
 {
+	(void)(data);
 }
 
 void cleanString(void* str)
