@@ -4,10 +4,10 @@ void func2(void *arg) {
     printf("Enter func2\n");
  
     /* AREA2 */
-	
+	/*
 	*(&f2 + 2) = *((long *)arg + 2);
 	*(&f2 + 3) = *((long *)arg + 3);
-	
+	*/
     /* AREA2 */
  
     printf("Exit func2\n");
@@ -30,9 +30,9 @@ int main() {
     *screw_const = 1337;
     */
     
-    /* PART 2
+    /* PART2
     long *not_iks = &y;
-    --not_iks;
+    ++not_iks;
     *not_iks = 1337;
     */
     
