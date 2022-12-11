@@ -2,7 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void NullifyMatrix(int matrix[][10], size_t rows, size_t cols)
+void NullifyMatrix(int *matrix, size_t rows, size_t cols)
 {
 	size_t i = 0, j = 0;
 	size_t *marked_cols = (size_t*)malloc(sizeof(size_t)*cols);
@@ -21,7 +21,7 @@ void NullifyMatrix(int matrix[][10], size_t rows, size_t cols)
 		j = 0;
 		for(;j < cols; ++j)
 		{
-			if(matrix[i][j] == 0)
+			if(*(matrix + (j + (i * cols))) == 0)
 			{
 				marked_cols[j] = 1;
 				marked_rows[i] = 1;
@@ -36,7 +36,7 @@ void NullifyMatrix(int matrix[][10], size_t rows, size_t cols)
 		{
 			if(marked_cols[j] == 1 || marked_rows[i] == 1)
 			{
-				matrix[i][j] = 0;
+				*(matrix + (j + (i * cols))) = 0;
 			}
 		}
 	}
@@ -69,7 +69,7 @@ int main()
     printf("\n");
     printf("\n");
     i = 0, j = 0;
-	NullifyMatrix(matrix,10,10);
+	NullifyMatrix(*matrix,10,10);
 	for (i = 0; i < 10; i++)
     {
         for (j = 0; j < 10; j++)
