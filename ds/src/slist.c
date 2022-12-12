@@ -4,6 +4,8 @@
 #include <stdio.h> /* printf */
 
 #include "slist.h"
+
+/* my own Singly listed node ADT */
 #include "snode.h"
 
 struct s_list
@@ -11,30 +13,17 @@ struct s_list
 	s_list_node *head;
 };
 
-static int PrettyPrintList(s_list_t *list)
-{
-		s_list_iterator_t iter, end;
-		iter = SListBegin(list);
-		end = SListEnd(list);
-		while (0 == IterCmp(iter,end))
-		{
-			printf("%p:\n", (void*)iter);
-			printf("------------------------------\n");
-			printf("|    %d    ",*((int*)SListGet(list ,iter)));
-			printf("|  %p  |\n",(void*)(iter = SListNext(iter)));
-			printf("------------------------------\n");
-			printf("\t\t│\n\t\t|\n\t\t|\n\t\t↓\n");	
-		}
-		printf("\t\tDUMMY\n\n\n");
-		return 1;
-}
-
-
+/* function for comparing Iterators, pretty redundant in our case*/
 int IterCmp(s_list_iterator_t iter1, s_list_iterator_t iter2)
 {
 	return iter1 == iter2;
 }
 
+/* 
+create the list, allocate memory for its structure and a dummy node 
+return value:
+the new list
+*/
 s_list_t *SListCreate()
 {
 	s_list_t *new_list =(s_list_t*)malloc(sizeof(s_list_t));
@@ -53,6 +42,9 @@ s_list_t *SListCreate()
 	return new_list;
 }
 
+/* 
+iterate on the list, and remove node by node starting from the first node onwards, release the dummy and free the struct after deleting all regular nodes 
+*/
 void SListDestroy(s_list_t *s_list)
 {
 	s_list_iterator_t iter = SListBegin(s_list);
@@ -61,12 +53,16 @@ void SListDestroy(s_list_t *s_list)
 	{
 		SListRemove(s_list, iter);
 		iter = SListBegin(s_list);
-		assert(PrettyPrintList(s_list));
 	}
 	SNodeDestroy(s_list->head);
 	free(s_list);
 }
 
+/* 
+iterate on the list and find position, insert the new node using the method seen in class 
+return value:
+iterator to the new node added node
+*/
 s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const void *data)
 {
 	s_list_node* new_node = SNodeCreate(NULL, NULL);
@@ -90,6 +86,11 @@ s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const v
 	return iter;
 }
 
+/* 
+iterate on the list and find iter, delete the node using the method seen in class 
+return value:
+iterator to the next node after the removed
+*/
 s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
 {
 	s_list_iterator_t new_iter, after_iter;
@@ -109,8 +110,29 @@ s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
 	return iter;
 }
 
-void SListSet(s_list_t *s_list, s_list_iterator_t iter, const void *data);
+/* 
+iterate on the list and find iter, change the data pointer of the node 'pointed to' by iter 
+*/
+void SListSet(s_list_t *s_list, s_list_iterator_t iter, const void *data)
+{
+	s_list_iterator_t new_iter;
+	assert(s_list);
+	assert(iter);
+	new_iter = SListBegin(s_list);
+	while (0 == IterCmp(new_iter, iter))
+	{
+		new_iter = SListNext(new_iter);
+	}
+	assert(new_iter);
+	SNodeSetData((s_list_node*)new_iter, (void*)data);
+}
 
+/* 
+iterate on the list and find iter, return the data in the node pointed to by iter 
+return value:
+pointer to the data of the right node
+return NULL if iter pointing to dummy
+*/
 void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 {
 	s_list_iterator_t new_iter;
@@ -125,6 +147,11 @@ void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 	return SNodeGetData((s_list_node*)new_iter);
 }
 
+/* 
+iterate on the list and count elements, return the amount of elemnts not including dummy 
+return value:
+list size
+*/
 size_t SListSize(const s_list_t *s_list)
 {
 	s_list_iterator_t iter, last;
@@ -142,22 +169,96 @@ size_t SListSize(const s_list_t *s_list)
 	return count;
 }
 
-int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action_function_t action_func, void *parameter);
 
-s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function_t match_func, void *parameter);
+/* 
+iterate on the list from iter_from to iter_to, using action_func on each node in the range 
+return value:
+0 if action func finished succeessfully, not 0 otherwise
+*/
+int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_t iter_to, action_function_t action_func, void *parameter)
+{
+	s_list_iterator_t list_from, list_to;
+	assert(s_list);
+	assert(iter_from);
+	assert(iter_to);
+	assert(action_func);
+	list_from = SListBegin(s_list);
+	while (0 == IterCmp(list_from, iter_from))
+	{
+		list_from = SListNext(list_from);
+	}
+	assert(list_from);
+	list_to = SListBegin(s_list);
+	while (0 == IterCmp(list_to, iter_to))
+	{
+		list_to = SListNext(list_to);
+	}
+	assert(list_to);
+	if(NULL != SListNext(iter_to))
+	{
+		iter_to = SListNext(iter_to);
+	}
+	while(0 == IterCmp(list_from, list_to))
+	{
+		if(0 != action_func(SNodeGetData((s_list_node*)list_from), parameter))
+		{
+			return 1;
+		}
+		list_from = SListNext(list_from);
+	}
+	return 0;
+}
 
+/* 
+iterate on the list from iter_from to iter_to, checking for a node with a certain value, matched by match_func to a parameter 
+return value:
+iterator to the matched node if found, NULL otherwise
+*/
+s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function_t match_func, void *parameter)
+{
+	assert(iter_from);
+	assert(iter_to);
+	assert(match_func);
+	if(NULL != SListNext(iter_to))
+	{
+		iter_to = SListNext(iter_to);
+	}
+	while(0 == IterCmp(iter_from, iter_to))
+	{
+		if(match_func(SNodeGetData((s_list_node*)iter_from), parameter))
+		{
+			return iter_from;
+		}
+		iter_from = SListNext(iter_from);
+	}
+	return (s_list_iterator_t)(0);
+}
+
+/* 
+return value:
+iterator to the begining of the list
+*/
 s_list_iterator_t SListBegin(const s_list_t *s_list)
 {
 	assert(s_list);
 	return (s_list_iterator_t)(s_list->head);
 }
 
+/* 
+return value:
+iterator to the next node after iter
+*/
 s_list_iterator_t SListNext(const s_list_iterator_t iter)
 {
 	assert(iter);
 	return (s_list_iterator_t)(SNodeGetNext((s_list_node*)iter));
 }
 
+/* 
+iterate on the list until getting to the dummy signfying the last node 
+return value:
+iterator to dummy (last node)
+*/
 s_list_iterator_t SListEnd(const s_list_t *s_list)
 {
 	s_list_node* node_iter = s_list->head;
