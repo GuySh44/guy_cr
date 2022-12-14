@@ -14,7 +14,7 @@ struct s_list
 };
 
 /* function for comparing Iterators, pretty redundant in our case*/
-int IterCmp(s_list_iterator_t iter1, s_list_iterator_t iter2)
+int SListIterIsEqual(s_list_iterator_t iter1, s_list_iterator_t iter2)
 {
 	return iter1 == iter2;
 }
@@ -74,7 +74,7 @@ s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const v
 		return NULL;
 	}
 	iter = SListBegin(s_list);
-	while (0 == IterCmp(iter, position))
+	while (0 == SListIterIsEqual(iter, position))
 	{
 		iter = SListNext(iter);
 	}
@@ -97,7 +97,7 @@ s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
 	assert(s_list);
 	assert(iter);
 	new_iter = SListBegin(s_list);
-	while (0 == IterCmp(new_iter, iter))
+	while (0 == SListIterIsEqual(new_iter, iter))
 	{
 		new_iter = SListNext(new_iter);
 	}
@@ -119,7 +119,7 @@ void SListSet(s_list_t *s_list, s_list_iterator_t iter, const void *data)
 	assert(s_list);
 	assert(iter);
 	new_iter = SListBegin(s_list);
-	while (0 == IterCmp(new_iter, iter))
+	while (0 == SListIterIsEqual(new_iter, iter))
 	{
 		new_iter = SListNext(new_iter);
 	}
@@ -139,7 +139,7 @@ void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 	assert(s_list);
 	assert(iter);
 	new_iter = SListBegin(s_list);
-	while (0 == IterCmp(new_iter, iter))
+	while (0 == SListIterIsEqual(new_iter, iter))
 	{
 		new_iter = SListNext(new_iter);
 	}
@@ -161,7 +161,7 @@ size_t SListSize(const s_list_t *s_list)
 	last = SListEnd(s_list);
 	assert(iter);
 	assert(last);
-	while (0 == IterCmp(iter, last))
+	while (0 == SListIterIsEqual(iter, last))
 	{
 		iter = SListNext(iter);
 		++count;
@@ -183,18 +183,18 @@ int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_
 	assert(iter_to);
 	assert(action_func);
 	list_from = SListBegin(s_list);
-	while (0 == IterCmp(list_from, iter_from))
+	while (0 == SListIterIsEqual(list_from, iter_from))
 	{
 		list_from = SListNext(list_from);
 	}
 	assert(list_from);
 	list_to = SListBegin(s_list);
-	while (0 == IterCmp(list_to, iter_to))
+	while (0 == SListIterIsEqual(list_to, iter_to))
 	{
 		list_to = SListNext(list_to);
 	}
 	assert(list_to);
-	while(0 == IterCmp(list_from, list_to))
+	while(0 == SListIterIsEqual(list_from, list_to))
 	{
 		if(0 != action_func(SNodeGetData((s_list_node*)list_from), parameter))
 		{
@@ -215,7 +215,7 @@ s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_
 	assert(iter_from);
 	assert(iter_to);
 	assert(match_func);
-	while(0 == IterCmp(iter_from, iter_to))
+	while(0 == SListIterIsEqual(iter_from, iter_to))
 	{
 		if(match_func(SNodeGetData((s_list_node*)iter_from), parameter))
 		{

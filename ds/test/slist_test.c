@@ -10,7 +10,7 @@ int PrettyPrintList(s_list_t *list)
 		iter = SListBegin(list);
 		end = SListEnd(list);
 		printf("ALL RIGHTS RESERVED TO SHABABO INDUSTRIES™ UNAUTHORIZED COPYING IS FORBIDDEN BY LAW\n");
-		while (0 == IterCmp(iter,end))
+		while (0 == SListIterIsEqual(iter,end))
 		{
 			printf("%p:\n", (void*)iter);
 			printf("------------------------------\n");

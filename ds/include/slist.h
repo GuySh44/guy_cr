@@ -34,6 +34,6 @@ s_list_iterator_t SListNext(const s_list_iterator_t iter); /* returns iterator t
 
 s_list_iterator_t SListEnd(const s_list_t *s_list); /* returns iterator to the end of the SList */
 
-int IterCmp(s_list_iterator_t iter1, s_list_iterator_t iter2);
+int SListIterIsEqual(s_list_iterator_t iter1, s_list_iterator_t iter2);
 
 #endif  /* __SINGLE_LINKED_LIST_H__ILRD__CR3_ */
