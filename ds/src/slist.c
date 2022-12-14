@@ -194,10 +194,6 @@ int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_
 		list_to = SListNext(list_to);
 	}
 	assert(list_to);
-	if(NULL != SListNext(iter_to))
-	{
-		iter_to = SListNext(iter_to);
-	}
 	while(0 == IterCmp(list_from, list_to))
 	{
 		if(0 != action_func(SNodeGetData((s_list_node*)list_from), parameter))
@@ -219,10 +215,6 @@ s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_
 	assert(iter_from);
 	assert(iter_to);
 	assert(match_func);
-	if(NULL != SListNext(iter_to))
-	{
-		iter_to = SListNext(iter_to);
-	}
 	while(0 == IterCmp(iter_from, iter_to))
 	{
 		if(match_func(SNodeGetData((s_list_node*)iter_from), parameter))
@@ -231,7 +223,12 @@ s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_
 		}
 		iter_from = SListNext(iter_from);
 	}
-	return (s_list_iterator_t)(0);
+	while(NULL != SListNext(iter_from))
+	{
+		iter_from = SListNext(iter_from);
+	}
+
+	return iter_from;
 }
 
 /* 
