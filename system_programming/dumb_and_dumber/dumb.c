@@ -6,7 +6,7 @@ int main(int argc, char **argv, char **envp)
     int i = 7;
     int j = 12;
     int k = 15;
-    int *p = &j;
+    int *p = &k;
 
     FILE *fp;
 
@@ -16,6 +16,10 @@ int main(int argc, char **argv, char **envp)
         return -1;
     }
 
+	printf("i address:\t%p\n",&i);
+	printf("j address:\t%p\n",&j);
+	printf("k address:\t%p\n",&k);
+	printf("p:\t%p\n",p);
     fprintf(fp, "%p\n", p);
 
     if(fclose(fp))
