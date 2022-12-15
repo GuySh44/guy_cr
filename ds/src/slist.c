@@ -8,6 +8,9 @@
 /* my own Singly listed node ADT */
 #include "snode.h"
 
+/* 
+Interviewer: Raz
+*/
 struct s_list
 {
 	s_list_node *head;

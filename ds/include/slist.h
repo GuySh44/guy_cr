@@ -4,6 +4,10 @@
 
 #include <stddef.h> /* size_t */
 
+/* 
+Interviewer: Raz
+*/
+
 typedef struct s_list s_list_t;
 typedef struct s_list_node *s_list_iterator_t;
 typedef int (*action_function_t)(void *data, void *parameter);
