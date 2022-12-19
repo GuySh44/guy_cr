@@ -11,12 +11,12 @@ struct stack
 stack_t *StackCreate(const size_t capacity,const size_t elem_size)
 {
 	stack_t *new_stack =(stack_t*)malloc(sizeof(stack_t));
-	assert(capacity);
-	assert(elem_size);
 	if (NULL == new_stack)
 	{
 		return NULL;
 	}
+	assert(capacity);
+	assert(elem_size);
 	new_stack->base = malloc(capacity * elem_size);
 	if (NULL == new_stack->base)
 	{
@@ -63,7 +63,7 @@ void StackPop(stack_t *stack)
 int IsStackEmpty(const stack_t *stack)
 {
 	assert((char*)stack->top >= (char*)stack->base);
-	return ((char*)stack->top - (char*)stack->base);
+	return !((char*)stack->top - (char*)stack->base);
 }
 
 size_t StackSize(const stack_t *stack)
