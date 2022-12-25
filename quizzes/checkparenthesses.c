@@ -59,5 +59,9 @@ int main()
 	BalancedPar("[()](){[()]()}");
 	printf("string = “[{}(])”\n");
 	BalancedPar("[{}(])");
+	printf("string = “()))”\n");
+	BalancedPar("()))");
+	printf("string = “((()”\n");
+	BalancedPar("((()");
 	return 0;
 }

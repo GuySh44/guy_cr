@@ -50,7 +50,6 @@ void StackPush(stack_t *stack ,const void *elem)
 void *StackPeek(const stack_t *stack)
 {
 	assert(NULL != stack);
-	assert(!IsStackEmpty(stack));
 	return (void*)(((char*)stack->top) - stack->elem_size);
 }
 
