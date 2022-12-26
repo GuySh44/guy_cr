@@ -172,5 +172,5 @@ int main()
 	printTest("alloc8 aligned?", ((size_t)fsa3_alloc8) % word_size);
 	printTest("alloc9 aligned?", ((size_t)fsa3_alloc9) % word_size);
 	free(fsa3_space);
-	return 1;
+	return 0;
 }
