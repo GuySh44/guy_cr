@@ -19,9 +19,10 @@ static void SwapInt(int* num1_p, int* num2_p)
 void BubbleSort(int *arr, int size)
 {
 	int i = 0;
-	int j = 0;
+	int j;
 	for(; i < size - 1; ++i)
 	{
+		j = 0;
 		for(; j < size - i - 1; ++j)
 		{
 			if(arr[j] > arr[j+1])
@@ -43,7 +44,7 @@ void SelectionSort(int *arr, int size)
 		min_ind = j;
 		for(; j < size; ++j)
 		{
-			if(arr[j] < arr[min_ind]
+			if(arr[j] < arr[min_ind])
 			{
 				min_ind = j;
 			}
