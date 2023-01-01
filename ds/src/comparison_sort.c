@@ -1,5 +1,7 @@
-/*Reviewer: Raz */
 
+#include "comparison_sort.h"
+
+/*Reviewer: Raz */
 static void SwapInt(int* num1_p, int* num2_p)
 {
 	int tmp = *num1_p;

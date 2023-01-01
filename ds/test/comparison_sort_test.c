@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "sort.h"
+#include "comparison_sort.h"
 #define ARR_SIZE 5000
 
 int (*compar)(const void *, const void *);
