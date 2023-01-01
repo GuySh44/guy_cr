@@ -2,6 +2,7 @@
 #define __RECURSION_H__
 
 #include <stddef.h>
+#include "stack.h"
 
 typedef struct node Node;
 
@@ -26,6 +27,8 @@ char *StrcpyRecursive(char *dest, const char *src);
 char *StrcatRecursive(char *dest, const char *src);
 
 char *StrstrRecursive(const char *haystack, const char *needle);
+
+void SortStack(stack_t *stack);
 
 
 #endif /* __RECURSION_H__ */

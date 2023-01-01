@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "recursion.h"
+#include "stack.h"
 
 
 int FibonacciRegular(int element_index)
@@ -103,8 +104,30 @@ char *StrstrRecursive(const char *haystack, const char *needle)
 	return StrstrRecursive(haystack + 1, needle);
 }
 
+static void InsertSortStack(stack_t *stack, int elem)
+{
+	int stack_top = *((int*)StackPeek(stack));
+	if(stack_top < elem || IsStackEmpty(stack))
+	{
+		StackPush(stack, &elem);
+		return;
+	}
+	StackPop(stack);
+	InsertSortStack(stack, elem);
+	StackPush(stack, &stack_top);
+} 
 
-
-
+void SortStack(stack_t *stack)
+{
+	int stack_top;
+	if(1 == StackSize(stack))
+	{
+		return;
+	}
+	stack_top = *((int*)StackPeek(stack));
+	StackPop(stack);
+	SortStack(stack);
+	InsertSortStack(stack, stack_top);
+}
 
 

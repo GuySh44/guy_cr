@@ -44,6 +44,10 @@ int main()
 	
 	const char* strstr_check4 = "ac";
 	
+	int intagers[5] = {30,-5,18,14,-3};
+	
+	stack_t *mystack = StackCreate(5,4);
+	
 	
 	printTest("Is regular fibonacci 0 = 0?", !(0 == FibonacciRegular(0)));
 	printTest("Is regular fibonacci 1 = 1?", !(1 == FibonacciRegular(1)));
@@ -131,5 +135,48 @@ int main()
 	printTest("is strstr regular and recursive return the same needle for aaccbcca return first cc",strcmp(strstr(strstr_check2,"cc"), StrstrRecursive(strstr_check2,"cc")));
 	printTest("is strstr regular and recursive return the same needle for empty string in empty string",strcmp(strstr(strstr_check3,""), StrstrRecursive(strstr_check3,"")));
 	printTest("is strstr regular and recursive return the same needle for string not found return NULL",!(0 == StrstrRecursive(strstr_check4,"vvv")));
+	
+	StackPush(mystack, intagers);
+	StackPush(mystack, intagers+1);
+	StackPush(mystack, intagers+2);
+	StackPush(mystack, intagers+3);
+	StackPush(mystack, intagers+4);
+	
+	printf("\n");
+	printf("the stack before sort is:\n");
+	printf("\ntop\n%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d bottom\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	
+	StackPush(mystack, intagers);
+	StackPush(mystack, intagers+1);
+	StackPush(mystack, intagers+2);
+	StackPush(mystack, intagers+3);
+	StackPush(mystack, intagers+4);
+	
+	SortStack(mystack);
+	
+	printf("\n");
+	printf("the stack after sort is:\n");
+	printf("\ntop\n%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d->\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	printf("%d bottom\n", *((int*)StackPeek(mystack)));
+	StackPop(mystack);
+	
+	StackDestroy(mystack);
+
 	return 0;
 }
