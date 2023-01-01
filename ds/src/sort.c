@@ -1,13 +1,4 @@
-
-
-
-
-
-
-
-
-
-
+/*Reviewer: Raz */
 
 static void SwapInt(int* num1_p, int* num2_p)
 {
