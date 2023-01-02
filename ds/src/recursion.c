@@ -4,6 +4,7 @@
 #include "recursion.h"
 #include "stack.h"
 
+/* Reviewer: Or */
 
 int FibonacciRegular(int element_index)
 {
@@ -20,6 +21,7 @@ int FibonacciRegular(int element_index)
 	return curr;
 }
 
+/* Reviewer: Or */
 /* 0,1 are "edge" cases and we need to check for them */
 int FibonacciRecursive(int element_index)
 {
@@ -34,19 +36,25 @@ int FibonacciRecursive(int element_index)
 	return FibonacciRecursive(element_index - 1) + FibonacciRecursive(element_index - 2);
 }
 
+/* Reviewer: Daniel */
 Node* FlipListRecursive(Node* node)
 {
-	Node *next;
-    Node *new_head;
+	Node *next = NULL;
+    Node *new_head = NULL;
     if (node == NULL || node->next_node == NULL) {
-        return node;
+        return node;						/* if the list is empty or we got to the last node we reached our stop condition */
     }
-    next = node->next_node;
-    new_head = FlipListRecursive(next);
-    next->next_node = node;
-    node->next_node = NULL;
+    next = node->next_node;					/* keep next node */
+    new_head = FlipListRecursive(next);		/* get to last node */
+    next->next_node = node;					/* set next node to current node, its just after the recursion so we start at the end of the list */
+    node->next_node = NULL;					/* set current node next to NULL, solves end of list edge case */
     return new_head;
 }
+
+/*
+All Str functions:
+Reviewer: Yahav
+ */
 
 size_t StrlenRecursive(const char *s)
 {
@@ -60,7 +68,7 @@ size_t StrlenRecursive(const char *s)
 
 int StrcmpRecursive(const char *s1, const char *s2)
 {
-	if(*s1 != *s2 || ('\0' == *s1 || '\0' == *s2))
+	if(*s1 != *s2 || '\0' == *s1)
 	{
 		return ((*s1) - (*s2));
 	}
@@ -103,6 +111,11 @@ char *StrstrRecursive(const char *haystack, const char *needle)
 	}
 	return StrstrRecursive(haystack + 1, needle);
 }
+
+/*
+Stack Sort
+Reviewer: Yosef 
+*/
 
 /*we use Insert sort algorithm implemented for a stack. our starting point is a stack with 1 element inside it, and thats why we can deduct the stack is sorted in each step, then we insert the element in the right place just like insert sort*/
 static void InsertSortStack(stack_t *stack, int elem)
