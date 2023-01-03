@@ -5,9 +5,9 @@
 
 typedef struct vsa vsa_t;
 
-vsa_t *VsaInit(const void *alloc_dest, const size_t size);
+vsa_t *VsaInit(void *alloc_dest, size_t size);
 
-void *VsaAlloc(vsa_t *vsa, const size_t block_size);
+void *VsaAlloc(vsa_t *vsa, size_t block_size);
 
 void VsaFree(void *block);
 
