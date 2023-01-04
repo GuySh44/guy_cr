@@ -8,6 +8,8 @@
 int main()
 {	
 	vsa_t *vsa1 = VsaInit(malloc(192), 192);
+	void *vsa2_space = malloc(200);
+	vsa_t *vsa2 = VsaInit(((char*)vsa2_space + 3), 197);
 	
 	size_t largest_chunk1 = VsaLargestChunk(vsa1);
 	
@@ -85,9 +87,96 @@ int main()
 	
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("\n\n");
+	printf("MULTIPLE ALLOCS WITH DIFFERENT FREE ORDER, DEFRAGING, END OF POOL FRAGMENTATION\n\n");
 	
+	first_aloc = VsaAlloc(vsa1, 24);
+	second_aloc = VsaAlloc(vsa1, 16);
+	third_aloc = VsaAlloc(vsa1, 24);
+		
+	printTest("Creating Fragmantation of word between alloc3 and end", !(VsaLargestChunk(vsa1) == 0));
+	
+	VsaFree(third_aloc);
+	
+	printTest("Check if we defrag right next to end", !(VsaLargestChunk(vsa1) == 32));
+	
+	
+	third_aloc = VsaAlloc(vsa1, 32);
+	
+	printTest("Did we allocate maximal size", !(VsaLargestChunk(vsa1) == 0));
+	
+	VsaFree(first_aloc);
+	VsaFree(third_aloc);
+	
+	printTest("Does LargestChunk compare right between free blocks", !(VsaLargestChunk(vsa1) == 32));
+	
+	first_aloc = VsaAlloc(vsa1, 24);
+		
+	printTest("Does LargestChunk stay right after smaller free alloced", !(VsaLargestChunk(vsa1) == 32));
+	
+	VsaFree(second_aloc);
+	
+	printTest("LargestChunk after defrag alloc2 and alloc3 space", !(VsaLargestChunk(vsa1) == 72));
+	
+	second_aloc = VsaAlloc(vsa1, 16);
+	
+	third_aloc = VsaAlloc(vsa1, 32);
+	
+	VsaFree(first_aloc); 
+	
+	VsaFree(second_aloc);
+	
+	printTest("LargestChunk after defrag alloc1 and alloc2 space", !(VsaLargestChunk(vsa1) == 64));
+	
+	VsaFree(third_aloc);
 	
 	free(vsa1);
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("ALIGNMENT AND ALLOC SIZE GIVEN DIFFERENT THEN WORD\n\n");
+	
+	first_aloc = VsaAlloc(vsa2, 22);
+	second_aloc = VsaAlloc(vsa2, 14);
+	third_aloc = VsaAlloc(vsa2, 21);
+		
+	printTest("Creating Fragmantation of word between alloc3 and end", !(VsaLargestChunk(vsa2) == 0));
+	
+	VsaFree(third_aloc);
+	
+	printTest("Check if we defrag right next to end", !(VsaLargestChunk(vsa2) == 32));
+	
+	
+	third_aloc = VsaAlloc(vsa2, 30);
+	
+	printTest("Did we allocate maximal size", !(VsaLargestChunk(vsa2) == 0));
+	
+	VsaFree(first_aloc);
+	VsaFree(third_aloc);
+	
+	printTest("Does LargestChunk compare right between free blocks", !(VsaLargestChunk(vsa2) == 32));
+	
+	first_aloc = VsaAlloc(vsa2, 19);
+		
+	printTest("Does LargestChunk stay right after smaller free alloced", !(VsaLargestChunk(vsa2) == 32));
+	
+	VsaFree(second_aloc);
+	
+	printTest("LargestChunk after defrag alloc2 and alloc3 space", !(VsaLargestChunk(vsa2) == 72));
+	
+	second_aloc = VsaAlloc(vsa2, 13);
+	
+	third_aloc = VsaAlloc(vsa2, 29);
+	
+	VsaFree(first_aloc); 
+	
+	VsaFree(second_aloc);
+	
+	printTest("LargestChunk after defrag alloc1 and alloc2 space", !(VsaLargestChunk(vsa2) == 64));
+	
+	VsaFree(third_aloc);
+	
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	
+	free(vsa2_space);
+	
 	return 0;
 }

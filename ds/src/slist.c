@@ -8,6 +8,8 @@
 /* my own Singly listed node ADT */
 #include "snode.h"
 
+#define INVALID_ITER ((s_list_iterator_t)(0))
+
 /* 
 Interviewer: Raz
 */
@@ -19,6 +21,8 @@ struct s_list
 /* function for comparing Iterators, pretty redundant in our case*/
 int SListIterIsEqual(s_list_iterator_t iter1, s_list_iterator_t iter2)
 {
+	assert(INVALID_ITER != iter1);
+	assert(INVALID_ITER != iter2);
 	return iter1 == iter2;
 }
 
@@ -50,8 +54,9 @@ iterate on the list, and remove node by node starting from the first node onward
 */
 void SListDestroy(s_list_t *s_list)
 {
-	s_list_iterator_t iter = SListBegin(s_list);
+	s_list_iterator_t iter;
 	assert(s_list);
+	iter = SListBegin(s_list);
 	while(NULL != SListNext(iter)) 
 	{
 		SListRemove(s_list, iter);
@@ -71,7 +76,7 @@ s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const v
 	s_list_node* new_node = SNodeCreate(NULL, NULL);
 	s_list_iterator_t iter;
 	assert(s_list);
-	assert(position);
+	assert(INVALID_ITER != position);
 	if(NULL == new_node)
 	{
 		return NULL;
@@ -81,7 +86,7 @@ s_list_iterator_t SListAdd(s_list_t *s_list, s_list_iterator_t position, const v
 	{
 		iter = SListNext(iter);
 	}
-	assert(iter);
+	assert(INVALID_ITER != iter);
 	SNodeSetData(new_node,SNodeGetData((s_list_node*)iter));
 	SNodeSetNext(new_node,SNodeGetNext((s_list_node*)iter));
 	SNodeSetData((s_list_node*)iter,(void*)data);
@@ -98,13 +103,13 @@ s_list_iterator_t SListRemove(s_list_t *s_list, s_list_iterator_t iter)
 {
 	s_list_iterator_t new_iter, after_iter;
 	assert(s_list);
-	assert(iter);
+	assert(INVALID_ITER != iter);
 	new_iter = SListBegin(s_list);
 	while (0 == SListIterIsEqual(new_iter, iter))
 	{
 		new_iter = SListNext(new_iter);
 	}
-	assert(new_iter);
+	assert(INVALID_ITER != new_iter);
 	after_iter =  SListNext(new_iter);
 	SNodeSetData((s_list_node*)new_iter,SNodeGetData((s_list_node*)after_iter));
 	SNodeSetNext((s_list_node*)new_iter,SNodeGetNext((s_list_node*)after_iter));
@@ -120,7 +125,7 @@ void SListSet(s_list_t *s_list, s_list_iterator_t iter, const void *data)
 {
 	s_list_iterator_t new_iter;
 	assert(s_list);
-	assert(iter);
+	assert(INVALID_ITER != iter);
 	new_iter = SListBegin(s_list);
 	while (0 == SListIterIsEqual(new_iter, iter))
 	{
@@ -140,7 +145,7 @@ void *SListGet(s_list_t *s_list, s_list_iterator_t iter)
 {
 	s_list_iterator_t new_iter;
 	assert(s_list);
-	assert(iter);
+	assert(INVALID_ITER != iter);
 	new_iter = SListBegin(s_list);
 	while (0 == SListIterIsEqual(new_iter, iter))
 	{
@@ -182,8 +187,8 @@ int SListForEach(s_list_t *s_list, s_list_iterator_t iter_from, s_list_iterator_
 {
 	s_list_iterator_t list_from, list_to;
 	assert(s_list);
-	assert(iter_from);
-	assert(iter_to);
+	assert(INVALID_ITER != iter_from);
+	assert(INVALID_ITER != iter_to);
 	assert(action_func);
 	list_from = SListBegin(s_list);
 	while (0 == SListIterIsEqual(list_from, iter_from))
@@ -215,8 +220,8 @@ iterator to the matched node if found, NULL otherwise
 */
 s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_to, match_function_t match_func, void *parameter)
 {
-	assert(iter_from);
-	assert(iter_to);
+	assert(INVALID_ITER != iter_from);
+	assert(INVALID_ITER != iter_to);
 	assert(match_func);
 	while(0 == SListIterIsEqual(iter_from, iter_to))
 	{
@@ -250,7 +255,7 @@ iterator to the next node after iter
 */
 s_list_iterator_t SListNext(const s_list_iterator_t iter)
 {
-	assert(iter);
+	assert(INVALID_ITER != iter); //what type is iter? what are we asserting? define INVALID_ITER
 	return (s_list_iterator_t)(SNodeGetNext((s_list_node*)iter));
 }
 
@@ -261,8 +266,9 @@ iterator to dummy (last node)
 */
 s_list_iterator_t SListEnd(const s_list_t *s_list)
 {
-	s_list_node* node_iter = s_list->head;
+	s_list_node* node_iter;
 	assert(s_list);
+	node_iter = s_list->head;
 	while(SNodeGetNext(node_iter) != NULL)
 	{
 		node_iter = SNodeGetNext(node_iter);
