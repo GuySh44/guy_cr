@@ -120,7 +120,7 @@ Reviewer: Yosef
 /*we use Insert sort algorithm implemented for a stack. our starting point is a stack with 1 element inside it, and thats why we can deduct the stack is sorted in each step, then we insert the element in the right place just like insert sort*/
 static void InsertSortStack(stack_t *stack, int elem)
 {
-	int stack_top;
+	int stack_top = 0;
 	if(IsStackEmpty(stack))
 	{
 		StackPush(stack, &elem);
@@ -141,7 +141,7 @@ static void InsertSortStack(stack_t *stack, int elem)
 /*Base recursive function for the Sort, its main use is to empty the stack, and keep the last element we popped, then calling the insert function to insert the popped element in the right place*/
 void SortStack(stack_t *stack)
 {
-	int stack_top;
+	int stack_top = 0;
 	if(1 == StackSize(stack))
 	{
 		return;

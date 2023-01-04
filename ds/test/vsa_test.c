@@ -35,7 +35,7 @@ int main()
 		
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-	printf("FAMOUS TEST CASE I COULDNT SHUT UP ABOUT\n\n");
+	printf("TEST CASE I COULDNT SHUT UP ABOUT\n\n");
 	first_aloc = VsaAlloc(vsa1, 24);
 	
 	printTest("Is LargestChunk right while linear allocing... after alloc1 ", !(VsaLargestChunk(vsa1) == 72));
@@ -84,6 +84,9 @@ int main()
 	printTest("Can we survive defrag of couple of frees? and keep our original size", !(largest_chunk1 == VsaLargestChunk(vsa1)));
 	
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+	printf("\n\n");
+	
 	
 	free(vsa1);
 	return 0;

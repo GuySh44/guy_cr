@@ -101,6 +101,8 @@ void *VsaAlloc(vsa_t *vsa, size_t block_size)
 	
 	VsaDefrag(vsa);
 	
+	block_size = (((block_size % WORD_SIZE) != 0) + (block_size / WORD_SIZE)) * WORD_SIZE;
+	
 	curr_free_ahead = ((size_t*)((char*)vsa->data + WORD_SIZE));
 	curr_aloc_ahead = ((size_t*)((char*)vsa->data));
 	curr_block_size = *curr_free_ahead + *curr_aloc_ahead;
