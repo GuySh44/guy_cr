@@ -4,7 +4,6 @@
 
 #include "vsa.h"
 
-#define DEBUG
 #define MAGIC 0xDEADBEEF
 #define WORD_SIZE sizeof(size_t)
 
@@ -18,6 +17,7 @@ struct vsa
 static void VsaDefrag(vsa_t *vsa)
 {
 	size_t mem_ahead = vsa->pool_size;
+	size_t tmp_free_frag = 0;
 	size_t *curr_free_ahead = ((size_t*)((char*)vsa->data + WORD_SIZE));
 	size_t *curr_aloc_ahead = ((size_t*)((char*)vsa->data));
 	size_t curr_block_size = *curr_free_ahead + *curr_aloc_ahead;
@@ -28,14 +28,24 @@ static void VsaDefrag(vsa_t *vsa)
 	{
 		assert(mem_ahead > 0);
 		mem_ahead = mem_ahead - curr_block_size - vsa->header_size;
-		if(*curr_aloc_ahead == 0 && *next_aloc_ahead == 0)
+		if(*curr_aloc_ahead == 0 && *next_aloc_ahead == 0 && *next_free_ahead != 0)
 		{
 				*curr_free_ahead = *curr_free_ahead + *next_free_ahead + vsa->header_size;
+				mem_ahead += curr_block_size + vsa->header_size;
+				next_free_ahead = ((size_t*)((char*)curr_free_ahead + *curr_free_ahead + vsa->header_size));
+				next_aloc_ahead = ((size_t*)((char*)curr_aloc_ahead + *curr_free_ahead + vsa->header_size));
+				curr_block_size = *curr_free_ahead;
+				continue;
+				
 		}
-		else if(*curr_free_ahead > 0 && *next_aloc_ahead == 0)
+		else if(*curr_free_ahead > 0 && *next_aloc_ahead == 0 && *next_free_ahead != 0)
 		{
-			*((size_t*)((char*)next_aloc_ahead - *curr_free_ahead)) = 0;
-			*((size_t*)((char*)next_free_ahead - *curr_free_ahead)) = *curr_free_ahead + *next_free_ahead;
+			mem_ahead += *curr_free_ahead;
+			tmp_free_frag = *curr_free_ahead + *next_free_ahead;
+			next_aloc_ahead = ((size_t*)((char*)next_aloc_ahead - *curr_free_ahead));
+			*next_aloc_ahead = 0;
+			next_free_ahead = ((size_t*)((char*)next_free_ahead - *curr_free_ahead));
+			*next_free_ahead = tmp_free_frag;
 			*curr_free_ahead = 0;
 		}
 		curr_free_ahead = next_free_ahead;
@@ -58,19 +68,23 @@ vsa_t *VsaInit(void *alloc_dest, size_t size)
 	assert(alloc_dest);
 	assert(size > times_to_align + sizeof(struct vsa));
 	
-	vsa->header_size = sizeof(size_t) + sizeof(void*);
+	vsa->header_size = sizeof(size_t) + sizeof(size_t);
 	
+	#ifndef NDEBUG
+    vsa->header_size += WORD_SIZE;
+	#endif
 	
 	vsa->data = (void*)((char*)alloc_dest + times_to_align + sizeof(struct vsa));
-	vsa->pool_size = size - times_to_align - sizeof(struct vsa);
+	vsa->pool_size = size - times_to_align - sizeof(struct vsa) - vsa->header_size;
 	*((size_t*)((char*)vsa->data + vsa->pool_size)) = 0;
-	*((size_t*)((char*)vsa->data + vsa->pool_size - WORD_SIZE)) = 0;
-	*((size_t*)(vsa->data)) = 0;
-	*((size_t*)((char*)vsa->data + WORD_SIZE)) = vsa->pool_size - vsa->header_size - 2 * sizeof(size_t);
+	*((size_t*)((char*)vsa->data + vsa->pool_size+ WORD_SIZE)) = 0;
 	
-	#ifdef DEBUG
-    vsa->header_size += WORD_SIZE;
-    *((size_t*)((char*)vsa->data + 2 * WORD_SIZE)) = MAGIC;
+	*((size_t*)(vsa->data)) = 0;
+	*((size_t*)((char*)vsa->data + WORD_SIZE)) = vsa->pool_size - vsa->header_size;
+	
+	#ifndef NDEBUG
+    *((size_t*)((char*)vsa->data + vsa->header_size - WORD_SIZE)) = MAGIC;
+    *((size_t*)((char*)vsa->data + vsa->pool_size + vsa->header_size - WORD_SIZE)) = MAGIC;
 	#endif
 	
 	return vsa;
@@ -91,9 +105,9 @@ void *VsaAlloc(vsa_t *vsa, size_t block_size)
 	curr_aloc_ahead = ((size_t*)((char*)vsa->data));
 	curr_block_size = *curr_free_ahead + *curr_aloc_ahead;
 	
-	while(0 != *curr_aloc_ahead && 0 != *curr_free_ahead)
+	while(0 != *curr_aloc_ahead || 0 != *curr_free_ahead)
 	{
-		if(0 == *curr_aloc_ahead && *curr_free_ahead > block_size)
+		if(0 == *curr_aloc_ahead && *curr_free_ahead >= block_size)
 		{
 			if( *curr_free_ahead < block_size + vsa->header_size)
 			{
@@ -101,7 +115,7 @@ void *VsaAlloc(vsa_t *vsa, size_t block_size)
 				*curr_aloc_ahead = block_size;
 				new_block = (void*)((char*)curr_free_ahead + WORD_SIZE);
 				
-			 	#ifdef DEBUG
+			 	#ifndef NDEBUG
 			 	*((size_t*)new_block) = MAGIC;
 			 	new_block = (void*)((char*)new_block + WORD_SIZE);
 		 		#endif
@@ -117,7 +131,7 @@ void *VsaAlloc(vsa_t *vsa, size_t block_size)
 				*((size_t*)((char*)curr_free_ahead + block_size + vsa->header_size)) = tmp_free;
 				*((size_t*)((char*)curr_aloc_ahead + block_size + vsa->header_size)) = 0;
 				
-				#ifdef DEBUG
+				#ifndef NDEBUG
 			 	*((size_t*)new_block) = MAGIC;
 			 	new_block = (void*)((char*)new_block + WORD_SIZE);
 		 		#endif
@@ -134,17 +148,20 @@ void *VsaAlloc(vsa_t *vsa, size_t block_size)
 
 void VsaFree(void *block)
 {
-	size_t free_ahead = *((size_t*)((char*)block - sizeof(size_t)));
-	size_t aloc_ahead = *((size_t*)((char*)block - 2 * sizeof(size_t)));
+	size_t *free_ahead;
+	size_t *aloc_ahead;
 	assert(block);
 	
-	#ifdef DEBUG
+	#ifndef NDEBUG
 	assert(*((size_t*)((char*)block - sizeof(size_t))) == (size_t)MAGIC);
 	block = ((void*)((char*)block - sizeof(size_t)));
 	#endif
 	
-	free_ahead += aloc_ahead;
-	aloc_ahead = 0;
+	free_ahead = ((size_t*)((char*)block - sizeof(size_t)));
+	aloc_ahead = ((size_t*)((char*)block - 2 * sizeof(size_t)));
+	
+	*free_ahead += *aloc_ahead;
+	*aloc_ahead = 0;
 }
 
 size_t VsaLargestChunk(vsa_t *vsa)
@@ -162,7 +179,7 @@ size_t VsaLargestChunk(vsa_t *vsa)
 	curr_aloc_ahead = ((size_t*)((char*)vsa->data));
 	curr_block_size = *curr_free_ahead + *curr_aloc_ahead;
 	
-	while(0 != *curr_aloc_ahead && 0 != *curr_free_ahead)
+	while(0 != *curr_aloc_ahead || 0 != *curr_free_ahead)
 	{
 		if(0 == *curr_aloc_ahead)
 		{
