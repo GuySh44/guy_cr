@@ -255,7 +255,7 @@ iterator to the next node after iter
 */
 s_list_iterator_t SListNext(const s_list_iterator_t iter)
 {
-	assert(INVALID_ITER != iter); //what type is iter? what are we asserting? define INVALID_ITER
+	assert(INVALID_ITER != iter);
 	return (s_list_iterator_t)(SNodeGetNext((s_list_node*)iter));
 }
 
