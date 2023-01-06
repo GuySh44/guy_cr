@@ -3,6 +3,7 @@
 !.gitignore
 !**/*.c
 !c/makefile/makefile
+!ds/makefile
 !**/*.md
 !**/*.h
 !**/*.a
