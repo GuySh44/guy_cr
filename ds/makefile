@@ -1,7 +1,7 @@
 CC = @gcc -I include/
 CFLAGS = -ansi -pedantic-errors -Wall -Wextra
 DEBUG = -g src/my_utils.c
-RELEASE = $(CC) $(CFLAGS) -DNDEBUG -O3 test/main.c
+RELEASE = $(CC) $(CFLAGS) -DNDEBUG -O3
 GD = $(CC) $(CFLAGS) $(DEBUG)
 
 STACK_SRC = src/stack.c test/stack_test.c
@@ -14,8 +14,8 @@ VSA_SRC = src/vsa.c test/vsa_test.c
 
 vsa: $(VSA_SRC)
 	$(GD) $(VSA_SRC) -o vsa
-vsa_release: src/vsa.c test/main.c
-	$(RELEASE) src/vsa.c -o vsa_release
+vsa_release: src/vsa.c test/vsa_release.c
+	$(GD) -DNDEBUG src/vsa.c test/vsa_release.c -o vsa_release
 vsa_obj:
 	$(CC) -c $(CFLAGS) $(DEBUG) $(VSA_SRC)
 
