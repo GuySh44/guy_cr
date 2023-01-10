@@ -19,6 +19,7 @@
 #define	EXT2_DIND_BLOCK	(EXT2_IND_BLOCK + 1)
 #define	EXT2_TIND_BLOCK	(EXT2_DIND_BLOCK + 1)
 #define	EXT2_N_BLOCKS	(EXT2_TIND_BLOCK + 1)
+#define BLOCK_OFFSET(block) ((block)*calc_block_size)
 
 struct ext2_inode {
 	__le16	i_mode;		/* File mode */
@@ -114,7 +115,7 @@ struct ext2_super_block {
 	 * things it doesn't understand...
 	 */
 	__le32	s_first_ino; 		/* First non-reserved inode */
-	__le16   s_inode_size; 		/* size of inode structure */
+	__le16  s_inode_size; 		/* size of inode structure */
 	__le16	s_block_group_nr; 	/* block group # of this superblock */
 	__le32	s_feature_compat; 	/* compatible feature set */
 	__le32	s_feature_incompat; 	/* incompatible feature set */
@@ -230,12 +231,33 @@ group_descriptor->bg_free_inodes_count,\
 group_descriptor->bg_used_dirs_count);
 }
 
+void PrintInode(const inode *node)
+{
+	printf("Inode:\n\
+{\n\
+File mode:\t\t\t%x\n\
+Low 16 bits of Owner Uid:\t%u\n\
+Size in bytes:\t\t\t%u\n\
+Creation time:\t\t\t0x%x\n\
+Modification time:\t\t0x%x\n\
+File flags:\t\t\t%u\n\
+}\n\n",\
+node->i_mode,\
+node->i_uid,\
+node->i_size,\
+node->i_ctime,\
+node->i_mtime,\
+node->i_flags);
+}
+
 int main(int argc, char *argv[])
 {
 	char *device_name = argv[1];
 	char *file_path = argv[2];
 	size_t gd_offset = 0;
 	size_t calc_block_size = 0;
+	size_t inode_block_index = 0;
+	size_t inode_local_index = 0;
 	int device_fd = 0;
 	sp *super_block = NULL;
 	gd *group_descriptor = NULL;
@@ -280,8 +302,22 @@ int main(int argc, char *argv[])
 	
 	PrintGroupDescriptor(group_descriptor);
 	
-	/* send fd to function that prints files content for files in the root directory */
+	/* print root directory files contents */
 	
+	curr_inode = (inode*)malloc(super_block->s_inode_size);
+	
+	if(NULL == curr_inode)
+	{
+		return 1;
+	}
+	
+	CopyBlock(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + super_block->s_inode_size, super_block->s_inode_size, curr_inode);		/* parse the second inode which is the root directory inode in block 0 inode table */
+	
+	PrintInode(curr_inode);
+	
+	inode_block_index = ( - 1) / super_block->s_inodes_per_group;
+	
+	inode_local_index = ( - 1) % super_block->s_inodes_per_group;
 	
 	
 	/* use what was implemented as static to implement a function that traverses one directory at a time */
@@ -294,6 +330,7 @@ int main(int argc, char *argv[])
 	}
 	free(group_descriptor);
 	free(super_block);
+	free(curr_inode);
 	return 0;
 	
 	(void)argc;
