@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+typedef struct ext2_inode inode;
+
 typedef struct ext2_super_block sp;
 
 typedef struct ext2_group_desc gd;

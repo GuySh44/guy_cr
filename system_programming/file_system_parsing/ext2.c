@@ -10,10 +10,69 @@
 #include "ext2.h"
 
 
-#define SUPER_BLOCK_SIZE 1024
-#define SUPER_BLOCK_OFFSET 1024
-#define BLOCK_SIZE_BYTES 1024
-#define GROUP_DESCRIPTOR_SIZE 32
+#define SUPER_BLOCK_SIZE	(1024)
+#define SUPER_BLOCK_OFFSET	(1024)
+#define KILOBYTE	(1024)
+#define GROUP_DESCRIPTOR_SIZE	(32)
+#define	EXT2_NDIR_BLOCKS	(12)
+#define	EXT2_IND_BLOCK	(EXT2_NDIR_BLOCKS)
+#define	EXT2_DIND_BLOCK	(EXT2_IND_BLOCK + 1)
+#define	EXT2_TIND_BLOCK	(EXT2_DIND_BLOCK + 1)
+#define	EXT2_N_BLOCKS	(EXT2_TIND_BLOCK + 1)
+
+struct ext2_inode {
+	__le16	i_mode;		/* File mode */
+	__le16	i_uid;		/* Low 16 bits of Owner Uid */
+	__le32	i_size;		/* Size in bytes */
+	__le32	i_atime;	/* Access time */
+	__le32	i_ctime;	/* Creation time */
+	__le32	i_mtime;	/* Modification time */
+	__le32	i_dtime;	/* Deletion Time */
+	__le16	i_gid;		/* Low 16 bits of Group Id */
+	__le16	i_links_count;	/* Links count */
+	__le32	i_blocks;	/* Blocks count */
+	__le32	i_flags;	/* File flags */
+	union {
+		struct {
+			__le32  l_i_reserved1;
+		} linux1;
+		struct {
+			__le32  h_i_translator;
+		} hurd1;
+		struct {
+			__le32  m_i_reserved1;
+		} masix1;
+	} osd1;				/* OS dependent 1 */
+	__le32	i_block[EXT2_N_BLOCKS];/* Pointers to blocks */
+	__le32	i_generation;	/* File version (for NFS) */
+	__le32	i_file_acl;	/* File ACL */
+	__le32	i_dir_acl;	/* Directory ACL */
+	__le32	i_faddr;	/* Fragment address */
+	union {
+		struct {
+			__u8	l_i_frag;	/* Fragment number */
+			__u8	l_i_fsize;	/* Fragment size */
+			__u16	i_pad1;
+			__le16	l_i_uid_high;	/* these 2 fields    */
+			__le16	l_i_gid_high;	/* were reserved2[0] */
+			__u32	l_i_reserved2;
+		} linux2;
+		struct {
+			__u8	h_i_frag;	/* Fragment number */
+			__u8	h_i_fsize;	/* Fragment size */
+			__le16	h_i_mode_high;
+			__le16	h_i_uid_high;
+			__le16	h_i_gid_high;
+			__le32	h_i_author;
+		} hurd2;
+		struct {
+			__u8	m_i_frag;	/* Fragment number */
+			__u8	m_i_fsize;	/* Fragment size */
+			__u16	m_pad1;
+			__u32	m_i_reserved2[2];
+		} masix2;
+	} osd2;				/* OS dependent 2 */
+};
 
 struct ext2_super_block {
 	__le32	s_inodes_count;		/* Inodes count */
@@ -125,11 +184,13 @@ Fragment size:\t\t\t%u\n\
 Blocks per group:\t\t%u\n\
 Fragments per group:\t\t%u\n\
 Inodes per group:\t\t%u\n\
+Inode struct size:\t\t%u\n\
 Magic signature:\t\t%u\n\
 File system state:\t\t%u\n\
 OS:\t\t\t\t%u\n\
 First non-reserved inode:\t%u\n\
 block group # of this superblock:%u\n\
+rev level:\t\t\t%u\n\
 }\n\n",\
 super_block->s_inodes_count,\
 super_block->s_blocks_count,\
@@ -141,11 +202,13 @@ super_block->s_log_frag_size,\
 super_block->s_blocks_per_group,\
 super_block->s_frags_per_group,\
 super_block->s_inodes_per_group,\
+super_block->s_inode_size,\
 super_block->s_magic,\
 super_block->s_state,\
 super_block->s_creator_os,\
 super_block->s_first_ino,\
-super_block->s_block_group_nr);
+super_block->s_block_group_nr,\
+super_block->s_rev_level);
 }
 
 void PrintGroupDescriptor(const gd *group_descriptor)
@@ -172,9 +235,11 @@ int main(int argc, char *argv[])
 	char *device_name = argv[1];
 	char *file_path = argv[2];
 	size_t gd_offset = 0;
+	size_t calc_block_size = 0;
 	int device_fd = 0;
 	sp *super_block = NULL;
 	gd *group_descriptor = NULL;
+	inode *curr_inode = NULL;
 	
 	/* open the "device" file */
 	
@@ -183,7 +248,7 @@ int main(int argc, char *argv[])
 	if(device_fd == -1)
 	{
 		perror(NULL);
-		return -1;
+		return errno;
 	}
 	
 	/* create super block struct and copy right content from HDD */
@@ -207,7 +272,9 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	gd_offset = ((3 + (super_block->s_log_block_size > 0)) * BLOCK_SIZE_BYTES);
+	calc_block_size = KILOBYTE << super_block->s_log_block_size;
+	
+	gd_offset = (KILOBYTE * (super_block->s_log_block_size == 0) ) + (calc_block_size);
 	
 	CopyBlock(device_fd, gd_offset, GROUP_DESCRIPTOR_SIZE, group_descriptor);
 	
@@ -215,9 +282,18 @@ int main(int argc, char *argv[])
 	
 	/* send fd to function that prints files content for files in the root directory */
 	
+	
+	
 	/* use what was implemented as static to implement a function that traverses one directory at a time */
 	
 	/* use the functions to print the file specified  */
+	if(-1 == close(device_fd))
+	{
+		perror(NULL);
+		return errno;
+	}
+	free(group_descriptor);
+	free(super_block);
 	return 0;
 	
 	(void)argc;
