@@ -5,6 +5,7 @@
 #include <errno.h> /* perror */
 #include <linux/types.h> /* __le __u */
 #include <string.h> /* memmove strtok strdup */
+#include <assert.h>
 
 
 #include "ext2.h"
@@ -176,16 +177,22 @@ struct ext2_group_desc
 
 size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num)
 {
+	
 	size_t inode_block_index = 0;
-	size_t block_size_bytes = (KILOBYTE << super_block->s_log_block_size);
+	size_t block_size_bytes = 0;
+
+	assert(super_block);
+	assert(group_descriptor);
 	
-	inode_block_index = (inode_num - 1) / super_block->s_inodes_per_group;
+	block_size_bytes = (KILOBYTE << super_block->s_log_block_size);  /* from int (2 in my case) to the "real" block size */
 	
-	if(inode_block_index < 2 || inode_block_index % 3 == 0 || inode_block_index % 5 == 0 || inode_block_index % 7 == 0)
+	inode_block_index = (inode_num - 1) / super_block->s_inodes_per_group; /* inode tables start from inode 1 and not 0 hence the "- 1", calculate the block group */
+	
+	if(inode_block_index < 2 || inode_block_index % 3 == 0 || inode_block_index % 5 == 0 || inode_block_index % 7 == 0) /* GroupDescriptor exists */
 	{
 		return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + group_descriptor->bg_inode_table * block_size_bytes);
 	}
-	return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + 2 * block_size_bytes);
+	return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + 2 * block_size_bytes); /* GroupDescriptor doesnt exist */
 }
 
 /* Parse file names and iterate through the inodes using the EXT2 structure */
@@ -193,37 +200,43 @@ size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_n
 long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname)
 {
 	char *token = NULL;
-	char *last_token = NULL;
 	inode *curr_inode = NULL;
 	gd *new_group_descriptor = NULL;
 	size_t inode_num = 0;
 	size_t inode_local_index = 0;
-	size_t block_size_bytes = KILOBYTE << super_block->s_log_block_size;
-	token = strtok(pathname, "/");
+	size_t block_size_bytes = 0;
+	
+	assert(super_block);
+	assert(group_descriptor);
+	assert(pathname);
+	
+	token = strtok(pathname, "/"); /* parse first token which should be equal to first directory name */
+	
+	block_size_bytes = KILOBYTE << super_block->s_log_block_size;
 	
 	curr_inode = (inode*)malloc(super_block->s_inode_size);
-	
-	CopyToBuffer(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + (EXT2_ROOT_INO - 1) * super_block->s_inode_size, super_block->s_inode_size, curr_inode);
-	
 	
 	if(NULL == curr_inode)
 	{
 		return -1;
 	}
 	
+	CopyToBuffer(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + (EXT2_ROOT_INO - 1) * super_block->s_inode_size, super_block->s_inode_size, curr_inode);		/* copy from FS the root directory inode */
+	
+	
 	while(NULL != token)
 	{	
-		inode_num = UseFile(device_fd, curr_inode, block_size_bytes, SpiderDir, token);
+		inode_num = UseFile(device_fd, curr_inode, block_size_bytes, SpiderDir, token);		/* get inode_num of token using from the directory entries */
 	
-		inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
+		inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;		/* calculate the local index in the right group inode table */
 		
-		CopyToBuffer(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size , super_block->s_inode_size, curr_inode);
+		CopyToBuffer(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size , super_block->s_inode_size, curr_inode);		/* load the found inode into a struct */
 		
-		token = strtok(NULL, "/");
+		token = strtok(NULL, "/");		/* parse next directory */
 	}
 	
 	
-	UseFile(device_fd, curr_inode, block_size_bytes, PrintBlock, NULL);
+	UseFile(device_fd, curr_inode, block_size_bytes, PrintBlock, NULL); /* print the file content blocks of the last token (the file itself) */
 	
 	free(new_group_descriptor);
 	free(curr_inode);
@@ -234,6 +247,8 @@ long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pa
 
 void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 {
+	assert(buffer);
+	
 	if(-1 == lseek(fd, offset, SEEK_SET))
 	{
 		perror(NULL);
@@ -249,28 +264,33 @@ void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_func action_func, void *arg)
 {
 	void *block_buffer = malloc(block_size_bytes);
-	size_t bytes_left = file_inode->i_size;
+	size_t bytes_left;
 	size_t bytes_read = 0;
 	size_t i = 0;
+	
+	assert(file_inode);
+	
+	bytes_left = file_inode->i_size;
 	
 	if(NULL == block_buffer)
 	{
 		return 1;
 	}
 	
-	for(; i < 12 && bytes_left > 0 ; ++i, bytes_left -= bytes_read)
+	for(; i < 12 && bytes_left > 0 ; ++i, bytes_left -= bytes_read)		/* first 12 direct block indexes */
 	{
-		bytes_read = ((bytes_left / block_size_bytes) > 0) * block_size_bytes + ((bytes_left / block_size_bytes) == 0) * (bytes_left % block_size_bytes);
+		bytes_read = ((bytes_left / block_size_bytes) > 0) * block_size_bytes + ((bytes_left / block_size_bytes) == 0) * (bytes_left % block_size_bytes);		/* should we read entire blocks or only a part of */
 		
-		CopyToBuffer(device_fd, BLOCK_OFFSET(file_inode->i_block[i]), bytes_read, block_buffer);
+		CopyToBuffer(device_fd, BLOCK_OFFSET(file_inode->i_block[i]), bytes_read, block_buffer);		/* copy inode file content, up to a block */
 		
-		if (PrintBlock == action_func)
+		if (PrintBlock == action_func)			/* print the file content block option */
 		{
 			action_func(block_buffer, bytes_read);
 		}
 		
-		if (SpiderDir == action_func)
+		if (SpiderDir == action_func)			/* parse the file content holding dir entrys */
 		{
+			assert(arg);
 			return action_func(block_buffer, bytes_read, arg);
 		}
 	}
@@ -286,7 +306,11 @@ long SpiderDir(void *buffer, size_t size, char *name)
 	dir_entry2 *entry = NULL;
 	unsigned int found_inode = 0;
 	unsigned short curr_record = 0;
-	while (sum_record != size)
+	
+	assert(buffer);
+	assert(name);
+	
+	while (sum_record != size)		/* as long as we didnt parse all the dir entries */
 	{
 		curr_record = *((unsigned short*)((char*)buffer + RECORD_LEN_OFFSET + sum_record));
 		
@@ -301,7 +325,7 @@ long SpiderDir(void *buffer, size_t size, char *name)
 		
 		memmove(entry, ((char*)buffer + sum_record), curr_record);
 		
-		if(0 == strcmp(entry->name, name))
+		if(0 == strcmp(entry->name, name))		/* if needed dir entry was found return the inode number */
 		{
 			found_inode = entry->inode;
 			free(entry);
@@ -323,6 +347,9 @@ long SpiderDir(void *buffer, size_t size, char *name)
 long PrintBlock(void *buffer, size_t size)
 {
 	size_t i = 0;
+	
+	assert(buffer);
+	
 	for (; i < size; ++i)
 	{
 		printf("%02x ", *((unsigned char*)buffer + i));
@@ -337,22 +364,22 @@ long PrintBlock(void *buffer, size_t size)
 
 int main(int argc, char *argv[])
 {
-	extern char* strdup(const char*);
+	extern char* strdup(const char*); 
 	
 	char *device_name = argv[1];
 	char *file_path = argv[2];
 	char *path_dup = NULL;
 	size_t gd_offset = 0;
 	size_t block_size_bytes = 0;
-	size_t inode_block_index = 0;
-	size_t inode_local_index = 0;
-	long inode_num = 0;
 	int device_fd = 0;
 	sb *super_block = NULL;
 	gd *group_descriptor = NULL;
 	inode *curr_inode = NULL;
 	
-	file_path = strstr(file_path, "ramdisk/");
+	assert(device_name);
+	assert(file_path);
+	
+	file_path = strstr(file_path, "ramdisk/");  /* set file path to start from '/' like root */
 	file_path += strlen("ramdisk");
 	/* open the "device" file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	
@@ -376,7 +403,7 @@ int main(int argc, char *argv[])
 
 	PrintSuperBlock(super_block);
 	
-	/* create group descriptor struct and copy right content from HDD ~*/
+	/* create group descriptor struct and copy right content from FS ~*/
 	
 	group_descriptor = (gd*)malloc(GROUP_DESCRIPTOR_SIZE);
 	
@@ -393,8 +420,6 @@ int main(int argc, char *argv[])
 	
 	PrintGroupDescriptor(group_descriptor);
 	
-	/* print root directory file contents ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-	
 	curr_inode = (inode*)malloc(super_block->s_inode_size);
 	
 	if(NULL == curr_inode)
@@ -405,10 +430,8 @@ int main(int argc, char *argv[])
 	/* parse the second inode which is the root directory inode in block 0 inode table */
 	
 	CopyToBuffer(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + (EXT2_ROOT_INO - 1) * super_block->s_inode_size, super_block->s_inode_size, curr_inode);
-	
-	PrintInode(curr_inode);
 		
-	/* send path duplicate to path parsing function */
+	/* send path duplicate to path parsing function because strtok may change original string */
 	
 	path_dup = strdup(file_path);
 	
@@ -416,8 +439,10 @@ int main(int argc, char *argv[])
 	{
 		return 1;
 	}
-			
-	inode_num = GetFileInode(device_fd, super_block, group_descriptor, path_dup);
+	
+	/* Find the file in the path and print its content, can return the inode number*/
+	
+	GetFileInode(device_fd, super_block, group_descriptor, path_dup);
 	
 	
 	/* clean everything up  */
