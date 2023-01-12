@@ -4,7 +4,8 @@
 #include <stdlib.h> /* malloc */
 #include <errno.h> /* perror */
 #include <linux/types.h> /* __le __u */
-#include <string.h> /* strcat */
+#include <string.h> /* memcpy strtok strdup */
+#include <libgen.h> /* dirname basename */
 
 
 #include "ext2.h"
@@ -14,12 +15,37 @@
 #define SUPER_BLOCK_OFFSET	(1024)
 #define KILOBYTE	(1024)
 #define GROUP_DESCRIPTOR_SIZE	(32)
+#define EXT2_NAME_LEN (255)
 #define	EXT2_NDIR_BLOCKS	(12)
+#define RECORD_LEN_OFFSET (4)
 #define	EXT2_IND_BLOCK	(EXT2_NDIR_BLOCKS)
 #define	EXT2_DIND_BLOCK	(EXT2_IND_BLOCK + 1)
 #define	EXT2_TIND_BLOCK	(EXT2_DIND_BLOCK + 1)
 #define	EXT2_N_BLOCKS	(EXT2_TIND_BLOCK + 1)
-#define BLOCK_OFFSET(block) ((block)*calc_block_size)
+#define EXT2_ROOT_INO (2)
+#define BLOCK_OFFSET(block) ((block)*block_size_bytes)
+#define INODE_OFFSET(inode) ((inode-1)*super_block->s_inode_size)
+
+struct ext2_dir_entry {
+	__u32	inode;			/* Inode number */
+	__u16	rec_len;		/* Directory entry length */
+	__u16	name_len;		/* Name length */
+	char	name[EXT2_NAME_LEN];	/* File name */
+};
+
+/*
+   	 * The new version of the directory entry.  Since EXT2 structures are
+   	 * stored in intel byte order, and the name_len field could never be
+   	 * bigger than 255 chars, it's safe to reclaim the extra byte for the
+   	 * file_type field.
+   	 */
+struct ext2_dir_entry_2 {
+	__u32	inode;			/* Inode number */
+	__u16	rec_len;		/* Directory entry length */
+	__u8	name_len;		/* Name length */
+	__u8	file_type;
+	char	name[EXT2_NAME_LEN];	/* File name */
+};	
 
 struct ext2_inode {
 	__le16	i_mode;		/* File mode */
@@ -76,31 +102,31 @@ struct ext2_inode {
 };
 
 struct ext2_super_block {
-	__le32	s_inodes_count;		/* Inodes count */
-	__le32	s_blocks_count;		/* Blocks count */
-	__le32	s_r_blocks_count;	/* Reserved blocks count */
-	__le32	s_free_blocks_count;	/* Free blocks count */
-	__le32	s_free_inodes_count;	/* Free inodes count */
-	__le32	s_first_data_block;	/* First Data Block */
-	__le32	s_log_block_size;	/* Block size */
-	__le32	s_log_frag_size;	/* Fragment size */
-	__le32	s_blocks_per_group;	/* # Blocks per group */
-	__le32	s_frags_per_group;	/* # Fragments per group */
-	__le32	s_inodes_per_group;	/* # Inodes per group */
-	__le32	s_mtime;		/* Mount time */
-	__le32	s_wtime;		/* Write time */
-	__le16	s_mnt_count;		/* Mount count */
-	__le16	s_max_mnt_count;	/* Maximal mount count */
-	__le16	s_magic;		/* Magic signature */
-	__le16	s_state;		/* File system state */
-	__le16	s_errors;		/* Behaviour when detecting errors */
-	__le16	s_minor_rev_level; 	/* minor revision level */
-	__le32	s_lastcheck;		/* time of last check */
-	__le32	s_checkinterval;	/* max. time between checks */
-	__le32	s_creator_os;		/* OS */
-	__le32	s_rev_level;		/* Revision level */
-	__le16	s_def_resuid;		/* Default uid for reserved blocks */
-	__le16	s_def_resgid;		/* Default gid for reserved blocks */
+	__u32	s_inodes_count;		/* Inodes count */
+	__u32	s_blocks_count;		/* Blocks count */
+	__u32	s_r_blocks_count;	/* Reserved blocks count */
+	__u32	s_free_blocks_count;	/* Free blocks count */
+	__u32	s_free_inodes_count;	/* Free inodes count */
+	__u32	s_first_data_block;	/* First Data Block */
+	__u32	s_log_block_size;	/* Block size */
+	__s32	s_log_frag_size;	/* Fragment size */
+	__u32	s_blocks_per_group;	/* # Blocks per group */
+	__u32	s_frags_per_group;	/* # Fragments per group */
+	__u32	s_inodes_per_group;	/* # Inodes per group */
+	__u32	s_mtime;		/* Mount time */
+	__u32	s_wtime;		/* Write time */
+	__u16	s_mnt_count;		/* Mount count */
+	__s16	s_max_mnt_count;	/* Maximal mount count */
+	__u16	s_magic;		/* Magic signature */
+	__u16	s_state;		/* File system state */
+	__u16	s_errors;		/* Behaviour when detecting errors */
+	__u16	s_minor_rev_level; 	/* minor revision level */
+	__u32	s_lastcheck;		/* time of last check */
+	__u32	s_checkinterval;	/* max. time between checks */
+	__u32	s_creator_os;		/* OS */
+	__u32	s_rev_level;		/* Revision level */
+	__u16	s_def_resuid;		/* Default uid for reserved blocks */
+	__u16	s_def_resgid;		/* Default gid for reserved blocks */
 	/*
 	 * These fields are for EXT2_DYNAMIC_REV superblocks only.
 	 *
@@ -114,16 +140,16 @@ struct ext2_super_block {
 	 * feature set, it must abort and not try to meddle with
 	 * things it doesn't understand...
 	 */
-	__le32	s_first_ino; 		/* First non-reserved inode */
-	__le16  s_inode_size; 		/* size of inode structure */
-	__le16	s_block_group_nr; 	/* block group # of this superblock */
-	__le32	s_feature_compat; 	/* compatible feature set */
-	__le32	s_feature_incompat; 	/* incompatible feature set */
-	__le32	s_feature_ro_compat; 	/* readonly-compatible feature set */
+	__u32	s_first_ino; 		/* First non-reserved inode */
+	__u16   s_inode_size; 		/* size of inode structure */
+	__u16	s_block_group_nr; 	/* block group # of this superblock */
+	__u32	s_feature_compat; 	/* compatible feature set */
+	__u32	s_feature_incompat; 	/* incompatible feature set */
+	__u32	s_feature_ro_compat; 	/* readonly-compatible feature set */
 	__u8	s_uuid[16];		/* 128-bit uuid for volume */
 	char	s_volume_name[16]; 	/* volume name */
 	char	s_last_mounted[64]; 	/* directory where last mounted */
-	__le32	s_algorithm_usage_bitmap; /* For compression */
+	__u32	s_algorithm_usage_bitmap; /* For compression */
 	/*
 	 * Performance hints.  Directory preallocation should only
 	 * happen if the EXT2_COMPAT_PREALLOC flag is on.
@@ -131,20 +157,7 @@ struct ext2_super_block {
 	__u8	s_prealloc_blocks;	/* Nr of blocks to try to preallocate*/
 	__u8	s_prealloc_dir_blocks;	/* Nr to preallocate for dirs */
 	__u16	s_padding1;
-	/*
-	 * Journaling support valid if EXT3_FEATURE_COMPAT_HAS_JOURNAL set.
-	 */
-	__u8	s_journal_uuid[16];	/* uuid of journal superblock */
-	__u32	s_journal_inum;		/* inode number of journal file */
-	__u32	s_journal_dev;		/* device number of journal file */
-	__u32	s_last_orphan;		/* start of list of inodes to delete */
-	__u32	s_hash_seed[4];		/* HTREE hash seed */
-	__u8	s_def_hash_version;	/* Default hash version to use */
-	__u8	s_reserved_char_pad;
-	__u16	s_reserved_word_pad;
-	__le32	s_default_mount_opts;
- 	__le32	s_first_meta_bg; 	/* First metablock block group */
-	__u32	s_reserved[190];	/* Padding to the end of the block */
+	__u32	s_reserved[204];	/* Padding to the end of the block */
 };
 
 struct ext2_group_desc
@@ -159,7 +172,71 @@ struct ext2_group_desc
 	__u32	bg_reserved[3];
 };
 
-void CopyBlock(int fd, size_t offset, size_t block_size, void *buffer)
+size_t CalculateGroupBlock(size_t inode_num, sb *super_block)
+{
+	size_t inode_block_index = 0;
+	
+	inode_block_index = (inode_num - 1) / super_block->s_inodes_per_group;
+	
+	return (inode_block_index * super_block->s_blocks_per_group * (KILOBYTE << super_block->s_log_block_size) + (KILOBYTE << super_block->s_log_block_size));
+}
+
+
+long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname)
+{
+	char *token = NULL;
+	char *last_token = NULL;
+	inode *curr_inode = NULL;
+	gd *new_group_descriptor = NULL;
+	size_t inode_num = 0;
+	size_t inode_local_index = 0;
+	size_t block_size_bytes = KILOBYTE << super_block->s_log_block_size;
+	token = strtok(pathname, "/");
+	
+	curr_inode = (inode*)malloc(super_block->s_inode_size);
+	
+	CopyToBuffer(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + (EXT2_ROOT_INO - 1) * super_block->s_inode_size, super_block->s_inode_size, curr_inode);
+	
+	
+	if(NULL == curr_inode)
+	{
+		return -1;
+	}
+	
+	new_group_descriptor = (gd*)malloc(GROUP_DESCRIPTOR_SIZE);
+	
+	if(NULL == new_group_descriptor)
+	{
+		return -1;
+	}
+	
+	while(NULL != token)
+	{	
+		inode_num = UseFile(device_fd, curr_inode, block_size_bytes, SpiderDir, token);
+	
+		CopyToBuffer(device_fd, CalculateGroupBlock(inode_num, super_block), GROUP_DESCRIPTOR_SIZE, new_group_descriptor);
+		
+		inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
+		
+		CopyToBuffer(device_fd, BLOCK_OFFSET(new_group_descriptor->bg_inode_table) + (inode_local_index * super_block->s_inode_size), super_block->s_inode_size, curr_inode);
+		
+		token = strtok(NULL, "/");
+	}
+	
+	CopyToBuffer(device_fd, CalculateGroupBlock(inode_num, super_block), GROUP_DESCRIPTOR_SIZE, new_group_descriptor);
+		
+	inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
+		
+	CopyToBuffer(device_fd, BLOCK_OFFSET(new_group_descriptor->bg_inode_table) + (inode_local_index * super_block->s_inode_size), super_block->s_inode_size, curr_inode);
+	
+	UseFile(device_fd, curr_inode, block_size_bytes, PrintBlock, NULL);
+	
+	free(new_group_descriptor);
+	free(curr_inode);
+	return inode_num;
+}
+
+void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 {
 	if(-1 == lseek(fd, offset, SEEK_SET))
 	{
@@ -171,7 +248,194 @@ void CopyBlock(int fd, size_t offset, size_t block_size, void *buffer)
 	}
 }
 
-void PrintSuperBlock(const sp *super_block)
+
+long SpiderDir(void *buffer, size_t size, char *name)
+{
+	size_t sum_record = 0;
+	dir_entry2 *entry = NULL;
+	unsigned int found_inode = 0;
+	unsigned short curr_record = 0;
+	while (sum_record != size)
+	{
+		curr_record = *((unsigned short*)((char*)buffer + RECORD_LEN_OFFSET + sum_record));
+		
+		entry = (dir_entry2*)malloc(curr_record + 1);
+		*((char*)entry + curr_record) = '\0';
+		
+		if(NULL == entry)
+		{
+			free(buffer);
+			return -1;
+		}
+		
+		memmove(entry, ((char*)buffer + sum_record), curr_record);
+		
+		if(0 == strcmp(entry->name, name))
+		{
+			found_inode = entry->inode;
+			free(entry);
+			free(buffer);
+			return found_inode;
+		}
+		
+		free(entry);
+		
+		sum_record += curr_record; 
+	}
+	free(buffer);
+	return 0;
+}
+
+long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_func action_func, void *arg)
+{
+	void *block_buffer = malloc(block_size_bytes);
+	size_t bytes_left = file_inode->i_size;
+	size_t bytes_read = 0;
+	size_t i = 0;
+	
+	if(NULL == block_buffer)
+	{
+		return 1;
+	}
+	
+	for(; i < 12 && bytes_left > 0 ; ++i, bytes_left -= bytes_read)
+	{
+		bytes_read = ((bytes_left / block_size_bytes) > 0) * block_size_bytes + ((bytes_left / block_size_bytes) == 0) * (bytes_left % block_size_bytes);
+		
+		CopyToBuffer(device_fd, BLOCK_OFFSET(file_inode->i_block[i]), bytes_read, block_buffer);
+		
+		if (PrintBlock == action_func)
+		{
+			action_func(block_buffer, bytes_read);
+		}
+		
+		if (SpiderDir == action_func)
+		{
+			return action_func(block_buffer, bytes_read, arg);
+		}
+	}
+	free(block_buffer);
+	return 0;
+}
+
+long PrintBlock(void *buffer, size_t size)
+{
+	size_t i = 0;
+	for (; i < size; ++i)
+	{
+		printf("%02x ", *((unsigned char*)buffer + i));
+    	if ((i + 1) % 16 == 0) 
+    	{
+    		printf("\n");
+		}
+	}
+	return 0;
+}
+
+
+int main(int argc, char *argv[])
+{
+	extern char* strdup(const char*);
+	
+	char *device_name = argv[1];
+	char *file_path = argv[2];
+	char *path_dup = NULL;
+	size_t gd_offset = 0;
+	size_t block_size_bytes = 0;
+	size_t inode_block_index = 0;
+	size_t inode_local_index = 0;
+	long inode_num = 0;
+	int device_fd = 0;
+	sb *super_block = NULL;
+	gd *group_descriptor = NULL;
+	inode *curr_inode = NULL;
+	
+	file_path = strstr(file_path, "ramdisk/");
+	file_path += strlen("ramdisk");
+	/* open the "device" file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	
+	device_fd = open(device_name, O_RDONLY);
+	
+	if(device_fd == -1)
+	{
+		perror(NULL);
+		return errno;
+	}
+	
+	/* create super block struct and copy right content from HDD ~~~~~~*/
+	super_block = (sb*)malloc(SUPER_BLOCK_SIZE);
+	
+	if(NULL == super_block)
+	{
+		return 1;
+	}
+	
+	CopyToBuffer(device_fd, SUPER_BLOCK_OFFSET, SUPER_BLOCK_SIZE, super_block);
+
+	PrintSuperBlock(super_block);
+	
+	/* create group descriptor struct and copy right content from HDD ~*/
+	
+	group_descriptor = (gd*)malloc(GROUP_DESCRIPTOR_SIZE);
+	
+	if(NULL == group_descriptor)
+	{
+		return 1;
+	}
+	
+	block_size_bytes = KILOBYTE << super_block->s_log_block_size;
+	
+	gd_offset = (KILOBYTE * (super_block->s_log_block_size == 0) ) + (block_size_bytes);
+	
+	CopyToBuffer(device_fd, gd_offset, GROUP_DESCRIPTOR_SIZE, group_descriptor);
+	
+	PrintGroupDescriptor(group_descriptor);
+	
+	/* print root directory file contents ~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+	
+	curr_inode = (inode*)malloc(super_block->s_inode_size);
+	
+	if(NULL == curr_inode)
+	{
+		return 1;
+	}
+	
+	/* parse the second inode which is the root directory inode in block 0 inode table */
+	
+	CopyToBuffer(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + (EXT2_ROOT_INO - 1) * super_block->s_inode_size, super_block->s_inode_size, curr_inode);
+	
+	PrintInode(curr_inode);
+		
+	/* send path duplicate to path parsing function */
+	
+	path_dup = strdup(file_path);
+	
+	if(NULL == path_dup)
+	{
+		return 1;
+	}
+			
+	inode_num = GetFileInode(device_fd, super_block, group_descriptor, path_dup);
+	
+	
+	/* clean everything up  */
+	if(-1 == close(device_fd))
+	{
+		perror(NULL);
+		return errno;
+	}
+	
+	free(group_descriptor);
+	free(super_block);
+	free(curr_inode);
+	free(path_dup);
+	
+	return 0;
+	
+	(void)argc;
+}
+
+void PrintSuperBlock(const sb *super_block)
 {
 printf("SuperBlock:\n\
 {\n\
@@ -250,88 +514,19 @@ node->i_mtime,\
 node->i_flags);
 }
 
-int main(int argc, char *argv[])
-{
-	char *device_name = argv[1];
-	char *file_path = argv[2];
-	size_t gd_offset = 0;
-	size_t calc_block_size = 0;
-	size_t inode_block_index = 0;
-	size_t inode_local_index = 0;
-	int device_fd = 0;
-	sp *super_block = NULL;
-	gd *group_descriptor = NULL;
-	inode *curr_inode = NULL;
-	
-	/* open the "device" file */
-	
-	device_fd = open(device_name, O_RDONLY);
-	
-	if(device_fd == -1)
-	{
-		perror(NULL);
-		return errno;
-	}
-	
-	/* create super block struct and copy right content from HDD */
-	super_block = (sp*)malloc(SUPER_BLOCK_SIZE);
-	
-	if(NULL == super_block)
-	{
-		return 1;
-	}
-	
-	CopyBlock(device_fd, SUPER_BLOCK_OFFSET, SUPER_BLOCK_SIZE, super_block);
 
-	PrintSuperBlock(super_block);
-	
-	/* create group descriptor struct and copy right content from HDD */
-	
-	group_descriptor = (gd*)malloc(GROUP_DESCRIPTOR_SIZE);
-	
-	if(NULL == group_descriptor)
-	{
-		return 1;
-	}
-	
-	calc_block_size = KILOBYTE << super_block->s_log_block_size;
-	
-	gd_offset = (KILOBYTE * (super_block->s_log_block_size == 0) ) + (calc_block_size);
-	
-	CopyBlock(device_fd, gd_offset, GROUP_DESCRIPTOR_SIZE, group_descriptor);
-	
-	PrintGroupDescriptor(group_descriptor);
-	
-	/* print root directory files contents */
-	
-	curr_inode = (inode*)malloc(super_block->s_inode_size);
-	
-	if(NULL == curr_inode)
-	{
-		return 1;
-	}
-	
-	CopyBlock(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + super_block->s_inode_size, super_block->s_inode_size, curr_inode);		/* parse the second inode which is the root directory inode in block 0 inode table */
-	
-	PrintInode(curr_inode);
-	
-	inode_block_index = ( - 1) / super_block->s_inodes_per_group;
-	
-	inode_local_index = ( - 1) % super_block->s_inodes_per_group;
-	
-	
-	/* use what was implemented as static to implement a function that traverses one directory at a time */
-	
-	/* use the functions to print the file specified  */
-	if(-1 == close(device_fd))
-	{
-		perror(NULL);
-		return errno;
-	}
-	free(group_descriptor);
-	free(super_block);
-	free(curr_inode);
-	return 0;
-	
-	(void)argc;
+void PrintDirEntry(const dir_entry2 *entry)
+{
+	printf("Directory Entry:\n\
+inode number:\t%u\n\
+record length:\t%u\n\
+name length:\t%u\n\
+file type:\t%u\n\
+name:\t%s\n\n",\
+entry->inode,\
+entry->rec_len,\
+entry->name_len,\
+entry->file_type,\
+entry->name);
 }
+
