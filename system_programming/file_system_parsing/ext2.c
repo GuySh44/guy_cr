@@ -1,11 +1,10 @@
-#include <fcntl.h> /* open */
+#include <fcntl.h> /* open close */
 #include <unistd.h> /* read lseek */
 #include <stdio.h> /* printf */
-#include <stdlib.h> /* malloc */
+#include <stdlib.h> /* malloc free */
 #include <errno.h> /* perror */
 #include <linux/types.h> /* __le __u */
-#include <string.h> /* memcpy strtok strdup */
-#include <libgen.h> /* dirname basename */
+#include <string.h> /* memmove strtok strdup */
 
 
 #include "ext2.h"
@@ -172,6 +171,9 @@ struct ext2_group_desc
 	__u32	bg_reserved[3];
 };
 
+
+/* Calculate Group Inode Table location */
+
 size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num)
 {
 	size_t inode_block_index = 0;
@@ -186,6 +188,7 @@ size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_n
 	return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + 2 * block_size_bytes);
 }
 
+/* Parse file names and iterate through the inodes using the EXT2 structure */
 
 long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname)
 {
@@ -227,6 +230,8 @@ long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pa
 	return inode_num;
 }
 
+/* copy from offset in ramdisk to buffer */
+
 void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 {
 	if(-1 == lseek(fd, offset, SEEK_SET))
@@ -239,6 +244,41 @@ void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 	}
 }
 
+/* Do actions on temporary buffer holding data of EXT2 files */
+
+long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_func action_func, void *arg)
+{
+	void *block_buffer = malloc(block_size_bytes);
+	size_t bytes_left = file_inode->i_size;
+	size_t bytes_read = 0;
+	size_t i = 0;
+	
+	if(NULL == block_buffer)
+	{
+		return 1;
+	}
+	
+	for(; i < 12 && bytes_left > 0 ; ++i, bytes_left -= bytes_read)
+	{
+		bytes_read = ((bytes_left / block_size_bytes) > 0) * block_size_bytes + ((bytes_left / block_size_bytes) == 0) * (bytes_left % block_size_bytes);
+		
+		CopyToBuffer(device_fd, BLOCK_OFFSET(file_inode->i_block[i]), bytes_read, block_buffer);
+		
+		if (PrintBlock == action_func)
+		{
+			action_func(block_buffer, bytes_read);
+		}
+		
+		if (SpiderDir == action_func)
+		{
+			return action_func(block_buffer, bytes_read, arg);
+		}
+	}
+	free(block_buffer);
+	return 0;
+}
+
+/* find name of inode inside of directory and return its number */
 
 long SpiderDir(void *buffer, size_t size, char *name)
 {
@@ -277,37 +317,8 @@ long SpiderDir(void *buffer, size_t size, char *name)
 	return 0;
 }
 
-long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_func action_func, void *arg)
-{
-	void *block_buffer = malloc(block_size_bytes);
-	size_t bytes_left = file_inode->i_size;
-	size_t bytes_read = 0;
-	size_t i = 0;
-	
-	if(NULL == block_buffer)
-	{
-		return 1;
-	}
-	
-	for(; i < 12 && bytes_left > 0 ; ++i, bytes_left -= bytes_read)
-	{
-		bytes_read = ((bytes_left / block_size_bytes) > 0) * block_size_bytes + ((bytes_left / block_size_bytes) == 0) * (bytes_left % block_size_bytes);
-		
-		CopyToBuffer(device_fd, BLOCK_OFFSET(file_inode->i_block[i]), bytes_read, block_buffer);
-		
-		if (PrintBlock == action_func)
-		{
-			action_func(block_buffer, bytes_read);
-		}
-		
-		if (SpiderDir == action_func)
-		{
-			return action_func(block_buffer, bytes_read, arg);
-		}
-	}
-	free(block_buffer);
-	return 0;
-}
+
+/* print buffer in hex */
 
 long PrintBlock(void *buffer, size_t size)
 {
