@@ -24,7 +24,7 @@
 #define	EXT2_N_BLOCKS	(EXT2_TIND_BLOCK + 1)
 #define EXT2_ROOT_INO (2)
 #define BLOCK_OFFSET(block) ((block)*block_size_bytes)
-#define INODE_OFFSET(inode) ((inode-1)*super_block->s_inode_size)
+
 
 struct ext2_dir_entry {
 	__u32	inode;			/* Inode number */
@@ -172,13 +172,18 @@ struct ext2_group_desc
 	__u32	bg_reserved[3];
 };
 
-size_t CalculateGroupBlock(size_t inode_num, sb *super_block)
+size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num)
 {
 	size_t inode_block_index = 0;
+	size_t block_size_bytes = (KILOBYTE << super_block->s_log_block_size);
 	
 	inode_block_index = (inode_num - 1) / super_block->s_inodes_per_group;
 	
-	return (inode_block_index * super_block->s_blocks_per_group * (KILOBYTE << super_block->s_log_block_size) + (KILOBYTE << super_block->s_log_block_size));
+	if(inode_block_index < 2 || inode_block_index % 3 == 0 || inode_block_index % 5 == 0 || inode_block_index % 7 == 0)
+	{
+		return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + group_descriptor->bg_inode_table * block_size_bytes);
+	}
+	return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + 2 * block_size_bytes);
 }
 
 
@@ -203,31 +208,17 @@ long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pa
 		return -1;
 	}
 	
-	new_group_descriptor = (gd*)malloc(GROUP_DESCRIPTOR_SIZE);
-	
-	if(NULL == new_group_descriptor)
-	{
-		return -1;
-	}
-	
 	while(NULL != token)
 	{	
 		inode_num = UseFile(device_fd, curr_inode, block_size_bytes, SpiderDir, token);
 	
-		CopyToBuffer(device_fd, CalculateGroupBlock(inode_num, super_block), GROUP_DESCRIPTOR_SIZE, new_group_descriptor);
-		
 		inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
 		
-		CopyToBuffer(device_fd, BLOCK_OFFSET(new_group_descriptor->bg_inode_table) + (inode_local_index * super_block->s_inode_size), super_block->s_inode_size, curr_inode);
+		CopyToBuffer(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size , super_block->s_inode_size, curr_inode);
 		
 		token = strtok(NULL, "/");
 	}
 	
-	CopyToBuffer(device_fd, CalculateGroupBlock(inode_num, super_block), GROUP_DESCRIPTOR_SIZE, new_group_descriptor);
-		
-	inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
-		
-	CopyToBuffer(device_fd, BLOCK_OFFSET(new_group_descriptor->bg_inode_table) + (inode_local_index * super_block->s_inode_size), super_block->s_inode_size, curr_inode);
 	
 	UseFile(device_fd, curr_inode, block_size_bytes, PrintBlock, NULL);
 	

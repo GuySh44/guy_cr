@@ -33,7 +33,8 @@ void PrintGroupDescriptor(const gd *group_descriptor);
 
 void PrintInode(const inode *node);
 
-size_t CalculateGroupBlock(size_t inode_num, sb *super_block);
+
+size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num);
 
 long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname);
 
