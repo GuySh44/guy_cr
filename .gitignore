@@ -5,6 +5,7 @@
 !c/makefile/makefile
 !ds/makefile
 !**/*.md
+!**/*.sh
 !**/*.h
 !**/*.a
 !.myfuncs
