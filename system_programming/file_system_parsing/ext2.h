@@ -21,9 +21,13 @@ void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer);
 
 long SpiderDir(void *buffer, size_t size, char *name);
 
-long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_func action_func, void *arg);
+long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_num, block_func action_func, void *arg);
+
+void LoadInode(int device_fd, sb *super_block, gd* group_descriptor, inode *curr_inode, size_t inode_num);
 
 long PrintBlock(void *buffer, size_t size);
+
+long ChmodInode(int device_fd, sb *super_block, gd* group_descriptor, size_t inode_num, char *args);
 
 void PrintDirEntry(const dir_entry2 *entry);
 
@@ -33,10 +37,10 @@ void PrintGroupDescriptor(const gd *group_descriptor);
 
 void PrintInode(const inode *node);
 
-
 size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num);
 
 long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname);
+
 
 #endif /* __EXT2_H__ */
 

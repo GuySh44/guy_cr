@@ -1,10 +1,10 @@
 #include <fcntl.h> /* open close */
-#include <unistd.h> /* read lseek */
+#include <unistd.h> /* read lseek write */
 #include <stdio.h> /* printf */
 #include <stdlib.h> /* malloc free */
 #include <errno.h> /* perror */
 #include <linux/types.h> /* __le __u */
-#include <string.h> /* memmove strtok strdup */
+#include <string.h> /* memmove strtok strdup strlen */
 #include <assert.h>
 
 /*
@@ -27,6 +27,7 @@ Reviewer Yarin
 #define	EXT2_N_BLOCKS	(EXT2_TIND_BLOCK + 1)
 #define EXT2_ROOT_INO (2)
 #define BLOCK_OFFSET(block) ((block)*block_size_bytes)
+#define I_MODE_SIZE (2)
 
 
 struct ext2_dir_entry {
@@ -203,11 +204,9 @@ size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_n
 long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname)
 {
 	char *token = NULL;
-	inode *curr_inode = NULL;
 	gd *new_group_descriptor = NULL;
 	size_t inode_num = 0;
-	size_t inode_local_index = 0;
-	size_t block_size_bytes = 0;
+	size_t last_inode_num = EXT2_ROOT_INO;
 	
 	assert(super_block);
 	assert(group_descriptor);
@@ -215,34 +214,16 @@ long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pa
 	
 	token = strtok(pathname, "/"); /* parse first token which should be equal to first directory name */
 	
-	block_size_bytes = KILOBYTE << super_block->s_log_block_size;
-	
-	curr_inode = (inode*)malloc(super_block->s_inode_size);
-	
-	if(NULL == curr_inode)
-	{
-		return -1;
-	}
-	
-	CopyToBuffer(device_fd, BLOCK_OFFSET(group_descriptor->bg_inode_table) + (EXT2_ROOT_INO - 1) * super_block->s_inode_size, super_block->s_inode_size, curr_inode);		/* copy from FS the root directory inode */
-	
-	
 	while(NULL != token)
 	{	
-		inode_num = UseFile(device_fd, curr_inode, block_size_bytes, SpiderDir, token);		/* get inode_num of token using from the directory entries */
-	
-		inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;		/* calculate the local index in the right group inode table */
-		
-		CopyToBuffer(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size , super_block->s_inode_size, curr_inode);		/* load the found inode into a struct */
+		inode_num = UseFile(device_fd, super_block, group_descriptor, last_inode_num, SpiderDir, token);		/* get inode_num of token using from the directory entries */
 		
 		token = strtok(NULL, "/");		/* parse next directory */
+		
+		last_inode_num = inode_num;
 	}
 	
-	
-	UseFile(device_fd, curr_inode, block_size_bytes, PrintBlock, NULL); /* print the file content blocks of the last token (the file itself) */
-	
 	free(new_group_descriptor);
-	free(curr_inode);
 	return inode_num;
 }
 
@@ -264,19 +245,36 @@ void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 
 /* Do actions on temporary buffer holding data of EXT2 files */
 
-long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_func action_func, void *arg)
+long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_num, block_func action_func, void *arg)
 {
-	void *block_buffer = malloc(block_size_bytes);
+	size_t block_size_bytes;
+	void *block_buffer = NULL;
+	inode *file_inode = NULL;
 	size_t bytes_left;
 	size_t bytes_read = 0;
 	size_t i = 0;
 	
+	assert(super_block);
+	assert(group_descriptor);
+	
+	file_inode = (inode*)malloc(super_block->s_inode_size);
+	
+	if(NULL == file_inode)
+	{
+		return 1;
+	}
+	
+	LoadInode(device_fd, super_block, group_descriptor, file_inode, inode_num);
+	
 	assert(file_inode);
 	
+	block_size_bytes = KILOBYTE << super_block->s_log_block_size;
 	bytes_left = file_inode->i_size;
 	
+	block_buffer = malloc(block_size_bytes);
 	if(NULL == block_buffer)
 	{
+	
 		return 1;
 	}
 	
@@ -294,10 +292,109 @@ long UseFile(int device_fd, inode *file_inode, size_t block_size_bytes, block_fu
 		if (SpiderDir == action_func)			/* parse the file content holding dir entrys */
 		{
 			assert(arg);
+			free(file_inode);
 			return action_func(block_buffer, bytes_read, arg);
 		}
 	}
+	free(file_inode);
 	free(block_buffer);
+	return 0;
+}
+
+
+void LoadInode(int device_fd, sb *super_block, gd* group_descriptor, inode *curr_inode, size_t inode_num)
+{
+	size_t inode_local_index = 0;
+	
+	assert(super_block);
+	assert(group_descriptor);
+	
+	inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
+	
+	CopyToBuffer(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size , super_block->s_inode_size, curr_inode);
+	
+}
+
+static void ChmodSetSignature(unsigned short *signature, char *args)
+{
+	size_t i = 0;
+	size_t args_len = strlen(args);
+	
+	assert(signature);
+	
+	for(; i < args_len; ++i)
+	{
+		*signature += (int)args[i] - '0';
+		*signature <<= 3;
+	}
+}
+
+static int ChmodArgsCheck(char *args)
+{
+	size_t i = 0;
+	size_t args_len;
+	assert(args);
+	
+	args_len = strlen(args);
+	
+	if(args_len < 3 || args_len > 4)
+	{
+		return 2;
+	}
+	
+	for(; i < args_len; ++i)
+	{
+		if(args[i] > '7' || args[i] < '0')
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+/* our numeric chmod implementation */
+
+long ChmodInode(int device_fd, sb *super_block, gd* group_descriptor, size_t inode_num, char *args)
+{
+	size_t inode_local_index = 0;
+	int status = 0;
+	unsigned short signature;
+	unsigned short curr_imode;
+	
+	assert(super_block);
+	assert(group_descriptor);
+	assert(args);
+	
+	status = ChmodArgsCheck(args);
+	if(1 == status)
+	{
+		printf("invalid mode: %s\n", args);
+		return 1;
+	}
+	
+	inode_local_index = (inode_num - 1) % super_block->s_inodes_per_group;
+
+	CopyToBuffer(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size, I_MODE_SIZE, &curr_imode);
+	
+	curr_imode &= 0xf000;
+	
+	ChmodSetSignature(&signature, args);
+	
+	signature += curr_imode;
+	
+	/*get the upper bits so signature can be safelly written on disk
+	probably reading i_mode first and doin && on signature and current i_mode*/
+	/* set indicator to relevant inode */
+	if(-1 == lseek(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size, SEEK_SET))
+	{
+		perror(NULL);
+	}
+	
+	if(-1 == write(device_fd, &signature, I_MODE_SIZE))
+	{
+		perror(NULL);
+	}
+	
 	return 0;
 }
 
@@ -374,6 +471,7 @@ int main(int argc, char *argv[])
 	char *path_dup = NULL;
 	size_t gd_offset = 0;
 	size_t block_size_bytes = 0;
+	size_t inode_num = 0;
 	int device_fd = 0;
 	sb *super_block = NULL;
 	gd *group_descriptor = NULL;
@@ -445,7 +543,18 @@ int main(int argc, char *argv[])
 	
 	/* Find the file in the path and print its content, can return the inode number*/
 	
-	GetFileInode(device_fd, super_block, group_descriptor, path_dup);
+	inode_num = GetFileInode(device_fd, super_block, group_descriptor, path_dup);
+	
+	
+	/*
+	UseFile(device_fd, super_block, group_descriptor, inode_num,  PrintBlock, NULL);
+	*/
+	
+	if(argc == 5 && !strcmp(argv[3], "chmod"))
+	{
+		ChmodInode(device_fd, super_block, group_descriptor, inode_num, argv[4]);
+	}
+	
 	
 	
 	/* clean everything up  */
