@@ -8,7 +8,8 @@
 #include <assert.h>
 
 /*
-Reviewer Yarin
+Reviewer FS parsing Yarin
+Reviewer Chmod Or
 */
 
 #include "ext2.h"
@@ -177,7 +178,12 @@ struct ext2_group_desc
 };
 
 
-/* Calculate Group Inode Table location */
+/* 
+Calculate Group Inode Table location 
+
+return value:
+	start of inode table of block holding the inode: inode_num
+*/
 
 size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num)
 {
@@ -199,13 +205,18 @@ size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_n
 	return (inode_block_index * super_block->s_blocks_per_group * block_size_bytes + 2 * block_size_bytes); /* GroupDescriptor doesnt exist */
 }
 
-/* Parse file names and iterate through the inodes using the EXT2 structure */
+/* 
+Parse file names and iterate through the inodes using the EXT2 structure 
+return value:
+	-1 if memory allocation failed
+	otherwise the matching file for path inode number
+*/
 
 long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname)
 {
 	char *token = NULL;
 	gd *new_group_descriptor = NULL;
-	size_t inode_num = 0;
+	long inode_num = 0;
 	size_t last_inode_num = EXT2_ROOT_INO;
 	
 	assert(super_block);
@@ -218,6 +229,12 @@ long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pa
 	{	
 		inode_num = UseFile(device_fd, super_block, group_descriptor, last_inode_num, SpiderDir, token);		/* get inode_num of token using from the directory entries */
 		
+		if(-1 == inode_num)
+		{
+			printf("Memory Allocation failed\n");
+			return -1;
+		}
+		
 		token = strtok(NULL, "/");		/* parse next directory */
 		
 		last_inode_num = inode_num;
@@ -227,7 +244,11 @@ long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pa
 	return inode_num;
 }
 
-/* copy from offset in ramdisk to buffer */
+/* 
+copy from offset in ramdisk to buffer 
+return value:
+	none
+*/
 
 void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 {
@@ -236,14 +257,23 @@ void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer)
 	if(-1 == lseek(fd, offset, SEEK_SET))
 	{
 		perror(NULL);
+		return;
 	}
 	if(-1 == read(fd, buffer, block_size))
 	{
 		perror(NULL);
+		return;
 	}
 }
 
-/* Do actions on temporary buffer holding data of EXT2 files */
+/* 
+Do actions on temporary buffer holding data of EXT2 files
+return value:
+	-1 if memory allocation failed
+	-2 if spiderdir didnt find a certain token
+	0 if no relevant number should return, as in print func
+	otherwise a number indicating the inode number
+*/
 
 long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_num, block_func action_func, void *arg)
 {
@@ -261,8 +291,10 @@ long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_
 	
 	if(NULL == file_inode)
 	{
-		return 1;
+		return -1;
 	}
+	
+	/* load inode number:inode_num into inode struct: file_inode */
 	
 	LoadInode(device_fd, super_block, group_descriptor, file_inode, inode_num);
 	
@@ -275,7 +307,7 @@ long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_
 	if(NULL == block_buffer)
 	{
 	
-		return 1;
+		return -1;
 	}
 	
 	for(; i < 12 && bytes_left > 0 ; ++i, bytes_left -= bytes_read)		/* first 12 direct block indexes */
@@ -289,7 +321,7 @@ long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_
 			action_func(block_buffer, bytes_read);
 		}
 		
-		if (SpiderDir == action_func)			/* parse the file content holding dir entrys */
+		if (SpiderDir == action_func)			/* parse the file content holding dir entrys, find matching file name */
 		{
 			assert(arg);
 			free(file_inode);
@@ -301,7 +333,11 @@ long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_
 	return 0;
 }
 
-
+/* 
+load into curr_inode the inode corresponding to inode_num
+return value:
+	none
+*/
 void LoadInode(int device_fd, sb *super_block, gd* group_descriptor, inode *curr_inode, size_t inode_num)
 {
 	size_t inode_local_index = 0;
@@ -315,20 +351,36 @@ void LoadInode(int device_fd, sb *super_block, gd* group_descriptor, inode *curr
 	
 }
 
+
+/*
+create the permissions signature with the numeric arguments in mind
+return value:
+	none
+*/
 static void ChmodSetSignature(unsigned short *signature, char *args)
 {
 	size_t i = 0;
 	size_t args_len = strlen(args);
+	*signature = 0;
 	
 	assert(signature);
 	
-	for(; i < args_len; ++i)
+	for(; i < args_len -1 ; ++i)
 	{
 		*signature += (int)args[i] - '0';
 		*signature <<= 3;
 	}
+	*signature += (int)args[i] - '0';
 }
 
+
+/*
+check if the numeric arguments are valid
+return value:
+	valid 0
+	args content invalid 1
+	args length invalid 2
+*/
 static int ChmodArgsCheck(char *args)
 {
 	size_t i = 0;
@@ -352,14 +404,19 @@ static int ChmodArgsCheck(char *args)
 	return 0;
 }
 
-/* our numeric chmod implementation */
+/* 
+our numeric chmod implementation 
+return value:
+	failed !0
+	success 0
+*/
 
 long ChmodInode(int device_fd, sb *super_block, gd* group_descriptor, size_t inode_num, char *args)
 {
 	size_t inode_local_index = 0;
 	int status = 0;
-	unsigned short signature;
-	unsigned short curr_imode;
+	unsigned short signature = 0;
+	unsigned short curr_imode = 0;
 	
 	assert(super_block);
 	assert(group_descriptor);
@@ -388,17 +445,25 @@ long ChmodInode(int device_fd, sb *super_block, gd* group_descriptor, size_t ino
 	if(-1 == lseek(device_fd, CalculateGroupTable(super_block, group_descriptor, inode_num) + inode_local_index * super_block->s_inode_size, SEEK_SET))
 	{
 		perror(NULL);
+		return 1;
 	}
 	
 	if(-1 == write(device_fd, &signature, I_MODE_SIZE))
 	{
 		perror(NULL);
+		return 1;
 	}
 	
 	return 0;
 }
 
-/* find name of inode inside of directory and return its number */
+/* 
+find name of inode inside of directory and return its number
+return value:
+	memory allocation failed | -1
+	No matching entry was found | -2
+	found inode num | inode_num
+*/
 
 long SpiderDir(void *buffer, size_t size, char *name)
 {
@@ -415,13 +480,14 @@ long SpiderDir(void *buffer, size_t size, char *name)
 		curr_record = *((unsigned short*)((char*)buffer + RECORD_LEN_OFFSET + sum_record));
 		
 		entry = (dir_entry2*)malloc(curr_record + 1);
-		*((char*)entry + curr_record) = '\0';
 		
 		if(NULL == entry)
 		{
 			free(buffer);
 			return -1;
 		}
+		
+		*((char*)entry + curr_record) = '\0';
 		
 		memmove(entry, ((char*)buffer + sum_record), curr_record);
 		
@@ -438,11 +504,16 @@ long SpiderDir(void *buffer, size_t size, char *name)
 		sum_record += curr_record; 
 	}
 	free(buffer);
-	return 0;
+	printf("No matching entry was found\n");
+	return -2;
 }
 
 
-/* print buffer in hex */
+/*
+print buffer in hex 
+return value:
+	0 for success
+*/
 
 long PrintBlock(void *buffer, size_t size)
 {
@@ -471,7 +542,7 @@ int main(int argc, char *argv[])
 	char *path_dup = NULL;
 	size_t gd_offset = 0;
 	size_t block_size_bytes = 0;
-	size_t inode_num = 0;
+	long inode_num = 0;
 	int device_fd = 0;
 	sb *super_block = NULL;
 	gd *group_descriptor = NULL;
@@ -484,7 +555,7 @@ int main(int argc, char *argv[])
 	file_path += strlen("ramdisk");
 	/* open the "device" file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	
-	device_fd = open(device_name, O_RDONLY);
+	device_fd = open(device_name, O_RDWR);
 	
 	if(device_fd == -1)
 	{
@@ -545,18 +616,25 @@ int main(int argc, char *argv[])
 	
 	inode_num = GetFileInode(device_fd, super_block, group_descriptor, path_dup);
 	
-	
+	if (-1 == inode_num)
+	{
+		printf("Memory Allocation failed\n");
+		return 1;
+	}
 	/*
 	UseFile(device_fd, super_block, group_descriptor, inode_num,  PrintBlock, NULL);
 	*/
 	
+	/* call chmod in right circumstances */
 	if(argc == 5 && !strcmp(argv[3], "chmod"))
 	{
-		ChmodInode(device_fd, super_block, group_descriptor, inode_num, argv[4]);
+		if(ChmodInode(device_fd, super_block, group_descriptor, inode_num, argv[4]))
+		{
+			return 1;
+		}
 	}
 	
-	
-	
+
 	/* clean everything up  */
 	if(-1 == close(device_fd))
 	{

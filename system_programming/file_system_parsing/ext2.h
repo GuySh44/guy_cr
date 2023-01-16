@@ -17,13 +17,17 @@ typedef struct ext2_group_desc gd;
 typedef long (*block_func)();
 
 
-void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer);
+size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num);
 
-long SpiderDir(void *buffer, size_t size, char *name);
+long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname);
+
+void CopyToBuffer(int fd, size_t offset, size_t block_size, void *buffer);
 
 long UseFile(int device_fd, sb *super_block, gd *group_descriptor, size_t inode_num, block_func action_func, void *arg);
 
 void LoadInode(int device_fd, sb *super_block, gd* group_descriptor, inode *curr_inode, size_t inode_num);
+
+long SpiderDir(void *buffer, size_t size, char *name);
 
 long PrintBlock(void *buffer, size_t size);
 
@@ -37,9 +41,6 @@ void PrintGroupDescriptor(const gd *group_descriptor);
 
 void PrintInode(const inode *node);
 
-size_t CalculateGroupTable(sb *super_block, gd *group_descriptor, size_t inode_num);
-
-long GetFileInode(int device_fd, sb *super_block, gd *group_descriptor, char *pathname);
 
 
 #endif /* __EXT2_H__ */
