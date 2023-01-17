@@ -8,7 +8,7 @@ void StackSort(stack_t *stack)
 {
 	stack_t *s_temp = StackCreate(STACK_SIZE, sizeof(int));
 	size_t push_count = 0;
-	int *temp = 0;
+	int *temp = NULL;
 	
 	StackPush(s_temp, StackPeek(stack));
 	StackPop(stack);
