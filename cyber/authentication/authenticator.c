@@ -50,14 +50,14 @@ static int AuthCheckCred(const char *cred)
 }
 
 /* 
-search for an already existent user, and return its data line from the database through buffer that is provided to it
+search for an existing user, and return its data line from the database through buffer that is provided to it
 
 return value:
-	0 - success
-	1 - user wasnt found
+	0 - username free
+	1 - username already taken
 	2 - system error
 */
-static int AuthFindUser(FILE *db_file, char *buffer, const char *username)
+static int AuthUserTaken(FILE *db_file, char *buffer, const char *username)
 {	
 	extern char* strndup(const char*, size_t n);
 	char *curr_username = NULL;
@@ -79,12 +79,12 @@ static int AuthFindUser(FILE *db_file, char *buffer, const char *username)
 		if(!strcmp(curr_username, username))
 		{
 			free(curr_username);
-			return 0;
+			return 1;
 		}
 		free(curr_username);
 	}
 	
-	return 1;
+	return 0;
 }
 
 
@@ -175,8 +175,8 @@ int AuthAddUser(const char *username, const char *password)
 		return 2;
 	}
 	
-	status = AuthFindUser(db_file, buffer, username);
-	if(1 != status)
+	status = AuthUserTaken(db_file, buffer, username);
+	if(0 != status)
 	{
 		if(0 != fclose(db_file))
 		{

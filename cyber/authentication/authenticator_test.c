@@ -16,10 +16,15 @@ int NoGuyAllowed(const char *password)
 int main()
 {
 	AuthConfigAuthenticator("./test_dir/users_db", NoGuyAllowed);
-	AuthAddUser("guy","guy");
-	AuthAddUser("guy","4497");
-	AuthAddUser("", "");
-	AuthAddUser("", "123");
-	AuthAddUser("123", "");
+	printf("%d\n",AuthAddUser("guy","guy"));
+	printf("%d\n",AuthAddUser("guy","4497"));
+	printf("%d\n",AuthAddUser("", ""));
+	printf("%d\n",AuthAddUser("", "123"));
+	printf("%d\n",AuthAddUser("123", ""));
+	printf("%d\n",AuthAddUser(" 345", ""));
+	printf("%d\n",AuthAddUser("3:45", ""));
+	printf("%d\n",AuthAddUser("345\n", ""));
+	printf("%d\n",AuthAddUser("3:4\n5 ", ""));
+	printf("%d\n",AuthAddUser("345", ""));
 	return 0;
 }
