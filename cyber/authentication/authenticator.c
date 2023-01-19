@@ -175,7 +175,8 @@ int AuthAddUser(const char *username, const char *password)
 		return 2;
 	}
 	
-	if(1 != AuthFindUser(db_file, buffer, username))
+	status = AuthFindUser(db_file, buffer, username);
+	if(1 != status)
 	{
 		if(0 != fclose(db_file))
 		{
@@ -183,7 +184,7 @@ int AuthAddUser(const char *username, const char *password)
 			return 2;
 		}
 		free(buffer);
-		return 1;
+		return status;
 	}
 	
 	if(0 != fclose(db_file))
@@ -239,6 +240,11 @@ int AuthAddUser(const char *username, const char *password)
 	return 0;
 }
 
+int AuthDeleteUser(const char *username)
+{
+	assert(username);
+	
+}
 
 /* set global config variables to given values */
 int AuthConfigAuthenticator(const char *file_path, pwd_strength pwd_config_func)
