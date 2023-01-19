@@ -244,6 +244,75 @@ int AuthDeleteUser(const char *username)
 {
 	assert(username);
 	
+	
+}
+
+int AuthAuthenticator(const char *username, const char *password)
+{
+	char *old_hash = NULL;
+	char *new_hash = NULL;
+	char *buffer = NULL;
+	size_t old_hash_len = 0;
+	FILE *db_file = NULL;
+	int status = 0;
+	
+	
+	assert(username);
+	assert(password);
+	
+	db_file = fopen(database_location, "ab+");
+	if(NULL == db_file)
+	{	
+		free(buffer);
+		return 2;
+	}
+	
+	buffer = (char*)malloc(BUFFER_SIZE);
+	if(NULL == buffer)
+	{
+		if(0 != fclose(db_file))
+		{
+			return 2;
+		}
+		return 2;
+	}
+	
+	status = AuthUserTaken(db_file, buffer, username);		/* check if user even exists, if it does fill buffer with the corresponding line */
+	if(1 != status)
+	{
+		if(0 != fclose(db_file))
+		{
+			free(buffer);
+			return 2;
+		}
+		if(0 == status)
+		{
+			free(buffer);
+			return 1;
+		}
+		free(buffer);
+		return status;
+	}
+	
+	if(0 != fclose(db_file))
+	{
+		free(buffer);
+		return 2;
+	}
+	
+	old_hash = strchr(buffer, ':') + 1;			/* parse only the hash out of entire line  */
+	old_hash_len = strlen(old_hash);
+	old_hash[old_hash_len - 1] = '\0';			/* get rid of \n at end of line */
+	new_hash = crypt(password, old_hash);		/* check given password credential against old hash */
+	
+	if(strcmp(new_hash, old_hash))
+	{
+		free(buffer);
+		return 3; 
+	}
+	
+	free(buffer);
+	return 0;
 }
 
 /* set global config variables to given values */

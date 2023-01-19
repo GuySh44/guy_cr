@@ -17,7 +17,7 @@ int main()
 {
 	AuthConfigAuthenticator("./test_dir/users_db", NoGuyAllowed);
 	printf("%d\n",AuthAddUser("guy","guy"));
-	printf("%d\n",AuthAddUser("guy","4497"));
+	printf("%d\n",AuthAddUser("guy","passcode"));
 	printf("%d\n",AuthAddUser("", ""));
 	printf("%d\n",AuthAddUser("", "123"));
 	printf("%d\n",AuthAddUser("123", ""));
@@ -26,5 +26,8 @@ int main()
 	printf("%d\n",AuthAddUser("345\n", ""));
 	printf("%d\n",AuthAddUser("3:4\n5 ", ""));
 	printf("%d\n",AuthAddUser("345", ""));
+	
+	printf("%d\n",AuthAuthenticator("guy","passcode"));
+	printf("%d\n",AuthAuthenticator("guy","passcode2"));
 	return 0;
 }
