@@ -29,5 +29,9 @@ int main()
 	
 	printf("%d\n",AuthAuthenticator("guy","passcode"));
 	printf("%d\n",AuthAuthenticator("guy","passcode2"));
+	
+	printf("%d\n",AuthDeleteUser("guy"));
+	printf("%d\n",AuthDeleteUser("123"));
+	printf("%d\n",AuthAuthenticator("guy","passcode"));
 	return 0;
 }

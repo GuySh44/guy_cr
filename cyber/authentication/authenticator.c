@@ -4,6 +4,7 @@
 #include <crypt.h> /* crypt */
 #include <stdlib.h> /* malloc free */
 #include <stddef.h> /* size_t */
+#include <errno.h> /* errno */
 
 #include "authenticator.h"
 
@@ -12,6 +13,8 @@
 #define BUFFER_SIZE 128
 #define SALT_STR_SIZE 7
 #define ALG_SIZE 3
+
+/* Reviewer: Ravid */
 
 /* default place holder function for password strength */
 static int AuthDefaultPasswordStrength(const char *password)
@@ -242,9 +245,117 @@ int AuthAddUser(const char *username, const char *password)
 
 int AuthDeleteUser(const char *username)
 {
+	FILE *db_file = NULL;
+	FILE *tmp_db_file = NULL;
+	char *tmp_path = NULL;
+	char buffer[BUFFER_SIZE] = {0};
+	char line_to_del[BUFFER_SIZE] = {0};
+	int status = 0;
+	
 	assert(username);
 	
+	/* check if user exists */
+	if(NULL == buffer)
+	{
+		return 2;
+	}
 	
+	db_file = fopen(database_location, "ab+");
+	if(NULL == db_file)
+	{	
+		return 2;
+	}
+	
+	status = AuthUserTaken(db_file, line_to_del, username);	
+	if(1 != status)
+	{
+		if(0 != fclose(db_file))
+		{
+			return 2;
+		}
+		if(0 == status)
+		{
+			return 1;
+		}
+		return status;
+	}
+	
+	if(0 != fclose(db_file))
+	{
+		return 2;
+	}
+	
+	/*rename db as tmp*/
+	tmp_path = (char*)malloc(strlen(database_location) + 5);
+	strcpy(tmp_path, database_location); 
+	strcat(tmp_path, "_tmp");
+	
+	if(-1 == rename(database_location, tmp_path))
+	{
+		return 2;
+	}
+	
+	tmp_db_file = fopen(tmp_path, "ab+");
+	if(NULL == db_file)
+	{	
+		free(tmp_path);
+		return 2;
+	}
+	/*copy tmp to new file*/
+	
+	db_file = fopen(database_location, "ab+");
+	if(NULL == db_file)
+	{	
+		fclose(tmp_db_file);
+		free(tmp_path);
+		return 2;
+	}
+	
+	while(NULL != fgets(buffer, BUFFER_SIZE, tmp_db_file))
+	{
+		if(!strcmp(buffer, line_to_del))		/* pass over line to delete */
+		{
+			continue;
+		}
+		
+		if(fputs(buffer, db_file) < 0)
+		{
+			if(0 != fclose(db_file))
+			{
+				fclose(tmp_db_file);
+				free(tmp_path);
+			}
+			return 2;
+		}
+	}
+	
+	if(0 != fclose(db_file))
+	{
+		fclose(tmp_db_file);
+		free(tmp_path);
+		return 2;
+	}
+		
+	/*clean tmp*/
+	if (feof(tmp_db_file))
+	{
+		remove(tmp_path);
+	}
+	else
+	{
+		rename(tmp_path, database_location);
+		free(tmp_path);
+		return 2;
+	}
+	
+	if(0 != fclose(tmp_db_file))
+	{
+		free(tmp_path);
+		return 2;
+	}
+	
+	free(tmp_path);
+	return 0;
 }
 
 int AuthAuthenticator(const char *username, const char *password)
@@ -329,6 +440,5 @@ int AuthConfigAuthenticator(const char *file_path, pwd_strength pwd_config_func)
 	}
 	
 	return 0;
-
 }
 
