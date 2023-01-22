@@ -21,7 +21,7 @@ int main()
 			break;
 		}
 		
-		retval = pam_start("pam_auth_print", user, &conv, &pamh);
+		retval = pam_start("pam_cyber_print", user, &conv, &pamh);
 		
 		if (retval == PAM_SUCCESS)
 		{

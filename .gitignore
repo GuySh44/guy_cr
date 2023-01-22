@@ -8,4 +8,7 @@
 !**/*.sh
 !**/*.h
 !**/*.a
+!cyber/authentication/pam_cyber.conf
+!cyber/authentication/pam_cyber
+!cyber/authentication/pam_auth
 !.myfuncs

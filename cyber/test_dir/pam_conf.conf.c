@@ -1,2 +1,0 @@
-+:infinity:ALL
-+:(cyber):ALL
