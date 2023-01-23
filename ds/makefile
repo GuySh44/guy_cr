@@ -11,6 +11,15 @@ FSA_SRC = src/fsa.c test/fsa_test.c
 SORT_SRC = src/comparison_sort.c test/comparison_sort_test.c 
 RECURSION_SRC = src/recursion.c test/recursion_test.c src/stack.c
 VSA_SRC = src/vsa.c test/vsa_test.c
+BST_SRC = src/bst.c test/bst_test.c src/tnode.c
+
+
+bst: $(BST_SRC)
+	$(GD) $(BST_SRC) -o bst
+bst_release: src/bst.c src/tnode.c test/main.c
+	$(RELEASE) src/bst.c src/tnode.c -o bst_release
+bst_obj:
+	$(CC) -c $(CFLAGS) $(DEBUG) $(BST_SRC)
 
 vsa: $(VSA_SRC)
 	$(GD) $(VSA_SRC) -o vsa
