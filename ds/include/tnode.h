@@ -8,7 +8,7 @@ allocate and create a binary tree node, with given child nodes and data to inser
 return value:
 pointer to the new node 
 */
-bin_node_t *TreeNodeCreate(bin_node_t *left_child, bin_node_t *right_child, void* data);
+bin_node_t *TreeNodeCreate(bin_node_t *left_child, bin_node_t *right_child,const void* data);
 
 /*
 get pointer to left child node of a parent

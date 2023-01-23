@@ -9,14 +9,14 @@ struct bin_node
 	bin_node_t *right_child;
 };
 
-bin_node_t *TreeNodeCreate(bin_node_t *left_child, bin_node_t *right_child, void* data)
+bin_node_t *TreeNodeCreate(bin_node_t *left_child, bin_node_t *right_child,const void* data)
 {
 	bin_node_t *new_node = (bin_node_t*)malloc(sizeof(bin_node_t));
 	if(NULL == new_node)
 	{
 		return NULL;
 	}
-	new_node->data = data;
+	new_node->data = (void*)data;
 	new_node->left_child = left_child;
 	new_node->right_child = right_child;
 	return new_node;
