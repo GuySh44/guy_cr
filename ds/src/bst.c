@@ -27,7 +27,7 @@ struct bst
 
 
 /* Inorder traversal function performing and passing param to action_func on each node */
-static int BstInorder(bin_node_t *root, action_function_t action_func, void *param)
+static int BstInorderDataAction(bin_node_t *root, action_function_t action_func, void *param)
 {
 	int ret_val = 0;
 	
@@ -38,7 +38,7 @@ static int BstInorder(bin_node_t *root, action_function_t action_func, void *par
 		return 0;
 	}
 	
-	if(BstInorder(TreeNodeGetLeftChild(root), action_func, param))
+	if(BstInorderDataAction(TreeNodeGetLeftChild(root), action_func, param))
 	{
 		return 1;
 	}
@@ -50,7 +50,7 @@ static int BstInorder(bin_node_t *root, action_function_t action_func, void *par
 		return 1;
 	}
 	
-	if(BstInorder(TreeNodeGetRightChild(root), action_func, param))
+	if(BstInorderDataAction(TreeNodeGetRightChild(root), action_func, param))
 	{
 		return 1;
 	}
@@ -61,7 +61,7 @@ static int BstInorder(bin_node_t *root, action_function_t action_func, void *par
 
 
 /* Preorder traversal function performing and passing param to action_func on each node */
-static int BstPreorder(bin_node_t *root, action_function_t action_func, void *param)
+static int BstPreorderDataAction(bin_node_t *root, action_function_t action_func, void *param)
 {
 	int ret_val = 0;
 	
@@ -79,12 +79,12 @@ static int BstPreorder(bin_node_t *root, action_function_t action_func, void *pa
 		return 1;
 	}
 	
-	if(BstPreorder(TreeNodeGetLeftChild(root), action_func, param))
+	if(BstPreorderDataAction(TreeNodeGetLeftChild(root), action_func, param))
 	{
 		return 1;
 	}
 	
-	if(BstPreorder(TreeNodeGetRightChild(root), action_func, param))
+	if(BstPreorderDataAction(TreeNodeGetRightChild(root), action_func, param))
 	{
 		return 1;
 	}
@@ -94,7 +94,7 @@ static int BstPreorder(bin_node_t *root, action_function_t action_func, void *pa
 
 
 /* Postorder traversal function performing and passing param to action_func on each node */
-static int BstPostorder(bin_node_t *root, action_function_t action_func, void *param)
+static int BstPostorderDataAction(bin_node_t *root, action_function_t action_func, void *param)
 {
 	int ret_val = 0;
 	
@@ -106,12 +106,12 @@ static int BstPostorder(bin_node_t *root, action_function_t action_func, void *p
 	}
 	
 	
-	if(BstPostorder(TreeNodeGetLeftChild(root), action_func, param))
+	if(BstPostorderDataAction(TreeNodeGetLeftChild(root), action_func, param))
 	{
 		return 1;
 	}
 	
-	if(BstPostorder(TreeNodeGetRightChild(root), action_func, param))
+	if(BstPostorderDataAction(TreeNodeGetRightChild(root), action_func, param))
 	{
 		return 1;
 	}
@@ -145,8 +145,29 @@ bst_t *BstCreate(compare_func_t cmp_func)
 	return new_tree;
 }
 
+static void BstPostorderFree(bin_node_t *node)
+{
+	if(NULL == node)
+	{
+		return;
+	}
+	
+	BstPostorderFree(TreeNodeGetLeftChild(node));
+	
+	BstPostorderFree(TreeNodeGetRightChild(node));
+	
+	free(node);
+	
+}
 
-void BstDestroy(bst_t *bst);
+void BstDestroy(bst_t *bst)
+{
+	assert(bst);
+	
+	BstPostorderFree(bst->root);
+	
+	free(bst);
+}
 
 
 void BstRemove(bst_iter_t iter);
@@ -239,15 +260,15 @@ int BstForEach(bst_t *bst, traversal_t mode, action_function_t action_func, void
 	switch(mode)
 	{
 		case IN_ORDER:
-			return BstInorder(bst->root, action_func, param);
+			return BstInorderDataAction(bst->root, action_func, param);
 			break;
 			
 		case PRE_ORDER:
-			return BstPreorder(bst->root, action_func, param);
+			return BstPreorderDataAction(bst->root, action_func, param);
 			break;
 			
 		case POST_ORDER:
-			return BstPostorder(bst->root, action_func, param);
+			return BstPostorderDataAction(bst->root, action_func, param);
 			break;
 			
 		default:

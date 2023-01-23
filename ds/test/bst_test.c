@@ -51,5 +51,7 @@ int main()
 	
 	printf("\n");
 	
+	BstDestroy(first_tree);
+	
 	return 0;
 }
