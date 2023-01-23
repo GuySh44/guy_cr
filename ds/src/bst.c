@@ -25,6 +25,15 @@ struct bst
 	bin_node_t *root;
 };
 
+static bst_iter_t BstIterCreate(bin_node_t *node)
+{
+	bst_iter_t new_iter;
+	
+	new_iter.node = node;
+	
+	return new_iter;
+}
+
 
 /* Inorder traversal function performing and passing param to action_func on each node */
 static int BstInorderDataAction(bin_node_t *root, action_function_t action_func, void *param)
@@ -145,6 +154,7 @@ bst_t *BstCreate(compare_func_t cmp_func)
 	return new_tree;
 }
 
+/* free tree nodes recursively using postorder traversal */
 static void BstPostorderFree(bin_node_t *node)
 {
 	if(NULL == node)
@@ -160,6 +170,7 @@ static void BstPostorderFree(bin_node_t *node)
 	
 }
 
+/* call function to free all nodes, and then free the struct itself */
 void BstDestroy(bst_t *bst)
 {
 	assert(bst);
@@ -241,18 +252,90 @@ int BstInsert(bst_t *bst, const void *data)
 }
 
 
-size_t BstHeight(const bst_t *bst);
+static size_t BstHeightRec(bin_node_t *node)
+{
+	if(node == NULL)
+	{
+		return 1;
+	}
+	BstHeight
+}
+
+size_t BstHeight(const bst_t *bst)
+{
+	assert(bst);
+}
+
+static int CountFunc(void *data, void *param)
+{
+	*((size_t*)param) = *((size_t*)param) + 1;
+	return 0;
+	
+	(void)(data);
+}
+
+/* run foreach with a counter on all nodes, using a function that increments counts on each visit of a node */
+size_t BstSize(const bst_t *bst)
+{
+	size_t count = 0;
+	
+	assert(bst);
+	
+	BstForEach((bst_t*)bst, IN_ORDER, CountFunc, &count);
+	
+	return count;
+}
 
 
-size_t BstSize(const bst_t *bst);
+/* is bst->root NULL? */
+int BstIsEmpty(const bst_t *bst)
+{
+	assert(bst);
+	return (NULL == bst->root);
+}
 
 
-int BstIsEmpty(const bst_t *bst);
+/*
+recursive find function, that uses the fact we traverse a binary search tree.
+returns iterator to the node holding data value, or NULL if no such node exists
+*/
+static bst_iter_t BstFindRec(bin_node_t *node, const void *data, compare_func_t cmp_func)
+{
+	assert(data);
+	assert(cmp_func);
+	
+	if (0 == cmp_func(TreeNodeGetData(node), data))
+	{
+		return BstIterCreate(node);
+	}
+	else if(0 < cmp_func(TreeNodeGetData(node), data))
+	{
+		return BstFindRec(TreeNodeGetLeftChild(node), data, cmp_func);
+	}
+	else if(0 > cmp_func(TreeNodeGetData(node), data))
+	{
+		return BstFindRec(TreeNodeGetRightChild(node), data, cmp_func);
+	}
+	return BstIterCreate(NULL);
+}
 
 
-bst_iter_t BstFind(bst_t *bst, const void *data);
+/* API function that wraps my recursive find func */
+bst_iter_t BstFind(bst_t *bst, const void *data)
+{
+	assert(bst);
+	assert(data);
+	
+	return BstFindRec(bst->root, data, bst->cmp_func);
+}
 
-/* choose traversal mode and action func */
+/* 
+choose traversal mode and action func
+return value:
+0 - success
+1 - action func failed
+2 - wrong mode
+*/
 int BstForEach(bst_t *bst, traversal_t mode, action_function_t action_func, void *param)
 {
 	assert(bst);
@@ -274,6 +357,6 @@ int BstForEach(bst_t *bst, traversal_t mode, action_function_t action_func, void
 		default:
 			break;
 	}
-	return 1;
+	return 2;
 }
 
