@@ -170,110 +170,84 @@ void BstDestroy(bst_t *bst)
 	free(bst);
 }
 
-static bin_node_t *BstFindMaximal(bin_node_t *root)
+/* find and return the maximal data value of a bst */
+static void *BstFindMaximal(bin_node_t *root)
 {
 	if(NULL == TreeNodeGetRightChild(root))
 	{
-		return root;
+		return TreeNodeGetData(root);
 	}
 	return BstFindMaximal(TreeNodeGetRightChild(root));
 }
 
-static void BstSetParent(bin_node_t *parent, bin_node_t *child, int child_flag)
+/* recursive remove function, that 'rebuilds' the tree while managing find and delete node */
+static bin_node_t *BstRemoveRec(bin_node_t *root, void* data, compare_func_t cmp_func)
 {
-	if(child_flag)
-	{
-		TreeNodeSetRightChild(parent, child);
-	}
-	else
-	{
-		TreeNodeSetLeftChild(parent, child);
-	}
-}
+	void *successor_data = NULL;
+	bin_node_t *temp_child = NULL;
 
-static bin_node_t *BstFindParent(bin_node_t *parent, bin_node_t *node, const void *data, compare_func_t cmp_func)
-{
-	if (NULL == node)
+	assert(data);
+	/* we reached a leaf's child */
+	if(root == NULL)
 	{
 		return NULL;
 	}
-	if (0 == cmp_func(TreeNodeGetData(node), data))
-	{
-		return parent;
-	}
-	else if(0 < cmp_func(TreeNodeGetData(node), data))
-	{
-		return BstFindParent(node, TreeNodeGetLeftChild(node), data, cmp_func);
-	}
-	else if(0 > cmp_func(TreeNodeGetData(node), data))
-	{
-		return BstFindParent(node, TreeNodeGetRightChild(node), data, cmp_func);
-	}
-	return NULL;
-}
-
-static bin_node_t *BstRemoveRec(bin_node_t *parent, void* data, compare_func_t cmp_func)
-{
 	
+	/* finding the node we need to delete, binary searching */
+	if(0 < cmp_func(TreeNodeGetData(root), data))
+	{
+		TreeNodeSetLeftChild(root, BstRemoveRec(TreeNodeGetLeftChild(root), data, cmp_func));
+	}
+	
+	/* finding the node we need to delete, binary searching */
+	else if(0 > cmp_func(TreeNodeGetData(root), data))
+	{
+		TreeNodeSetRightChild(root, BstRemoveRec(TreeNodeGetRightChild(root), data, cmp_func));
+	}
+	/* we found the node */
+	else
+	{
+		/* its a leaf */
+		if(NULL == TreeNodeGetRightChild(root) && NULL == TreeNodeGetLeftChild(root))
+		{
+			free(root);
+			return NULL;
+		}
+		/* it has 2 children */
+		else if(NULL != TreeNodeGetRightChild(root) && NULL != TreeNodeGetLeftChild(root))
+		{        
+			/* find the maximal data value in the left sub-tree */   
+			successor_data = BstFindMaximal(TreeNodeGetLeftChild(root));
+			/* we are about the swap the 'successor' and the current node, so we delete the current successor after saving its data */
+			TreeNodeSetLeftChild(root, BstRemoveRec(TreeNodeGetLeftChild(root), successor_data, cmp_func));
+			/* we put 'successor's data into the current node */
+			TreeNodeSetData(root, successor_data);
+		}
+		/* it has 1 child */
+		else
+		{
+			if(NULL == TreeNodeGetLeftChild(root))
+			{
+				temp_child = TreeNodeGetRightChild(root);
+			}
+			else
+			{
+				temp_child = TreeNodeGetLeftChild(root);
+			}
+			free(root);
+			return temp_child;
+		}
+	}
+	return root;
 }
 
+/* API remove function that calls the recursive remove function */
 void BstRemove(bst_t *bst,void *data)
 {
-	bin_node_t *parent = NULL;
-	bin_node_t *child_to_rem = NULL;
-	bin_node_t *successor = NULL;
-	void *temp_data = NULL;
-	int child_flag = 0;
-	
 	assert(bst);
 	assert(data);
 	
-	parent = BstFindParent(bst->root, bst->root, data, bst->cmp_func);
-	if(NULL == parent)
-	{
-		return;
-	}
-	
-	if(NULL != TreeNodeGetRightChild(parent) && 0 == bst->cmp_func(TreeNodeGetData(TreeNodeGetRightChild(parent)), data))
-	{
-		child_flag = 1;
-		child_to_rem = TreeNodeGetRightChild(parent);
-	}
-	else if(NULL != TreeNodeGetLeftChild(parent))
-	{
-		child_flag = 0;
-		child_to_rem = TreeNodeGetLeftChild(parent);
-	}
-	
-	
-	if(NULL == TreeNodeGetRightChild(child_to_rem) && NULL == TreeNodeGetLeftChild(child_to_rem))
-	{
-		successor = NULL;
-		BstSetParent(parent, successor, child_flag);
-		TreeNodeDestroy(child_to_rem);
-	}
-	
-	else if(NULL != TreeNodeGetRightChild(child_to_rem) && NULL != TreeNodeGetLeftChild(child_to_rem))
-	{
-		successor = BstFindMaximal(TreeNodeGetLeftChild(child_to_rem));
-		temp_data = TreeNodeGetData(successor);
-		BstRemove(bst, temp_data);
-		TreeNodeSetData(child_to_rem, temp_data);
-	}
-	else
-	{
-		if(NULL == TreeNodeGetRightChild(child_to_rem))
-		{
-			successor = TreeNodeGetLeftChild(child_to_rem);
-			BstSetParent(parent, successor, child_flag);
-		}
-		else
-		{
-			successor = TreeNodeGetRightChild(child_to_rem);
-			BstSetParent(parent, successor, child_flag);
-		}
-		TreeNodeDestroy(child_to_rem);
-	}
+	bst->root = BstRemoveRec(bst->root, data, bst->cmp_func);
 }
 
 

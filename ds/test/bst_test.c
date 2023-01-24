@@ -38,7 +38,7 @@ int main()
 	bst_t *first_tree = BstCreate(IntCompare);
 	bst_t *second_tree = BstCreate(StringCompare);
 	bst_t *third_tree = BstCreate(IntCompare);
-	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, six = 6, seven = 7, eight = 8, nine = 9, ten = 10, eleven = 11, twelve = 12, thirteen = 13, fourteen = 14, fifteen = 15, sixteen = 16, twenty = 20, c_one = 1, c_two = 2, c_three = 3, c_four = 4, c_five = 5, c_six = 6, c_seven = 7, c_eight = 8, c_nine = 9, c_ten = 10;
+	int zero = 0, one = 1, two = 2, three = 3, four = 4, five = 5, six = 6, seven = 7, eight = 8, nine = 9, ten = 10, eleven = 11, twelve = 12, thirteen = 13, fourteen = 14, fifteen = 15, sixteen = 16, twenty = 20, c_one = 1, c_two = 2, c_three = 3, c_four = 4, c_five = 5, c_six = 6, c_seven = 7, c_eight = 8, c_nine = 9, c_ten = 10, c_fifteen = 15, c_sixteen = 16;
 	char *a = "a", *b = "b", *c = "c", *d = "d", *e = "e", *f = "f", *g = "g", *h = "h", *i = "i", *c_a = "a", *c_b = "b", *c_c = "c", *c_d = "d", *c_e = "e", *c_f = "f", *c_g = "g", *c_h = "h", *c_i = "i", *c_j = "j";
 	
 	if(NULL == first_tree)
@@ -125,6 +125,14 @@ int main()
 	BstForEach(first_tree, POST_ORDER, PrintInt, NULL);
 	
 	printf("\n");
+	
+	printf("\n");
+	
+	printf("try remove non existent value :(\n");
+	
+	BstRemove(first_tree, &zero);
+	
+	printf("we survived :)\n");
 		
 	BstDestroy(first_tree);
 	
@@ -190,7 +198,25 @@ int main()
 	BstForEach(third_tree, IN_ORDER, PrintInt, NULL);
 	
 	printf("\n");
-		
+	
+	printf("Remove 16\n");
+	BstRemove(third_tree, &c_sixteen);
+	
+	printf("InOrder\n");
+	
+	BstForEach(third_tree, IN_ORDER, PrintInt, NULL);
+	
+	printf("\n");
+	
+	printf("Remove 15 you smell me?\n");
+	BstRemove(third_tree, &c_fifteen);
+	
+	printf("InOrder\n");
+	
+	BstForEach(third_tree, IN_ORDER, PrintInt, NULL);
+	
+	printf("\n");
+	
 	BstDestroy(third_tree);
 	
 	printf("\n");
