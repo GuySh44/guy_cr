@@ -251,19 +251,29 @@ int BstInsert(bst_t *bst, const void *data)
 	return flag;
 }
 
-
-static size_t BstHeightRec(bin_node_t *node)
+/* recursive height function, returns longest route from a leaf to root, by comparing sibling nodes height */
+static size_t BstHeightRec(bin_node_t *node, size_t right_branch, size_t left_branch)
 {
 	if(node == NULL)
 	{
-		return 1;
+		return 0;
 	}
-	BstHeight
+	
+	right_branch = BstHeightRec(TreeNodeGetRightChild(node), 0, 0);
+	left_branch = BstHeightRec(TreeNodeGetLeftChild(node), 0, 0); 
+	
+	if(right_branch > left_branch)
+	{
+		return right_branch + 1;
+	}
+	return left_branch + 1;
 }
 
+/* API wrapper to recursive function */
 size_t BstHeight(const bst_t *bst)
 {
 	assert(bst);
+	return(BstHeightRec(bst->root, 0, 0));
 }
 
 static int CountFunc(void *data, void *param)
