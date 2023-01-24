@@ -25,16 +25,6 @@ struct bst
 	bin_node_t *root;
 };
 
-static bst_iter_t BstIterCreate(bin_node_t *node)
-{
-	bst_iter_t new_iter;
-	
-	new_iter.node = node;
-	
-	return new_iter;
-}
-
-
 /* Inorder traversal function performing and passing param to action_func on each node */
 static int BstInorderDataAction(bin_node_t *root, action_function_t action_func, void *param)
 {
@@ -166,7 +156,7 @@ static void BstPostorderFree(bin_node_t *node)
 	
 	BstPostorderFree(TreeNodeGetRightChild(node));
 	
-	free(node);
+	TreeNodeDestroy(node);
 	
 }
 
@@ -180,8 +170,111 @@ void BstDestroy(bst_t *bst)
 	free(bst);
 }
 
+static bin_node_t *BstFindMaximal(bin_node_t *root)
+{
+	if(NULL == TreeNodeGetRightChild(root))
+	{
+		return root;
+	}
+	return BstFindMaximal(TreeNodeGetRightChild(root));
+}
 
-void BstRemove(bst_iter_t iter);
+static void BstSetParent(bin_node_t *parent, bin_node_t *child, int child_flag)
+{
+	if(child_flag)
+	{
+		TreeNodeSetRightChild(parent, child);
+	}
+	else
+	{
+		TreeNodeSetLeftChild(parent, child);
+	}
+}
+
+static bin_node_t *BstFindParent(bin_node_t *parent, bin_node_t *node, const void *data, compare_func_t cmp_func)
+{
+	if (NULL == node)
+	{
+		return NULL;
+	}
+	if (0 == cmp_func(TreeNodeGetData(node), data))
+	{
+		return parent;
+	}
+	else if(0 < cmp_func(TreeNodeGetData(node), data))
+	{
+		return BstFindParent(node, TreeNodeGetLeftChild(node), data, cmp_func);
+	}
+	else if(0 > cmp_func(TreeNodeGetData(node), data))
+	{
+		return BstFindParent(node, TreeNodeGetRightChild(node), data, cmp_func);
+	}
+	return NULL;
+}
+
+static bin_node_t *BstRemoveRec(bin_node_t *parent, void* data, compare_func_t cmp_func)
+{
+	
+}
+
+void BstRemove(bst_t *bst,void *data)
+{
+	bin_node_t *parent = NULL;
+	bin_node_t *child_to_rem = NULL;
+	bin_node_t *successor = NULL;
+	void *temp_data = NULL;
+	int child_flag = 0;
+	
+	assert(bst);
+	assert(data);
+	
+	parent = BstFindParent(bst->root, bst->root, data, bst->cmp_func);
+	if(NULL == parent)
+	{
+		return;
+	}
+	
+	if(NULL != TreeNodeGetRightChild(parent) && 0 == bst->cmp_func(TreeNodeGetData(TreeNodeGetRightChild(parent)), data))
+	{
+		child_flag = 1;
+		child_to_rem = TreeNodeGetRightChild(parent);
+	}
+	else if(NULL != TreeNodeGetLeftChild(parent))
+	{
+		child_flag = 0;
+		child_to_rem = TreeNodeGetLeftChild(parent);
+	}
+	
+	
+	if(NULL == TreeNodeGetRightChild(child_to_rem) && NULL == TreeNodeGetLeftChild(child_to_rem))
+	{
+		successor = NULL;
+		BstSetParent(parent, successor, child_flag);
+		TreeNodeDestroy(child_to_rem);
+	}
+	
+	else if(NULL != TreeNodeGetRightChild(child_to_rem) && NULL != TreeNodeGetLeftChild(child_to_rem))
+	{
+		successor = BstFindMaximal(TreeNodeGetLeftChild(child_to_rem));
+		temp_data = TreeNodeGetData(successor);
+		BstRemove(bst, temp_data);
+		TreeNodeSetData(child_to_rem, temp_data);
+	}
+	else
+	{
+		if(NULL == TreeNodeGetRightChild(child_to_rem))
+		{
+			successor = TreeNodeGetLeftChild(child_to_rem);
+			BstSetParent(parent, successor, child_flag);
+		}
+		else
+		{
+			successor = TreeNodeGetRightChild(child_to_rem);
+			BstSetParent(parent, successor, child_flag);
+		}
+		TreeNodeDestroy(child_to_rem);
+	}
+}
 
 
 /* 
@@ -307,16 +400,20 @@ int BstIsEmpty(const bst_t *bst)
 
 /*
 recursive find function, that uses the fact we traverse a binary search tree.
-returns iterator to the node holding data value, or NULL if no such node exists
+returns pointer to data, or NULL if no such data exists
 */
-static bst_iter_t BstFindRec(bin_node_t *node, const void *data, compare_func_t cmp_func)
+static void *BstFindRec(bin_node_t *node, const void *data, compare_func_t cmp_func)
 {
 	assert(data);
 	assert(cmp_func);
 	
+	if (NULL == node)
+	{
+		return NULL;
+	}
 	if (0 == cmp_func(TreeNodeGetData(node), data))
 	{
-		return BstIterCreate(node);
+		return TreeNodeGetData(node);
 	}
 	else if(0 < cmp_func(TreeNodeGetData(node), data))
 	{
@@ -326,12 +423,12 @@ static bst_iter_t BstFindRec(bin_node_t *node, const void *data, compare_func_t 
 	{
 		return BstFindRec(TreeNodeGetRightChild(node), data, cmp_func);
 	}
-	return BstIterCreate(NULL);
+	return NULL;
 }
 
 
 /* API function that wraps my recursive find func */
-bst_iter_t BstFind(bst_t *bst, const void *data)
+void *BstFind(bst_t *bst, const void *data)
 {
 	assert(bst);
 	assert(data);
