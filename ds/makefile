@@ -12,7 +12,15 @@ SORT_SRC = src/comparison_sort.c test/comparison_sort_test.c
 RECURSION_SRC = src/recursion.c test/recursion_test.c src/stack.c
 VSA_SRC = src/vsa.c test/vsa_test.c
 BST_SRC = src/bst.c test/bst_test.c src/tnode.c
+BINARY_SEARCH_SRC = src/binary_search.c test/binary_search_test.c
 
+
+binary_search: $(BINARY_SEARCH_SRC)
+	$(GD) $(BINARY_SEARCH_SRC) -o binary_search
+binary_search_release: src/binary_search.c test/binary_search_test.c
+	$(GD) -DNDEBUG src/binary_search.c test/binary_search_test.c -o binary_search_release
+binary_search_obj:
+	$(CC) -c $(CFLAGS) $(DEBUG) $(BINARY_SEARCH_SRC)
 
 bst: $(BST_SRC)
 	$(GD) $(BST_SRC) -o bst
