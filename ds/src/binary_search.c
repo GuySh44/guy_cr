@@ -7,24 +7,24 @@
 
 size_t BinarySearchItera(int *arr, size_t size, int num)
 {
-	size_t s = 0, e = size - 1 , m = (s + e) / 2;
+	size_t start = 0, end = size - 1 , mid = (start + end) / 2;
 
 	assert(arr);	
 		
-	while(arr[m] != num)
+	while(arr[mid] != num)
 	{
-		if(num > arr[m])
+		if(num > arr[mid])
 		{
-			s = m + 1;
-			m = (s + e) / 2;
+			start = mid + 1;
+			mid = (start + end) / 2;
 		}
 		else
 		{
-			e = m - 1;
-			m = (s + e) / 2;
+			end = mid - 1;
+			mid = (start + end) / 2;
 		}
 	}
-	return m;
+	return mid;
 }
 
 static size_t BinarySearchRecWrap(int *arr, size_t start, size_t end, int num)

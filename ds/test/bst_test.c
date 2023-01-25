@@ -7,7 +7,7 @@
 
 int StringCompare(const void *str1, const void *str2)
 {
-	return strcmp((char*)str1, (char*)str2);
+	return strcmp(*(char**)str1, *(char**)str2);
 }
 
 int IntCompare(const void *num1, const void *num2)
