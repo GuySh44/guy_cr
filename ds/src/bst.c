@@ -207,14 +207,8 @@ static bin_node_t *BstRemoveRec(bin_node_t *root, void* data, compare_func_t cmp
 	/* we found the node */
 	else
 	{
-		/* its a leaf */
-		if(NULL == TreeNodeGetRightChild(root) && NULL == TreeNodeGetLeftChild(root))
-		{
-			free(root);
-			return NULL;
-		}
 		/* it has 2 children */
-		else if(NULL != TreeNodeGetRightChild(root) && NULL != TreeNodeGetLeftChild(root))
+		if(NULL != TreeNodeGetRightChild(root) && NULL != TreeNodeGetLeftChild(root))
 		{        
 			/* find the maximal data value in the left sub-tree */   
 			successor_data = BstFindMaximal(TreeNodeGetLeftChild(root));
@@ -223,7 +217,7 @@ static bin_node_t *BstRemoveRec(bin_node_t *root, void* data, compare_func_t cmp
 			/* we put 'successor's data into the current node */
 			TreeNodeSetData(root, successor_data);
 		}
-		/* it has 1 child */
+		/* it has 1 or less childs */
 		else
 		{
 			if(NULL == TreeNodeGetLeftChild(root))
