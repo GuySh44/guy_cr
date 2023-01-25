@@ -3,26 +3,21 @@
 
 size_t FindNumRotation(int *arr, size_t size)
 {
-	size_t e = size - 1, s = 0, m = (e + s)/2;
+	size_t end = size - 1, start = 0, mid = (end + start)/2;
 	
-	while(arr[m] > arr[(m-1)%size] || arr[m] > arr[(m+1)%size])
+	while(arr[mid] > arr[(mid-1)%size])
 	{
-		if(arr[m] < arr[e] && arr[m] < arr[s])
+		if(arr[end] > arr[mid])
 		{
-			e = m - 1;
-			m = (s + e) / 2;
-		}
-		if(arr[m] > arr[e] && arr[m] > arr[s])
-		{
-			s = m + 1;
-			m = (s + e) / 2;
+			end = mid - 1;
 		}
 		else
 		{
-			return 0;
+			start = mid + 1;
 		}
+		mid = (start + end) / 2;
 	}
-	return m;
+	return mid;
 }
 
 int main()
