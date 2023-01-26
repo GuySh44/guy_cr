@@ -13,7 +13,15 @@ RECURSION_SRC = src/recursion.c test/recursion_test.c src/stack.c
 VSA_SRC = src/vsa.c test/vsa_test.c
 BST_SRC = src/bst.c test/bst_test.c src/tnode.c
 BINARY_SEARCH_SRC = src/binary_search.c test/binary_search_test.c
+AVL_SRC = src/avl.c test/avl_test.c src/avl_node.c
 
+
+avl: $(AVL_SRC)
+	$(GD) $(AVL_SRC) -o avl
+avl_release: src/avl.c src/avl_node.c test/main.c
+	$(RELEASE) src/avl.c src/avl_node.c -o avl_release
+avl_obj:
+	$(CC) -c $(CFLAGS) $(DEBUG) $(AVL_SRC)
 
 binary_search: $(BINARY_SEARCH_SRC)
 	$(GD) $(BINARY_SEARCH_SRC) -o binary_search

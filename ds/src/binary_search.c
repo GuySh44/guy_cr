@@ -13,6 +13,7 @@ size_t BinarySearchItera(int *arr, size_t size, int num)
 		
 	while(arr[mid] != num)
 	{
+		/* check if start or end are out of bounds for returning not found*/
 		if(num > arr[mid])
 		{
 			start = mid + 1;
