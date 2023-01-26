@@ -44,6 +44,7 @@ static size_t BinarySearchRecWrap(int *arr, size_t start, size_t end, int num)
 	{
 		return BinarySearchRecWrap(arr, start, mid - 1, num); 
 	}
+	return 999;
 }
 
 
