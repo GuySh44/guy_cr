@@ -14,7 +14,15 @@ VSA_SRC = src/vsa.c test/vsa_test.c
 BST_SRC = src/bst.c test/bst_test.c src/tnode.c
 BINARY_SEARCH_SRC = src/binary_search.c test/binary_search_test.c
 AVL_SRC = src/avl.c test/avl_test.c src/avl_node.c
+HASH_SRC = src/hash_table.c test/hash_table_test.c src/snode.c src/slist.c
 
+
+hash_table: $(HASH_SRC)
+	$(GD) $(HASH_SRC) -o hash_table
+hash_table_release: src/slist.c src/snode.c src/hash_table.c test/main.c
+	$(RELEASE) src/slist.c src/snode.c src/hash_table.c -o slist_release
+hash_table_obj:
+	$(CC) -c $(CFLAGS) $(DEBUG) $(HASH_SRC)
 
 avl: $(AVL_SRC)
 	$(GD) $(AVL_SRC) -o avl

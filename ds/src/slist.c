@@ -231,12 +231,12 @@ s_list_iterator_t SListFind(s_list_iterator_t iter_from, s_list_iterator_t iter_
 		}
 		iter_from = SListNext(iter_from);
 	}
-	while(NULL != SListNext(iter_from))
+	while(NULL != (s_list_node*)SListNext(iter_from))
 	{
 		iter_from = SListNext(iter_from);
 	}
-
-	return iter_from;
+	
+	return SListNext(iter_from);
 }
 
 /* 
