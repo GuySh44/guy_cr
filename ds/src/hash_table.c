@@ -15,7 +15,8 @@ typedef struct hash_entry hash_entry_t;
 /*
 static global compare function for keys, used to compare keys
 */
-static compare_func_t cmp_func = NULL;
+static compare_func_t gloabl_cmp_func = NULL;
+static action_func_t global_action_func = NULL;
 
 /*
 hash table struct consisting of the hash function, size of s_lists array, and pointer to the array itself
@@ -35,7 +36,6 @@ struct hash_entry
 	void *plain_key;
 	void *value;
 };
-
 
 /*
 create a hash entry, return NULL if failed, otherwise the entry
@@ -106,7 +106,7 @@ static int HashEntryCmp(const void *entry, void *key)
 	assert(entry);
 	assert(key);
 	
-	return !cmp_func(HashEntryGetKey((hash_entry_t *)entry), key);
+	return gloabl_cmp_func(HashEntryGetKey((hash_entry_t *)entry), key);
 }
 
 /*
@@ -136,7 +136,7 @@ hash_table_t *HashCreate(hash_func_t hash_func, size_t table_size, compare_func_
 	assert(compare_func);
 	assert(table_size);
 	
-	cmp_func = compare_func;
+	gloabl_cmp_func = compare_func;
 	
 	new_table = (hash_table_t*)malloc(sizeof(hash_table_t) + (table_size * sizeof(s_list_t*)));
 	if(NULL == new_table)
@@ -154,6 +154,7 @@ hash_table_t *HashCreate(hash_func_t hash_func, size_t table_size, compare_func_
 	/* create empty s_lists and set a pointer to each one in each array entry */
 	for(; i < new_table->array_size; ++i)
 	{
+		/* calculate list pointer poistion in array using pointer arith */
 		*((size_t*)((char*)new_table->index_array + sizeof(s_list_t*) * i)) = (size_t) SListCreate();
 	}
 	
@@ -175,6 +176,7 @@ void HashDestroy(hash_table_t *hash_table)
 	
 	for(; i < array_size; ++i)
 	{
+		/* calculate list pointer poistion in array using pointer arith */
 		list = ((s_list_t*)*((size_t*)((char*)hash_table->index_array + sizeof(s_list_t*) * i)));
 		
 		SListForEach(list, SListBegin(list), SListEnd(list), FreeHashEntry, NULL);
@@ -264,6 +266,7 @@ size_t HashSize(const hash_table_t *hash_table)
 	
 	for(; i < array_size; ++i)
 	{
+		/* calculate list pointer poistion in array using pointer arith */
 		list = ((s_list_t*)*((size_t*)((char*)hash_table->index_array + sizeof(s_list_t*) * i)));
 		sum += SListSize(list);
 	}
@@ -286,6 +289,7 @@ int HashIsEmpty(const hash_table_t *hash_table)
 	
 	for(; i < array_size; ++i)
 	{
+		/* calculate list pointer poistion in array using pointer arith */
 		list = ((s_list_t*)*((size_t*)((char*)hash_table->index_array + sizeof(s_list_t*) * i)));
 		if(0 != SListSize(list))
 		{
@@ -319,6 +323,14 @@ void *HashFind(const hash_table_t *hash_table, const void *key)
 	return HashEntryGetValue(SListGet(search_list, found_node));
 }
 
+/* 
+wrap action function to work on entry values
+*/
+static int HashValueForeach(void *data, void* parameter)
+{
+	return global_action_func(HashEntryGetValue(data), parameter);
+}
+
 /*
 iterate over all the lists in the table, performing action func on each.
 */
@@ -333,19 +345,25 @@ int HashForEach(hash_table_t *hash_table, action_func_t action_func, void *param
 	assert(hash_table);
 	assert(action_func);
 	
+	global_action_func = action_func;
+	
 	array_size = hash_table->array_size;
 	
 	for(; i < array_size; ++i)
 	{
+		/* calculate list pointer poistion in array using pointer arith */
 		list = ((s_list_t*)*((size_t*)((char*)hash_table->index_array + sizeof(s_list_t*) * i)));
 		
-		action_retval = SListForEach(list, SListBegin(list), SListEnd(list), action_func, param);
+		action_retval = SListForEach(list, SListBegin(list), SListEnd(list), HashValueForeach, param);
 		
 		if(action_retval)
 		{
 			return action_retval;
 		}
 	}
+	
+	/* reset the global action function */
+	global_action_func = NULL;
 	
 	return 0;
 }
