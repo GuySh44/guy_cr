@@ -2,6 +2,8 @@
 #define __HASH_TABLE_H__ILRD__CR3_
 
 #include <stddef.h> /* size_t */
+#include <stdio.h> /* fopen fclose fgets */
+
 
 typedef struct hash_table hash_table_t;
 
