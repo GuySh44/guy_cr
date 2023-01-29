@@ -106,7 +106,7 @@ static int HashEntryCmp(const void *entry, void *key)
 	assert(entry);
 	assert(key);
 	
-	return gloabl_cmp_func(HashEntryGetKey((hash_entry_t *)entry), key);
+	return !gloabl_cmp_func(HashEntryGetKey((hash_entry_t *)entry), key);
 }
 
 /*

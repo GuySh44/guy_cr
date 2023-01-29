@@ -1,4 +1,4 @@
-
+#include <string.h>
 #include <stdio.h>
 
 #include "hash_table.h"
@@ -12,7 +12,7 @@ size_t MODHundred(const void *num)
 
 int CompareInt(const void *num1, const void *num2)
 {
-	return (*(int*)num1) == (*(int*)num2);
+	return !((*(int*)num1) == (*(int*)num2));
 }
 
 int SumInt(void *data, void *parameter)
@@ -21,8 +21,55 @@ int SumInt(void *data, void *parameter)
 	return 0;
 }
 
+/* djb2 hash function*/
+size_t HashString(unsigned char *str)
+{
+	unsigned long hash = 5381;
+	int c;
+
+	while (0 != (c = *str++))
+	{
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
+	
+	return hash;
+}
+
+int CompareString(const void *str1, const void *str2)
+{
+	return strcmp(str1, str2);
+}
+
 int main()
 {
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	hash_table_t *first_table = HashCreate(MODHundred, 300, CompareInt);
 	
 	hash_table_t *second_table = HashCreate(MODHundred, 100, CompareInt);
@@ -81,5 +128,8 @@ int main()
 	printTest("Is the sum 150?", !(150 == int_sum));
 	
 	HashDestroy(first_table);
+	
+	
+	
 	return 0;
 }
