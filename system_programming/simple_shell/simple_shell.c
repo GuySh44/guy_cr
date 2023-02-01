@@ -6,6 +6,7 @@
 #include <sys/wait.h> /* wait */
 #include <unistd.h> /* fork wait */
 #include <signal.h> /* psignal */
+#include <errno.h> /* errno perror */
 #include <assert.h>
 
 
@@ -67,7 +68,6 @@ static void ParseCommand(char *buffer, char *argv[])
 		token = strtok(NULL, " ");
 	}
 	
-	argv[i - 1][strlen(argv[i - 1]) - 1] = '\0';
 }  
 
 int main()
@@ -77,6 +77,7 @@ int main()
 	char *parsed[NUM_OF_WORDS] = {0};
 	int command_switch = 0;
 	int status = 0;
+	pid_t child_id = {0};
 	
 	/* print hello */
 	PrintCreationPrompt();
@@ -93,10 +94,19 @@ int main()
 	{
 		printf("Enter the command for execution\n");
 		
+		/* clear buffer */
+		memset(buffer, '\0', BUFFER_SIZE);
+		
+		/* clear parsed */
+		memset(parsed, 0, NUM_OF_WORDS * sizeof(*parsed));
+		
 		if(NULL != fgets(buffer, BUFFER_SIZE, stdin))
 		{
-		
-			if(0 == strcmp(buffer, "exit\n"))
+			
+			/* get rid of '/n' */
+			buffer[strlen(buffer) - 1] = '\0';
+			
+			if(0 == strcmp(buffer, "exit"))
 			{
 				return 0;
 			}
@@ -109,33 +119,36 @@ int main()
 					ParseCommand(buffer, parsed);
 					
 					/* forked child */
-					if(0 == fork())
+					child_id = fork();
+					
+					if(0 == child_id)
 					{
-						execvp(parsed[0],(char* const*)(parsed));
+						if(-1 == execvp(parsed[0],(parsed)))
+						{
+							perror(NULL);
+							return errno;
+						}
+						return 0;
 					}
 					/* parent */
 					else
 					{
-						wait(&status);
-					}
-					
-					/* non zero exit status */
-					if(WEXITSTATUS(status))
-					{
-						printf("Exit status: %d\n", WEXITSTATUS(status));
-					}
-					/* process recieved signal */
-					else if (WIFSIGNALED(status))
-					{
-						printf("Exit signal: %d\n", WTERMSIG(status));
+						waitpid(child_id, &status, 0);
+						/* non zero exit status */
+						if(WEXITSTATUS(status))
+						{
+							printf("Exit status: %d\n", WEXITSTATUS(status));
+						}
+						/* process recieved signal */
+						else if (WIFSIGNALED(status))
+						{
+							printf("Exit signal: %d\n", WTERMSIG(status));
+						}
 					}
 					break;
 					
 				/* system method */
 				case 2:
-					
-					/* get rid of '/n' */
-					buffer[strlen(buffer) - 1] = '\0';
 					
 					status = system(buffer);
 					
@@ -151,7 +164,6 @@ int main()
 					return 2;
 					break;
 			}
-			continue;
 		}
 	}
 	
