@@ -75,6 +75,7 @@ int FreeValue(void *value, void *parameter)
 
 int main()
 {
+	
 	extern char* strdup(const char*);
 	FILE *dict_file = NULL;
 	hash_table_t *dict_table = NULL;
@@ -99,7 +100,9 @@ int main()
 		{
 			HashForEach(dict_table, FreeValue, NULL);
 			HashDestroy(dict_table);
+			return(1);
 		}
+		printf("%s\n", word_copy);
 	}
 	
 	while(1)
