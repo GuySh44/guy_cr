@@ -3,6 +3,7 @@
 #include <signal.h> /* SIGUSR signal */
 #include <unistd.h> /* kill fork pause write */
 #include <sys/types.h> /* pid_t */
+#include <errno.h> /* perror */
 
 
 void sig_handler_parent()
@@ -13,19 +14,11 @@ void sig_handler_parent()
 }
 
 
-void sig_handler_child()
+int main()
 {
-	signal(SIGUSR2, sig_handler_child);
-	write(1, "Ping\n", 6);
-	kill(getppid(), SIGUSR1);
-}
-
-
-int main(){
 
 	pid_t child_pid = {0};
 	signal(SIGUSR1, sig_handler_parent); 
-	signal(SIGUSR2, sig_handler_child); 
 	
 	if((child_pid = fork()) < 0)
 	{
@@ -37,12 +30,13 @@ int main(){
 /* Child Process */
 	else if(0 == child_pid)
 	{
-		while(1)
+		if(-1 == execl("./pong_exec_exe2", "pong_exec_exe2"))
 		{
-			pause();
+			perror(NULL);
+			return errno;
 		}
+		return 0;
 	}
-
 
 /* Parent Process */
 	else
