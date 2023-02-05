@@ -7,7 +7,7 @@
 
 void SigHandlerParent()
 {
-	signal(SIGUSR1, SigHandlerParent); 
+	signal(SIGUSR2, SigHandlerParent);	/* signal will reset so we set again */ 
 	sleep(1);
 	write(1, "Pong\n", 6);
 }
@@ -15,9 +15,9 @@ void SigHandlerParent()
 
 void SigHandlerChild()
 {
-	signal(SIGUSR2, SigHandlerChild);
+	signal(SIGUSR1, SigHandlerChild);	/* signal will reset so we set again */
 	write(1, "Ping\n", 6);
-	kill(getppid(), SIGUSR1);
+	kill(getppid(), SIGUSR2);
 }
 
 
@@ -25,8 +25,8 @@ int main()
 {
 
 	pid_t child_pid = {0};
-	signal(SIGUSR1, SigHandlerParent); 
-	signal(SIGUSR2, SigHandlerChild); 
+	signal(SIGUSR2, SigHandlerParent);	/* intial handler set */ 
+	signal(SIGUSR1, SigHandlerChild); 
 	
 	if((child_pid = fork()) < 0)
 	{
@@ -40,7 +40,7 @@ int main()
 	{
 		while(1)
 		{
-			pause();
+			pause();	/* wait for signal */
 		}
 	}
 
@@ -51,8 +51,8 @@ int main()
 		while(1)
 		{
 			sleep(1);
-			kill(child_pid,SIGUSR2);
-			pause();
+			kill(child_pid,SIGUSR1);
+			pause();	/* wait for signal */
 		}
 	}
 	return 0;
