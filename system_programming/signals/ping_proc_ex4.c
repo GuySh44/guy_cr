@@ -1,10 +1,12 @@
 #define _POSIX_SOURCE
-#include <stdio.h> /* printf */
+#include <stdio.h> /* printf read */
 #include <unistd.h> /* kill */
 #include <sys/signalfd.h> /* signalfd */
 #include <sys/types.h> /* pid_t */
-#include <signal.h> 
+#include <signal.h>  /* signal */
 
+
+/* Reviewer: sigprocmask-it */
 
 int main() 
 {

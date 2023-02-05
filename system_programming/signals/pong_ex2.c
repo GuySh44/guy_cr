@@ -3,6 +3,9 @@
 #include <unistd.h> /* kill pause write getppid getpid */
 #include <sys/types.h> /* pid_t */
 
+
+/* Reviewer: sigprocmask-it */
+
 void SigHandlerChild()
 {
 	signal(SIGUSR2, SigHandlerChild);

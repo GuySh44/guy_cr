@@ -2,9 +2,9 @@
 #include <stdio.h> /* printf */
 #include <unistd.h> /* kill */
 #include <sys/types.h> /* pid_t */
-#include <signal.h>
-#include <stdlib.h>
+#include <signal.h> /* signal */
 
+/* Reviewer: sigprocmask-it */
 
 pid_t ping_pid;
 
