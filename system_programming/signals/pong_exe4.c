@@ -8,7 +8,7 @@
 
 pid_t ping_pid;
 
-void sigpong()
+void SigPong()
 {
 	signal(SIGUSR2, sigpong);
 	write(1, "Pong\n", 6);
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
 	ping_pid = atoi(argv[1]);
 	
-	signal(SIGUSR2, sigpong);
+	signal(SIGUSR2, SigPong);
 	
 	
 	while(1)

@@ -6,9 +6,9 @@
 #include <errno.h> /* perror */
 
 
-void sig_handler_parent()
+void SigHandlerParent()
 {
-	signal(SIGUSR1, sig_handler_parent); 
+	signal(SIGUSR1, SigHandlerParent); 
 	sleep(1);
 	write(1, "Pong\n", 6);
 }
@@ -18,7 +18,7 @@ int main()
 {
 
 	pid_t child_pid = {0};
-	signal(SIGUSR1, sig_handler_parent); 
+	signal(SIGUSR1, SigHandlerParent); 
 	
 	if((child_pid = fork()) < 0)
 	{

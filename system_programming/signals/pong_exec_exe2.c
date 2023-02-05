@@ -2,11 +2,10 @@
 #include <signal.h> /* SIGUSR signal */
 #include <unistd.h> /* kill pause write getppid getpid */
 #include <sys/types.h> /* pid_t */
-#include <stdio.h> /* printf */
 
-void sig_handler_child()
+void SigHandlerChild()
 {
-	signal(SIGUSR2, sig_handler_child);
+	signal(SIGUSR2, SigHandlerChild);
 	write(1, "Ping\n", 6);
 	kill(getppid(), SIGUSR1);
 }
@@ -14,7 +13,7 @@ void sig_handler_child()
 int main()
 {
 	
-	signal(SIGUSR2, sig_handler_child); 
+	signal(SIGUSR2, SigHandlerChild); 
 	
 	while(1)
 	{
