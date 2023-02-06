@@ -14,7 +14,10 @@ int main()
 	int sfd = 0;
 	printf("%d\n", getpid());
 	
+	
+	/* empty the mask signal set */
 	sigemptyset(&mask);
+	/* add sigusr1 to the signal set */
 	sigaddset(&mask, SIGUSR1);
 	
 	/* block SIGUSR1 so we dont miss it */

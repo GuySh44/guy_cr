@@ -37,21 +37,24 @@ static int BstInorderDataAction(bin_node_t *root, action_function_t action_func,
 		return 0;
 	}
 	
-	if(BstInorderDataAction(TreeNodeGetLeftChild(root), action_func, param))
+	
+	ret_val = BstInorderDataAction(TreeNodeGetLeftChild(root), action_func, param);
+	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
 	ret_val = action_func(TreeNodeGetData(root), param);
 	
 	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
-	if(BstInorderDataAction(TreeNodeGetRightChild(root), action_func, param))
+	ret_val = BstInorderDataAction(TreeNodeGetRightChild(root), action_func, param);
+	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
 	return 0;
@@ -75,17 +78,19 @@ static int BstPreorderDataAction(bin_node_t *root, action_function_t action_func
 	
 	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
-	if(BstPreorderDataAction(TreeNodeGetLeftChild(root), action_func, param))
+	ret_val = BstPreorderDataAction(TreeNodeGetLeftChild(root), action_func, param);
+	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
-	if(BstPreorderDataAction(TreeNodeGetRightChild(root), action_func, param))
+	ret_val = BstPreorderDataAction(TreeNodeGetRightChild(root), action_func, param);
+	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
 	return 0;
@@ -104,22 +109,23 @@ static int BstPostorderDataAction(bin_node_t *root, action_function_t action_fun
 		return 0;
 	}
 	
-	
-	if(BstPostorderDataAction(TreeNodeGetLeftChild(root), action_func, param))
+	ret_val = BstPostorderDataAction(TreeNodeGetLeftChild(root), action_func, param);
+	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
-	if(BstPostorderDataAction(TreeNodeGetRightChild(root), action_func, param))
+	ret_val = BstPostorderDataAction(TreeNodeGetRightChild(root), action_func, param); 
+	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
 	ret_val = action_func(TreeNodeGetData(root), param);
 	
 	if(ret_val)
 	{
-		return 1;
+		return ret_val;
 	}
 	
 	return 0;
@@ -186,7 +192,6 @@ static bin_node_t *BstRemoveRec(bin_node_t *root, void* data, compare_func_t cmp
 	void *successor_data = NULL;
 	bin_node_t *temp_child = NULL;
 
-	assert(data);
 	/* we reached a leaf's child */
 	if(root == NULL)
 	{
@@ -239,7 +244,6 @@ static bin_node_t *BstRemoveRec(bin_node_t *root, void* data, compare_func_t cmp
 void BstRemove(bst_t *bst,void *data)
 {
 	assert(bst);
-	assert(data);
 	
 	bst->root = BstRemoveRec(bst->root, data, bst->cmp_func);
 }
@@ -253,7 +257,6 @@ returns the root, setting the return value of the API function for the original 
 static bin_node_t *BstInsertRec(bin_node_t *node, const void *data, compare_func_t cmp_func, int *flag)
 {
 	bin_node_t *new_child = NULL;
-	assert(data);
 	assert(cmp_func);
 	
 	/* we reached a leaf's child */
@@ -307,7 +310,6 @@ int BstInsert(bst_t *bst, const void *data)
 {
 	int flag = 0;
 	assert(bst);
-	assert(data);
 	bst->root = BstInsertRec(bst->root, data, bst->cmp_func, &flag);
 	return flag;
 }
@@ -372,7 +374,6 @@ returns pointer to data, or NULL if no such data exists
 */
 static void *BstFindRec(bin_node_t *node, const void *data, compare_func_t cmp_func)
 {
-	assert(data);
 	assert(cmp_func);
 	
 	if (NULL == node)
@@ -399,7 +400,6 @@ static void *BstFindRec(bin_node_t *node, const void *data, compare_func_t cmp_f
 void *BstFind(bst_t *bst, const void *data)
 {
 	assert(bst);
-	assert(data);
 	
 	return BstFindRec(bst->root, data, bst->cmp_func);
 }
