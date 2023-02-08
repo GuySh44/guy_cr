@@ -1,6 +1,10 @@
-#include <pthread.h> /* pthread_create */
+#include <pthread.h> /* pthread_create pthread_attr_setdetachstate pthread_attr_init */
 #include <stdio.h> /* printf */
 #include <unistd.h> /* sleep */
+
+/*
+Reviewer: Yarin
+*/
 
 /*
 time stats:
