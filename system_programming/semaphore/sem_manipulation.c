@@ -135,6 +135,7 @@ int main(int argc, char *argv[])
 	int command = 0;
 	int temp_value = 0;
 	int num = 0;
+	int value = 0;
 	
 	sem_t *sem = NULL;
 	
@@ -164,7 +165,12 @@ int main(int argc, char *argv[])
 				break;
 			
 			case 'V':
-				printf("%d\n", SemCalcValue(sem));
+				value = SemCalcValue(sem);
+				if(-1 == value)
+				{
+					return -1
+				}
+				printf("%d\n", value);
 				break;
 				
 			case 'D':
