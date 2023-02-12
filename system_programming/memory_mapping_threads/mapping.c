@@ -27,6 +27,7 @@ void *Foo()
 	const short con_var = 11;
 	static short stat_var = 5;
 	static const short con_stat_var = 17;
+	char str[] = "dani el";
 	char *literal = "string literal";
 	const char *con_literal = "const string literal";
 	printf("Dynamic explicit Library:\n");
