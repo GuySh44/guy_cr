@@ -156,6 +156,11 @@ hash_table_t *HashCreate(hash_func_t hash_func, size_t table_size, compare_func_
 	{
 		/* calculate list pointer poistion in array using pointer arith */
 		*((size_t*)((char*)new_table->index_array + sizeof(s_list_t*) * i)) = (size_t) SListCreate();
+		
+		if(NULL == *((size_t*)((char*)new_table->index_array + sizeof(s_list_t*) * i)))
+		{
+			HashDestroy(new_table);
+		}
 	}
 	
 	return new_table;

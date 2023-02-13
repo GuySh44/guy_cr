@@ -1,7 +1,7 @@
 #include <stdio.h> /* printf */
-#include <pthread.h> /* pthread_mutex_lock pthread_mutex_t pthread_create pthread_join */
+#include <pthread.h> /* pthread_mutex_lock pthread_mutex_t pthread_create pthread_join  pthread_attr_setdetachstate*/
 #include <errno.h> /* perror */
-#include <semaphore.h>/*  */
+#include <semaphore.h>/* sem_init sem_t sem_destroy sem_post sem_wait */
 
 #include "slist.h"
 
@@ -10,6 +10,7 @@
 #define NUM_CONSUMERS 2
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
 
 /*
 Reviewer: Yahav
@@ -24,26 +25,21 @@ typedef struct argument
 	int consumers;
 	s_list_t *queue;
 	size_t product;
+	sem_t sem;
 } argument_t;
 
 void *Consumer(argument_t *arg)
 {
-	while(1)
+	if(-1 == sem_wait(&arg->sem))
 	{
-		pthread_mutex_lock(&lock);
-		
-		if(NULL != SListGet(arg->queue, SListBegin(arg->queue)))
-		{
-			printf("Consumer got: %ld\n",(size_t) SListGet(arg->queue, SListBegin(arg->queue)));
-			
-			SListRemove(arg->queue, SListBegin(arg->queue));
-			
-			break;
-		}
-	
-		pthread_mutex_unlock(&lock);
-		
+		return arg;
 	}
+	
+	pthread_mutex_lock(&lock);
+		
+	printf("Consumer got: %ld\n",(size_t) SListGet(arg->queue, SListBegin(arg->queue)));
+	
+	SListRemove(arg->queue, SListBegin(arg->queue));	
 	
 	--arg->consumers;
 	
@@ -59,6 +55,11 @@ void *Producer(argument_t *arg)
 	printf("Producer put: %ld\n", arg->product);
 	
 	if(NULL == SListAdd(arg->queue, SListEnd(arg->queue), (void*)arg->product++))
+	{
+		return arg;
+	}
+	
+	if(-1 == sem_post(&arg->sem))
 	{
 		return arg;
 	}
@@ -83,6 +84,11 @@ int main()
 	arg.consumers = 0;
 	arg.product = 1;
 	
+	if(-1 == sem_init(&arg.sem, 0, 0))
+	{
+		return 1;
+	}
+	
 	if(pthread_attr_init(&attr))
 	{
 		return 1;
@@ -93,7 +99,7 @@ int main()
 	{
 		return 1;
 	}
-		
+	
 	if(NULL == (arg.queue = SListCreate()))
 	{
 		return 1;
@@ -128,6 +134,11 @@ int main()
 	}
 	
 	SListDestroy(arg.queue);
+	if(-1 == sem_destroy(&arg.sem))
+	{
+		return 1;
+	}
+	
 	return 0;
 }
 
