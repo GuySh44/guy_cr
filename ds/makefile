@@ -15,7 +15,15 @@ BST_SRC = src/bst.c test/bst_test.c src/tnode.c
 BINARY_SEARCH_SRC = src/binary_search.c test/binary_search_test.c
 AVL_SRC = src/avl.c test/avl_test.c src/avl_node.c
 HASH_SRC = src/hash_table.c test/hash_table_test.c src/snode.c src/slist.c
+QUEUE_SRC = src/queue.c test/queue_test.c
 
+
+queue: $(QUEUE_SRC)
+	$(GD) $(QUEUE_SRC) -o queue
+queue_release: src/queue.c test/main.c
+	$(RELEASE) src/queue.c -o queue_release
+queue_obj:
+	$(CC) -c $(CFLAGS) $(DEBUG) $(QUEUE_SRC)
 
 hash_table: $(HASH_SRC)
 	$(GD) $(HASH_SRC) -o hash_table

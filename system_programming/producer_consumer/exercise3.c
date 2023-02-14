@@ -3,6 +3,7 @@
 #include <errno.h> /* perror */
 #include <semaphore.h>/* sem_init sem_t sem_destroy sem_post sem_wait */
 
+
 #include "slist.h"
 
 #define NUM_PRODUCERS 2
@@ -11,7 +12,7 @@
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
-
+volatile sig_atomic_t stop;
 /*
 Reviewer: Yahav
 */
@@ -71,6 +72,11 @@ void *Producer(argument_t *arg)
 	return NULL;
 }
 
+void SigIntHandler()
+{
+	stop = 1;
+}
+
 int main()
 {
 	pthread_t id = {0};
@@ -79,6 +85,9 @@ int main()
 	
 	/* container to data used by threads */
 	argument_t arg;
+	
+	signal(SIGINT, SigIntHandler); 
+
 	
 	arg.producers = 0;
 	arg.consumers = 0;
@@ -105,7 +114,7 @@ int main()
 		return 1;
 	}
 	
-	while(1)
+	while(!stop)
 	{
 		/* for every consumer we lost we create a new one */
 		while(arg.consumers < NUM_CONSUMERS)
@@ -133,12 +142,16 @@ int main()
 		
 	}
 	
+	pthread_mutex_lock(&lock);
+
 	SListDestroy(arg.queue);
 	if(-1 == sem_destroy(&arg.sem))
 	{
 		return 1;
 	}
 	
-	return 0;
+	pthread_mutex_unlock(&lock);
+
+	pthread_exit(0);
 }
 
