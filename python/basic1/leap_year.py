@@ -7,4 +7,3 @@ print(leap_year(400))
 print(leap_year(300))
 print(leap_year(200))
 print(leap_year(104))
-        
