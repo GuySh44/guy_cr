@@ -2,6 +2,8 @@
 !**/
 !.gitignore
 !**/*.c
+**/.pynb*
+!**/*.py
 !c/makefile/makefile
 !ds/makefile
 !**/*.md
