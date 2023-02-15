@@ -2,8 +2,8 @@
 !**/
 !.gitignore
 !**/*.c
-**/.pynb*
 !**/*.py
+.ipynb_checkpoints
 !c/makefile/makefile
 !ds/makefile
 !**/*.md
