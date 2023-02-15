@@ -27,8 +27,6 @@ data sent to the threads instead of using global vars
 */
 typedef struct argument
 {
-	int producers;
-	int consumers;
 	queue_t *queue;
 	int *product;
 	size_t i;
@@ -51,8 +49,6 @@ void *Consumer(argument_t *arg)
 	printf("Consumer got: %d\n",*((int*) QueuePeek(arg->queue)));
 	
 	QueuePop(arg->queue);	
-	
-	--arg->consumers;
 		
 	/* free producing action */
 	if(-1 == sem_post(&arg->sem_max))
@@ -79,9 +75,6 @@ void *Producer(argument_t *arg)
 	
 	QueuePush(arg->queue, arg->product + arg->i);
 	
-	
-	--arg->producers;
-	
 	++arg->i;
 	
 	/* free consuming action */
@@ -107,9 +100,6 @@ int main()
 		
 	/* container to data used by threads */
 	argument_t arg;
-	
-	arg.producers = 0;
-	arg.consumers = 0;
 	arg.product = products;
 	arg.i = 0;
 	
@@ -121,11 +111,14 @@ int main()
 	
 	if(-1 == sem_init(&arg.sem_max, 0, QUEUE_SIZE))
 	{
+		sem_destroy(&arg.sem_cur);
 		return 1;
 	}
 	
 	if(NULL == (arg.queue = QueueCreate(QUEUE_SIZE)))
 	{
+		sem_destroy(&arg.sem_cur);
+		sem_destroy(&arg.sem_max);
 		return 1;
 	}
 	
@@ -142,8 +135,6 @@ int main()
 			perror(NULL);
 			continue;
 		}
-		
-		++arg.producers;
 	}
 	
 	for(i = 0; i < NUM_CONSUMERS; ++i)
@@ -152,9 +143,7 @@ int main()
 		{
 			perror(NULL);
 			continue;
-		}
-		
-		++arg.consumers;
+		}	
 	}
 	
 		
@@ -166,6 +155,7 @@ int main()
 	QueueDestroy(arg.queue);
 	if(-1 == sem_destroy(&arg.sem_cur))
 	{
+		sem_destroy(&arg.sem_max);
 		return 1;
 	}
 	if(-1 == sem_destroy(&arg.sem_max))
