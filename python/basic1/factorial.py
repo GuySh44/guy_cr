@@ -1,4 +1,6 @@
 def factorial(number):
-    if(number == 1):
+    if(0 == number):
         return 1
     return (number * factorial(number-1))
+    
+print(factorial(5))
