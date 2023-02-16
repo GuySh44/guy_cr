@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 list_for = []
 for i in range(0,11, 1):
    list_for =  list_for + [i**2]

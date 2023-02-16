@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def str_dict(string):
     word_dict = {}
     for s in string:
