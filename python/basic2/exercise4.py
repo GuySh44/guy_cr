@@ -4,6 +4,7 @@ def enum_list(lst):
     for i, elem in enumerate(lst):
         print(str(i) + " " + str(elem))
 
+#instead of using enum and printing index and element, i print key and value
 def enum_dict(dic):
     for key, elem in dic.items():
         print(str(key) + " " + str(elem))
