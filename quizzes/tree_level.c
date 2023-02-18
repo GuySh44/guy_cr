@@ -11,7 +11,7 @@ typedef struct queue {
     int size;   
 } queue_t;
 
-queue_t* create_queue(int size) {
+queue_t* CreateQueue(int size) {
     queue_t* q = (queue_t*)malloc(sizeof(queue_t));
 	if(NULL == q)
 	{
@@ -31,28 +31,28 @@ queue_t* create_queue(int size) {
     return q;
 }
 
-int is_empty(queue_t* q) {
+int QueueIsEmpty(queue_t* q) {
     return q->front == -1;
 }
 
-int is_full(queue_t* q) {
+int QueueIsFull(queue_t* q) {
     return (q->rear + 1) % q->size == q->front;
 }
 
-void enqueue(queue_t* q, void* item) {
-    if (is_full(q)) {
+void QueueEnqueue(queue_t* q, void* item) {
+    if (QueueIsFull(q)) {
         return; 
     }
-    if (is_empty(q)) {
+    if (QueueIsEmpty(q)) {
         q->front = 0;
     }
     q->rear = (q->rear + 1) % q->size;
     q->items[q->rear] = item;
 }
 
-void* dequeue(queue_t* q) {
+void* QueueDequeue(queue_t* q) {
     void* item = NULL;
-	if (is_empty(q)) {
+	if (QueueIsEmpty(q)) {
         return NULL; 
     }
     item = q->items[q->front];
@@ -65,14 +65,8 @@ void* dequeue(queue_t* q) {
     return item;
 }
 
-void* peek(queue_t* q) {
-    if (is_empty(q)) {
-        return NULL;
-    }
-    return q->items[q->front];
-}
 
-void destroy_queue(queue_t* q) {
+void QueueDestroy(queue_t* q) {
     free(q->items);
     free(q);
 }
@@ -84,29 +78,29 @@ void LevelBLevelPrint(bin_node_t *root, queue_t *queue)
 {
 	bin_node_t *print_node = NULL, *left_child = NULL, *right_child = NULL;
 	
-	enqueue(queue, root);
-	while(!is_empty(queue))
+	QueueEnqueue(queue, root);
+	while(!QueueIsEmpty(queue))
 	{
-		print_node = dequeue(queue);
+		print_node = QueueDequeue(queue);
 		printf("%d\n", *((int*)TreeNodeGetData(print_node)));
 		
 		left_child = TreeNodeGetLeftChild(print_node);
 		if(NULL != left_child)
 		{
-			enqueue(queue, left_child);
+			QueueEnqueue(queue, left_child);
 		}
 		
 		right_child = TreeNodeGetRightChild(print_node);
 		if(NULL != right_child)
 		{
-			enqueue(queue, right_child);
+			QueueEnqueue(queue, right_child);
 		}
 	}
 }
 
 int main()
 {
-	queue_t *queue = create_queue(10);
+	queue_t *queue = CreateQueue(10);
 	int one = 1, two = 2, three = 3, four = 4, five = 5;
 	
 	bin_node_t *one_node, *two_node, *three_node, *four_node, *five_node;
@@ -125,7 +119,7 @@ int main()
 	TreeNodeDestroy(four_node);
 	TreeNodeDestroy(five_node);
 	
-	destroy_queue(queue);
+	QueueDestroy(queue);
 	
 	return 0;
 }
