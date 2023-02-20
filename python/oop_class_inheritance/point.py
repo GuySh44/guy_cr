@@ -3,8 +3,9 @@ class Point:
         import numbers
         if (not isinstance(x, numbers.Number)) or (not isinstance(y, numbers.Number)):
             print("wallak not number gever")
-        self.x = x
-        self.y = y
+        else:
+            self.x = x
+            self.y = y
         
     def distance_from_origin(self):
         import math
