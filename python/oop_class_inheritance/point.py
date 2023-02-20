@@ -1,6 +1,8 @@
+import numbers
+import math
+
 class Point:
     def __init__(self, x = 0.0, y = 0.0):
-        import numbers
         if (not isinstance(x, numbers.Number)) or (not isinstance(y, numbers.Number)):
             print("wallak not number gever")
         else:
@@ -8,7 +10,6 @@ class Point:
             self.y = y
         
     def distance_from_origin(self):
-        import math
         return math.sqrt((self.x)**2 + (self.y)**2)
         
 p = Point(1, 2.5)
