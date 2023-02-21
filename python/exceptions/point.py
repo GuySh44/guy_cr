@@ -1,5 +1,11 @@
 import numbers
 
+class NotNumber(Exception):
+    def __init__(self, value, message = 'is not a number'):
+        self.value = value
+        self.message = f'{self.value} ' + message
+        super().__init__(self.message)
+
 class ValidPoint: 
     def __set_name__(self, owner, name):
         self.property_name = name
@@ -11,7 +17,7 @@ class ValidPoint:
                 
     def __set__(self, instance, value = 0.0):
         if not isinstance(value, numbers.Number):
-            raise TypeError(f'{self.property_name} must be a number')
+            raise NotNumber(value)
         self.value = float(value)
         
     def __delete__(self, instance):
@@ -33,3 +39,4 @@ p.y = 2.3
 print(p.y)
 del p.y
 print(p.y)
+p.y = 'a'
