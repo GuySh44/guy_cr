@@ -1,4 +1,5 @@
 import numbers
+import unittest
 
 class NotNumber(Exception):
     def __init__(self, value, message = 'is not a number'):
@@ -32,11 +33,31 @@ class Point:
     x = ValidPoint()
     y = ValidPoint()        
     
+        
 
 p = Point()
 p.x = 1
 p.y = 2.3
-print(p.y)
-del p.y
-print(p.y)
-p.y = 'a'
+
+class TestPointMethods(unittest.TestCase):
+    
+    def test_creation(self):
+        self.assertIsNotNone(p)
+        
+    def test_x(self):
+        self.assertEqual(p.x, 1)
+    
+    def test_y(self):
+        self.assertEqual(p.y, 2.3)
+        
+    def test_del(self):
+        del p.y
+        self.assertEqual(p.y, 2.3)
+        
+    def test_err(self):
+        with self.assertRaises(NotNumber):
+            p.y = 'a'
+        
+        
+if __name__ == '__main__':
+    unittest.main()
