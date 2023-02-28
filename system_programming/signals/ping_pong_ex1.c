@@ -32,7 +32,6 @@ int main()
 	
 	if((child_pid = fork()) < 0)
 	{
-		printf("Fork Failed\n");
 		return 1;
 	}
 	
