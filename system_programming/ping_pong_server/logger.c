@@ -1,13 +1,16 @@
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <time.h>
-#include <string.h>
+#include <fcntl.h> /*open*/
+#include <unistd.h> /*write*/
+#include <time.h> /*strftime time localtime time_t*/
+#include <string.h> /*memset*/
 
 #define DATESIZE 32
 #define LOGTIMEOUT " No action for 7 secs\n"
 #define LOGTCPCLOSE " Tcp connection closed\n"
+
+/*
+Reviewer: raz
+*/
+
 
 
 int LogTimeout(void)
@@ -31,7 +34,7 @@ int LogTimeout(void)
     }
 
 	memset(buff, '\0', DATESIZE);
-    strftime (buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
+    strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", sTm);
     
 
 	logfd = open("./log.txt", O_WRONLY | O_CREAT | O_APPEND | O_NONBLOCK, 0666); 

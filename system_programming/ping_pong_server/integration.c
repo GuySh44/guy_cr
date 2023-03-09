@@ -1,13 +1,14 @@
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h> 
-#include <assert.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <netinet/in.h> 
-#include <sys/time.h>
-#include <string.h>
+#include <sys/select.h> /*fd_set select FD_***/
+#include <unistd.h> /*fcntl write*/
+#include <assert.h> /**/
+#include <stdio.h> /*sscanf*/
+#include <fcntl.h> /*fcntl*/
+#include <sys/time.h> /*timeval*/
+#include <string.h> /*memset strcmp*/
+
+/*
+Reviewer: raz
+*/
 
 #include "logger.h"
 #include "stdin.h"

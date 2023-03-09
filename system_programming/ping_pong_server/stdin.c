@@ -1,8 +1,13 @@
-#include <unistd.h>
-#include <stddef.h>
-#include <assert.h>
-#include <string.h>
-#include <stdio.h>
+#include <unistd.h> /*read write*/
+#include <stddef.h> /*size_t*/
+#include <assert.h> /**/
+#include <string.h> /*strcmp*/
+
+/*
+Reviewer: raz
+*/
+
+
 
 int StdinRecieve(void *buf, size_t buf_size)
 {

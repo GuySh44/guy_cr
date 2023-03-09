@@ -1,10 +1,16 @@
-#include <sys/socket.h> 
-#include <arpa/inet.h> /*htonl htons*/
-#include <netinet/in.h> 
-#include <stddef.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <assert.h>
+#include <sys/socket.h> /*socket bind*/
+#include <arpa/inet.h> /* htonl htons */
+#include <netinet/in.h> /* sockaddr_in */
+#include <stddef.h> /**/
+#include <sys/types.h> /*send recv accept*/
+#include <unistd.h> /*close*/
+#include <assert.h> /**/
+
+
+/*
+Reviewer: raz
+*/
+
 
 int TcpOpenSocket(int port)
 {

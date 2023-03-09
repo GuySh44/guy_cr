@@ -1,11 +1,15 @@
-#include <sys/socket.h> 
+#include <sys/socket.h> /*socket */
 #include <arpa/inet.h> /*htonl htons*/
-#include <netinet/in.h> 
-#include <stddef.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <assert.h>
-#include <string.h>
+#include <netinet/in.h>  /*sockaddr_in*/
+#include <stddef.h> /**/
+#include <sys/types.h> /*bind recvfrom sendto*/
+#include <assert.h> /**/
+#include <string.h> /*strcmp*/
+
+/*
+Reviewer: raz
+*/
+
 
 
 int UdpOpenSocket(int port)
