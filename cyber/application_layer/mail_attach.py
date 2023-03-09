@@ -7,7 +7,7 @@ from email import encoders
 fromaddr = "guy.shababo44@gmail.com"
 toaddr = "guy4497@gmail.com"
 
-password = #in nothing important#
+password = #nonono#
    
 # instance of MIMEMultipart
 msg = MIMEMultipart()
@@ -19,48 +19,52 @@ msg['From'] = fromaddr
 msg['To'] = toaddr
   
 # storing the subject 
-msg['Subject'] = "in the beninging2"
+msg['Subject'] = "in the beninging3"
   
 # string to store the body of the mail
-body = "in tha benininging"
+body = "in tha benininininging"
   
 # attach the body with the msg instance
 msg.attach(MIMEText(body, 'plain'))
   
 # open the file to be sent 
 filename = "file.txt"
-attachment = open("./file.txt", "rb")
+with open("./file.txt", "rb") as attachment:
   
 # instance of MIMEBase and named as p
-p = MIMEBase('application', 'octet-stream')
+    try:
   
-# To change the payload into encoded form
-p.set_payload((attachment).read())
-  
-# encode into base64
-encoders.encode_base64(p)
-   
-p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-  
-# attach the instance 'p' to instance 'msg'
-msg.attach(p)
-  
-# creates SMTP session
-s = smtplib.SMTP('smtp.gmail.com', 587)
-  
-# start TLS for security
-s.starttls()
-  
-# Authentication
-s.login(fromaddr, password)
-  
-# Converts the Multipart msg into a string
-text = msg.as_string()
-  
-# sending the mail
-s.sendmail(fromaddr, toaddr, text)
-  
-# terminating the session
-s.quit()
-
+        p = MIMEBase('application', 'octet-stream')
+    # To change the payload into encoded form
+        p.set_payload((attachment).read())
+      
+    # encode into base64
+        encoders.encode_base64(p)
+       
+        p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+      
+    # attach the instance 'p' to instance 'msg'
+        msg.attach(p)
+      
+    # creates SMTP session
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+      
+    # start TLS for security
+        s.starttls()
+      
+    # Authentication
+        s.login(fromaddr, password)
+      
+    # Converts the Multipart msg into a string
+        text = msg.as_string()
+      
+    # sending the mail
+        s.sendmail(fromaddr, toaddr, text)
+      
+    # terminating the session
+        s.quit()
+    
+    except Exception as e:
+        print(e)
+        
 
