@@ -19,9 +19,9 @@ Reviewer: raz
 #define PORT 1234
 #define BUFFER_SIZE 1024
 #define LOGGER_TIMEOUT 7
+#define MAX_CONCUR_TCPCLIENT 10
 #define MAX2(a, b) (((a) > (b)) ? (a) : (b))
 #define PONG "pong\n"
-#define MAX_CONCUR_TCPCLIENT 20
 #define SHTDWN_MSG "Server shutdown\n"
 #define UKWN_CMD "Unknown command\n"
 
@@ -43,11 +43,13 @@ int main()
 	memset(buffer, '\0', BUFFER_SIZE);
 	memset(msg, '\0', BUFFER_SIZE);
 	
+	/*set stdin as non blocking*/
 	if(fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK) < 0)
 	{
 		return 1;
 	}
 	
+	/*set stdout as nonblocking*/
 	if(fcntl(STDOUT_FILENO, F_SETFL, O_NONBLOCK) < 0)
 	{
 		return 1;
@@ -79,15 +81,19 @@ int main()
 	
 	while(1)
 	{
+		/*timeout to 7 secs*/
 		tv.tv_sec = LOGGER_TIMEOUT;
 		tv.tv_usec = 0;
+		/*set FDs in select set*/
 		FD_ZERO(&rfds);
 		FD_SET(STDIN_FILENO, &rfds);
 		FD_SET(tcpfd, &rfds);
 		FD_SET(udpfd, &rfds);
 		
+		/*calc max fd entry point*/
 		maxfd = MAX2(udpfd, tcpfd);
 		
+		/*check for max fd, and add all open fds*/
 		for(i=0; i < MAX_CONCUR_TCPCLIENT; ++i)
 		{
 			if(client_sockets[i] > maxfd)
@@ -103,8 +109,10 @@ int main()
 		
 		status = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 		
+		/*we got read movement in rfds*/
 		if(status > 0)
 		{
+			/*stdin read movement*/
 			if(FD_ISSET(STDIN_FILENO, &rfds))
 			{
 				if(-1 == StdinRecieve(buffer, sizeof(buffer)))
@@ -140,6 +148,7 @@ int main()
 				}
 			}
 			
+			/*tcp handshake request*/
 			if(FD_ISSET(tcpfd, &rfds))
 			{
 				newsockfd = TcpConnect(tcpfd, PORT);
@@ -158,6 +167,7 @@ int main()
 				}
 			}
 			
+			/*tcp client read movement*/
 			for(i=0; i < MAX_CONCUR_TCPCLIENT; ++i)
 			{
 				if(FD_ISSET(client_sockets[i], &rfds))
@@ -197,7 +207,8 @@ int main()
 					}	
 				}
 			}
-				
+			
+			/*udp read movement*/
 			if(FD_ISSET(udpfd, &rfds))
 			{
 				if(-1 == UdpHandle(udpfd, buffer, sizeof(buffer), PORT, PONG))
@@ -208,6 +219,7 @@ int main()
 				continue;
 			}
 		}
+		/*timeout reached*/
 		else if (0 == status)
 		{
 			if(-1 == LogTimeout())
@@ -216,6 +228,7 @@ int main()
 				return 1;
 			}
 		}
+		/*select failed*/
 		else
 		{
 			CloseFds(tcpfd, udpfd, client_sockets);
@@ -227,6 +240,7 @@ int main()
 	return 0;
 }
 
+/*redundant for now*/
 int ParseMessage(char *buf, char *msg)
 {
 	assert(buf);
@@ -236,6 +250,7 @@ int ParseMessage(char *buf, char *msg)
 	return sscanf(buf, "%s", msg);
 }
 
+/*close fds incase of error/graceful exit*/
 int CloseFds(int tcpfd, int udpfd, int *clients_fds)
 {
 	int i = 0;

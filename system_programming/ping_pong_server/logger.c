@@ -12,7 +12,6 @@ Reviewer: raz
 */
 
 
-
 int LogTimeout(void)
 {
 	int retval = 0;
