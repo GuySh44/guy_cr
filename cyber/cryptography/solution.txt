@@ -1,0 +1,31 @@
+-open apache2 server, with a servername (I chose infinity.test, configure hosts file to define infinity.test as an alternative name for 127.0.0.1)
+
+-set redirect from port 80 to port 443
+
+-turn SSLEngine on for port 443 to enable https
+
+
+Exercise 2:
+
+-Create CA:
+	openssl genrsa -des3 -out <CA name>.key 2048
+	openssl req -x509 -new -nodes -key <CA name>.key -sha256 -days 365 -out <CA name>.crt
+
+-install root cert in ubuntu:
+	copy <CA name>.crt to /usr/local/share/ca-certificates/
+	sudo update-ca-certificates
+
+-Create certificate for website:
+	openssl genrsa -out <Site crt name>.key 2048
+	openssl req -new -key <Site crt name>.key -out <Site crt name>.csr
+	create cert extension config to define SAN for the cert - <Site crt name>.ext with the server name
+	openssl x509 -req -in <Site crt name>.csr -CA <CA crt> -CAkey <CA key> -CAcreateserial -out <Site crt name>.crt -days 365 -sha256 -extfile <Site crt name>.ext
+	
+-Load CA crt to firefox:
+certutil -A -n <CA nickname> -t "TC,," -i <CA crt path> -d sql:<Firefox root profile path>
+
+-Add certificate paths to apache2 config file
+
+sites used:
+https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/
+https://dev.to/lmillucci/firefox-installing-self-signed-certificate-on-ubuntu-4f11
