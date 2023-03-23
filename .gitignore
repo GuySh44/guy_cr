@@ -13,5 +13,5 @@
 !cyber/authentication/pam_cyber.conf
 !cyber/authentication/pam_cyber
 !cyber/authentication/pam_auth
-!cyber/cryptography/*
+!cyber/cryptography/**
 !.myfuncs
