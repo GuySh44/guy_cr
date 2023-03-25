@@ -29,3 +29,35 @@ certutil -A -n <CA nickname> -t "TC,," -i <CA crt path> -d sql:<Firefox root pro
 sites used:
 https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/
 https://dev.to/lmillucci/firefox-installing-self-signed-certificate-on-ubuntu-4f11
+
+Exercise 3a:
+
+-Create new CA
+
+-Create client cert:
+	openssl genrsa -des3 -out <Client>.key 2048
+	openssl req -new -key <Client>.key -out <Client>.csr
+	openssl x509 -req -in <Client>.csr -CA <NewCA>.crt -CAkey <NewCA>.key -set_serial 101 -days 365 -out <Client>.crt
+	
+-Block access to "./certified/" for all clients not holding a cert signed by <NewCa>:
+	on apache conf file:
+		
+		SSLCACertificateFile /path/to/newCA.crt
+		SSLVerifyClient none
+		
+		<Directory "/path/to/protected/directory">
+		 SSLVerifyClient require
+		 SSLVerifyDepth 2
+		</Directory>
+	
+
+-export the cert to test authenticated connection:
+	openssl pkcs12 -export -inkey <Client>.key -in <Client>.crt -out <Client>.p12
+
+-install the .p12 file into the browser (and dont forget to enable security.tls.enable_post_handshake_auth to True)
+
+-???
+
+-profit
+
+	
