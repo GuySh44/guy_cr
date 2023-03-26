@@ -60,4 +60,24 @@ Exercise 3a:
 
 -profit
 
+Exercise 3b:
+
+-Create new CA
+
+-Create client cert containing common name "cyber"
+
+-Block access to "./bystring/" for all clients with common name not containing "cyber":
+
+	<Directory "/var/www/html/bystring/">
+	 SSLVerifyClient require
+	 SSLVerifyDepth 2
+	 SSLRequire %{SSL_CLIENT_S_DN_CN} =~ m#(cyber)#
+	</Directory>
 	
+-export the cert to test authenticated connection	
+
+-install the .p12 file into the browser (and dont forget to enable security.tls.enable_post_handshake_auth to True)
+
+-???
+
+-profit
