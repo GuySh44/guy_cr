@@ -81,3 +81,32 @@ Exercise 3b:
 -???
 
 -profit
+
+Exercise 4:
+
+-Create new GPG key:
+	gpg --full-generate-key
+	
+-export the public key to a txt file:
+	gpg --armor --export <KeyID> > /path/to/file.txt
+	
+-create a file and encrypt it:
+	gpg --output <encrypted_name>.gpg --encrypt --recipient <recipient_email> /path/to/file/to/encrypt
+	
+(to decrypt: gpg --output /path/to/file/to/decrypted.txt --decrypt <encrypted_name>.gpg)
+
+-sign the file with compression:
+	gpg --sign --compress-algo zip -o <signed_file>.txt /path/to/input
+	
+-verify the signature:
+	gpg --verify /path/to/signed/file
+	
+-sign the file without compression:
+	gpg --sign -z 0 -o <signed_file>.txt /path/to/input
+
+-verify the signature
+
+-sign the file with detached:
+	gpg --detach-sign --compress-algo zip -o <signed_file>.txt /path/to/input
+	
+-verify the signature
