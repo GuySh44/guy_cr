@@ -64,28 +64,6 @@ int main()
 		close(tcpfd);
 	}
 	
-	tunfd = InterfaceCreate();
-	
-	if(tunfd < 0)
-	{
-		close(tcpfd);
-		return tunfd;
-	}
-	
-	if(fcntl(tunfd, F_SETFL, O_NONBLOCK) < 0)
-	{
-		CloseFds(tcpfd, tunfd);
-		return 1;
-	}
-	
-	retval = InterfaceSet(SERVER_ADDR, MTU);
-	
-	if(0 != retval)
-	{
-		CloseFds(tcpfd, tunfd);
-		return retval;
-	}
-	
 	for(; i < MAX_CONCUR_TCP; ++i)
 	{
 		client_sockets[i] = 0;
@@ -154,6 +132,28 @@ int main()
 			/*tcp handshake request*/
 			if(FD_ISSET(tcpfd, &rfds))
 			{
+				tunfd = InterfaceCreate();
+	
+				if(tunfd < 0)
+				{
+					close(tcpfd);
+					return tunfd;
+				}
+				
+				if(fcntl(tunfd, F_SETFL, O_NONBLOCK) < 0)
+				{
+					CloseFds(tcpfd, tunfd);
+					return 1;
+				}
+				
+				retval = InterfaceSet(SERVER_ADDR, MTU);
+				
+				if(0 != retval)
+				{
+					CloseFds(tcpfd, tunfd);
+					return retval;
+				}
+				
 				newsockfd = TcpAccept(tcpfd, PORT);
 				if(-1 == newsockfd)
 				{
@@ -168,6 +168,7 @@ int main()
 						break;
 					}
 				}
+				
 			}
 			/*tcp client read movement*/
 			for(i=0; i < MAX_CONCUR_TCP; ++i)
@@ -206,7 +207,6 @@ int main()
 					return -1;
 				}
 				
-				continue;
 				if(-1 == TcpRespond(tcpfd, msg, sizeof(msg)))
 				{
 					CloseFds(tcpfd, tunfd);
