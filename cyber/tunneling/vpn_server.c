@@ -16,10 +16,10 @@
 #include "stdin.h"
 
 #define PORT 4443
-#define SERVER_ADDR "10.20.0.1/16"
+#define SERVER_ADDR "10.20.0.1/24"
 #define MTU 1500
 #define BUFFER_SIZE 1024
-#define MAX_CONCUR_TCP 1
+#define MAX_CONCUR_TCP 50
 #define MAX2(a, b) (((a) > (b)) ? (a) : (b))
 #define SHTDWN_MSG "Server shutdown\n"
 #define UKWN_CMD "Unknown command\n"
@@ -107,13 +107,7 @@ int main()
 					return 1;
 				}
 				
-				if(EOF == ParseMessage(buffer, msg))
-				{
-					CloseFds(tcpfd, tunfd);
-					return 1;
-				}
-				
-				retval = StdResponse(msg);
+				retval = StdResponse(buffer);
 				if(0 == retval)
 				{
 					write(STDOUT_FILENO, UKWN_CMD, strlen(UKWN_CMD));
@@ -147,9 +141,11 @@ int main()
 				}
 				
 				retval = InterfaceSet(SERVER_ADDR, MTU);
+				InterfaceSetServerRouting();
 				
 				if(0 != retval)
 				{
+					InterfaceCleanServerRouting();
 					CloseFds(tcpfd, tunfd);
 					return retval;
 				}
@@ -157,6 +153,7 @@ int main()
 				newsockfd = TcpAccept(tcpfd, PORT);
 				if(-1 == newsockfd)
 				{
+					InterfaceCleanServerRouting();
 					CloseFds(tcpfd, tunfd);
 				}
 				
@@ -164,7 +161,7 @@ int main()
 				{
 					if(0 == client_sockets[i])
 					{
-						client_sockets[i] = newsockfd;
+						client_sockets[tunfd] = newsockfd;
 						break;
 					}
 				}
@@ -178,6 +175,7 @@ int main()
 					retval = TcpRecieve(client_sockets[i], buffer, sizeof(buffer));
 					if(-1 == retval)
 					{
+						InterfaceCleanServerRouting();
 						CloseFds(tcpfd, tunfd);
 						return -1;
 					}
@@ -188,12 +186,12 @@ int main()
 						continue;
 					}
 					
-					if(EOF == ParseMessage(buffer, msg))
+					if(-1 == InterfaceRespond(client_sockets[i], buffer, sizeof(buffer)))
 					{
+						InterfaceCleanServerRouting();
 						CloseFds(tcpfd, tunfd);
 						return 1;
 					}
-						
 				}
 			}
 			
@@ -203,12 +201,14 @@ int main()
 				retval = InterfaceRecieve(tunfd, buffer, sizeof(buffer));
 				if(0 > retval)
 				{
+					InterfaceCleanServerRouting();
 					CloseFds(tcpfd, tunfd);
 					return -1;
 				}
 				
-				if(-1 == TcpRespond(tcpfd, msg, sizeof(msg)))
+				if(-1 == TcpRespond(client_sockets[tunfd], buffer, sizeof(buffer)))
 				{
+					InterfaceCleanServerRouting();
 					CloseFds(tcpfd, tunfd);
 					return 1;
 				}
@@ -219,6 +219,7 @@ int main()
 		/*select failed*/
 		else
 		{
+			InterfaceCleanServerRouting();
 			CloseFds(tcpfd, tunfd);
 			return 1;
 		}
@@ -228,15 +229,6 @@ int main()
 	return 0;
 }
 
-/*redundant for now*/
-int ParseMessage(char *buf, char *msg)
-{
-	assert(buf);
-	assert(msg);
-	
-	
-	return sscanf(buf, "%s", msg);
-}
 
 /*close fds incase of error/graceful exit*/
 int CloseFds(int frst_fd, int scnd_fd)

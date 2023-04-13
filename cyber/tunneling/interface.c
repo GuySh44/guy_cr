@@ -79,3 +79,20 @@ int InterfaceRespond(int tunfd, void *msg, size_t msg_len)
 {
 	return write(tunfd, msg, msg_len);
 }
+
+int InterfaceSetServerRouting()
+{
+	run("sysctl -w net.ipv4.ip_forward=1");
+	run("iptables -t nat -A POSTROUTING -s 10.20.0.0/24 ! -d 10.20.0.0/24 -j MASQUERADE");
+	run("iptables -A FORWARD -s 10.20.0.0/24 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+	run("iptables -A FORWARD -d 10.20.0.0/24 -j ACCEPT");
+	return 0;
+}
+
+int InterfaceCleanServerRouting()
+{
+	run("iptables -t nat -D POSTROUTING -s 10.20.0.0/24 ! -d 10.20.0.0/24 -j MASQUERADE");
+	run("iptables -D FORWARD -s 10.20.0.0/24 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+	run("iptables -D FORWARD -d 10.20.0.0/24 -j ACCEPT");
+	return 0;
+}

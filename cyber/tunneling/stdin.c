@@ -13,7 +13,7 @@ int StdinRecieve(void *buf, size_t buf_size)
 
 int StdResponse(char *msg)
 {
-	if(0 == strcmp(msg, "quit"))
+	if(0 == strcmp(msg, "quit\n"))
 	{
 		return 1;
 	}
