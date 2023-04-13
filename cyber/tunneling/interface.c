@@ -79,3 +79,165 @@ int InterfaceRespond(int tunfd, void *msg, size_t msg_len)
 {
 	return write(tunfd, msg, msg_len);
 }
+
+int InterfaceSetClientTable(char* local_addr, char* pub_addr, char* gateway)
+{
+	char cmd[BUFFER_SIZE];
+	char substring1[BUFFER_SIZE];
+	char substring2[BUFFER_SIZE];
+	
+	if(sprintf(substring1, "ip route add default via %s", local_addr) < 0)
+	{
+		return 1;
+	}
+	
+	if(sprintf(substring2, " dev vpn0 metric 1") < 0)	
+	{
+		return 1;
+	}
+	
+	strcat(substring1, substring2);
+	if(sprintf(cmd, "%s", substring1) < 0)
+	{
+		return 1;
+	}
+	
+	if(0 != run(cmd))
+	{
+		return 1;
+	}
+	
+	
+	if(sprintf(substring1, "ip route add %s", gateway) < 0)
+	{
+		return 1;
+	}
+	
+	if(sprintf(substring2, " via 0.0.0.0 dev enp0s3") < 0)	
+	{
+		return 1;
+	}
+	
+	strcat(substring1, substring2);
+	if(sprintf(cmd, "%s", substring1) < 0)
+	{
+		return 1;
+	}
+	
+	if(0 != run(cmd))
+	{
+		return 1;
+	}
+
+	if(sprintf(substring1, "ip route add %s", pub_addr) < 0)
+	{
+		return 1;
+	}
+	
+	if(sprintf(substring2, " via %s", gateway) < 0)	
+	{
+		return 1;
+	}
+	
+	strcat(substring1, substring2);
+	
+	if(sprintf(substring2, "/32 dev enp0s3") < 0)	
+	{
+		return 1;
+	}
+	
+	if(sprintf(cmd, "%s", substring1) < 0)
+	{
+		return 1;
+	}
+	
+	if(0 != run(cmd))
+	{
+		return 1;
+	}
+	
+	run("sysctl -w net.ipv4.ip_forward=1");
+	run("iptables -t nat -A POSTROUTING -o vpn0 -j MASQUERADE");
+	run("iptables -I FORWARD 1 -i vpn0 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+	run("iptables -I FORWARD 1 -o vpn0 -j ACCEPT");
+}
+
+int InterfaceCleanClientTable(char* local_addr, char* pub_addr, char* gateway)
+{
+	char cmd[BUFFER_SIZE];
+	char substring1[BUFFER_SIZE];
+	char substring2[BUFFER_SIZE];
+	
+	if(sprintf(substring1, "ip route del default via %s", local_addr) < 0)
+	{
+		return 1;
+	}
+	
+	if(sprintf(substring2, " dev vpn0 metric 1") < 0)	
+	{
+		return 1;
+	}
+	
+	strcat(substring1, substring2);
+	if(sprintf(cmd, "%s", substring1) < 0)
+	{
+		return 1;
+	}
+	
+	if(0 != run(cmd))
+	{
+		return 1;
+	}
+	
+	
+	if(sprintf(substring1, "ip route del %s", gateway) < 0)
+	{
+		return 1;
+	}
+	
+	if(sprintf(substring2, " via 0.0.0.0 dev enp0s3") < 0)	
+	{
+		return 1;
+	}
+	
+	strcat(substring1, substring2);
+	if(sprintf(cmd, "%s", substring1) < 0)
+	{
+		return 1;
+	}
+	
+	if(0 != run(cmd))
+	{
+		return 1;
+	}
+
+	if(sprintf(substring1, "ip route del %s", pub_addr) < 0)
+	{
+		return 1;
+	}
+	
+	if(sprintf(substring2, " via %s", gateway) < 0)	
+	{
+		return 1;
+	}
+	
+	strcat(substring1, substring2);
+	
+	if(sprintf(substring2, "/32 dev enp0s3") < 0)	
+	{
+		return 1;
+	}
+	
+	if(sprintf(cmd, "%s", substring1) < 0)
+	{
+		return 1;
+	}
+	
+	if(0 != run(cmd))
+	{
+		return 1;
+	}
+	run("iptables -t nat -D POSTROUTING -o vpn0 -j MASQUERADE");
+	run("iptables -D FORWARD 1 -i vpn0 -m state --state RELATED,ESTABLISHED -j ACCEPT");
+	run("iptables -D FORWARD 1 -o vpn0 -j ACCEPT");
+}

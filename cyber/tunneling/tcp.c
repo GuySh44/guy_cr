@@ -72,9 +72,6 @@ int TcpAccept(int tcpfd, int port)
 	int host_addrlen = 0;
     struct sockaddr_in host_addr;
 	
-	host_addr.sin_family = AF_INET;
-	host_addr.sin_port = htons(port);
-    host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     
 	host_addrlen = sizeof(host_addr);
 	newsockfd = accept(tcpfd, (struct sockaddr *)&host_addr,(socklen_t *)&host_addrlen);

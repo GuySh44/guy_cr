@@ -15,9 +15,11 @@
 #include "tcp.h"
 #include "stdin.h"
 
+#define GATEWAY "192.168.56.254"
 #define PORT 4443
 #define CLIENT_ADDR "10.20.0.2/16"
-#define SERVER_ADDR "10.20.0.1"
+#define SERVER_ADDR "192.168.6.11"
+#define VPN_SERVER_ADDR "10.20.0.1"
 #define MTU 1400
 #define BUFFER_SIZE 1024
 #define MAX2(a, b) (((a) > (b)) ? (a) : (b))
@@ -65,7 +67,7 @@ int main()
 		return 1;
 	}
 	
-	retval = InterfaceSet(SERVER_ADDR, MTU);
+	retval = InterfaceSet(VPN_SERVER_ADDR, MTU);
 	
 	if(0 != retval)
 	{
@@ -73,9 +75,19 @@ int main()
 		return retval;
 	}
 	
+	retval = InterfaceSetClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
+	
+	if(0 != retval)
+	{
+		InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
+		CloseFds(csockfd, tunfd);
+		return retval;
+	}
+	
 	csockfd = TcpConnectClient(SERVER_ADDR, PORT);
 	if(csockfd < 0)
 	{
+		InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 		CloseFds(csockfd, tunfd);
 		return csockfd;
 	}
@@ -103,17 +115,12 @@ int main()
 			{
 				if(-1 == StdinRecieve(buffer, sizeof(buffer)))
 				{
+					InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 					CloseFds(csockfd, tunfd);
 					return 1;
 				}
 				
-				if(EOF == ParseMessage(buffer, msg))
-				{
-					CloseFds(csockfd, tunfd);
-					return 1;
-				}
-				
-				retval = StdResponse(msg);
+				retval = StdResponse(buffer);
 				if(0 == retval)
 				{
 					write(STDOUT_FILENO, UKWN_CMD, strlen(UKWN_CMD));
@@ -123,6 +130,7 @@ int main()
 				if(1 == retval)
 				{
 					write(STDOUT_FILENO, SHTDWN_MSG, strlen(SHTDWN_MSG));
+					InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 					CloseFds(csockfd, tunfd);
 					return 0;
 				}
@@ -134,6 +142,7 @@ int main()
 				retval = TcpRecieve(csockfd, buffer, sizeof(buffer));
 				if(-1 == retval)
 				{
+					InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 					CloseFds(csockfd, tunfd);
 					return -1;
 				}
@@ -144,14 +153,9 @@ int main()
 					continue;
 				}
 				
-				if(EOF == ParseMessage(buffer, msg))
+				if(-1 == InterfaceRespond(tunfd, buffer, sizeof(buffer)))
 				{
-					CloseFds(csockfd, tunfd);
-					return 1;
-				}
-				
-				if(-1 == InterfaceRespond(tunfd, msg, sizeof(msg)))
-				{
+					InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 					CloseFds(csockfd, tunfd);
 					return 1;
 				}	
@@ -163,6 +167,7 @@ int main()
 				retval = InterfaceRecieve(tunfd, buffer, sizeof(buffer));
 				if(-1 == retval)
 				{
+					InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 					CloseFds(csockfd, tunfd);
 					return -1;
 				}
@@ -173,14 +178,10 @@ int main()
 					continue;
 				}
 				
-				if(EOF == ParseMessage(buffer, msg))
-				{
-					CloseFds(csockfd, tunfd);
-					return 1;
-				}
 				
-				if(-1 == TcpRespond(csockfd, msg, sizeof(msg)))
+				if(-1 == TcpRespond(csockfd, buffer, sizeof(buffer)))
 				{
+					InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 					CloseFds(csockfd, tunfd);
 					return 1;
 				}
@@ -191,6 +192,7 @@ int main()
 		/*select failed*/
 		else
 		{
+			InterfaceCleanClientTable(VPN_SERVER_ADDR, SERVER_ADDR, GATEWAY);
 			CloseFds(csockfd, tunfd);
 			return 1;
 		}
@@ -198,16 +200,6 @@ int main()
 	}
 	
 	return 0;
-}
-
-
-int ParseMessage(char *buf, char *msg)
-{
-	assert(buf);
-	assert(msg);
-	
-	
-	return sscanf(buf, "%s", msg);
 }
 
 /*close fds incase of error/graceful exit*/
