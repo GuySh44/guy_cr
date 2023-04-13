@@ -11,8 +11,14 @@ int InterfaceRecieve(int tunfd, void *buf, size_t len);
 
 int InterfaceRespond(int tunfd, void *msg, size_t msg_len);
 
+
 int InterfaceSetServerRouting();
 
 int InterfaceCleanServerRouting();
+
+int InterfaceSetClientTable(char* local_addr, char* pub_addr, char* gateway);
+
+int InterfaceCleanClientTable(char* local_addr, char* pub_addr, char* gateway);
+
 
 #endif /*__INTERFACE_H__*/
