@@ -1,0 +1,19 @@
+https://www.digitalocean.com/community/tutorials/how-to-configure-bind-as-a-private-network-dns-server-on-ubuntu-20-04
+
+https://linux.how2shout.com/how-to-set-dns-nameserver-on-ubuntu-22-04-lts-jammy/
+
+configure options file:
+/etc/bind/named.conf.options
+
+configure local file:
+/etc/bind/named.conf.local
+
+create forward zone:
+mkdir /etc/bind/zones
+cp /etc/bind/db.local /etc/bind/zones/<db name>
+
+edit forward zone:
+/etc/bind/zones/<db name>
+
+configure DNS client:
+/etc/netplan/<network manager>.yaml
