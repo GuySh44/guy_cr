@@ -17,3 +17,10 @@ edit forward zone:
 
 configure DNS client:
 /etc/netplan/<network manager>.yaml
+
+nslookup:
+nslookup <host> <ns ip>
+
+dig axfr:
+dig @<ns ip> <ns name> AXFR
+
