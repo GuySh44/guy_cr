@@ -15,4 +15,5 @@
 !cyber/authentication/pam_auth
 !cyber/cryptography/**
 !cyber/application_layer2/**
+!cyber/kill_chain/**
 !.myfuncs

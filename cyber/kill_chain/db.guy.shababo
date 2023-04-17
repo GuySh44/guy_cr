@@ -1,0 +1,23 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL	604800
+@	IN	SOA	ns1.guy.shababo. admin.guy.shababo. (
+			      3		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+
+; name servers - NS records
+	IN	NS	ns1.guy.shababo.
+
+; name servers - A records
+ns1.guy.shababo.	IN	A	192.168.6.11
+
+
+; 192.168.0.0/16 - A records
+host2.guy.shababo.	IN	A	192.168.6.18
+backup.guy.shababo.	IN	A	192.168.6.9
+admin.guy.shababo.	IN	A	192.168.6.42
+
