@@ -51,7 +51,6 @@ def handle_cmd(msg):
             if(valid):
                 buffer = ((3 - (len(raw+trailer) % 3)) % 3) * " "
                 send_res(raw + trailer + buffer + end)
-        time.sleep(10)
     except Exception as e:
         print("in handle_cmd: ")
         print(e)
