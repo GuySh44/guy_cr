@@ -1,0 +1,32 @@
+-sudo apt-get install suricata jq
+
+-edit suricata yaml to include our interface ens160 in my case
+af-packet:
+    - interface: ens160
+      cluster-id: 99
+      cluster-type: cluster_flow
+      defrag: yes
+      use-mmap: yes
+      tpacket-v3: yes
+
+
+-create new rules file:
+	/etc/suricata/rules/local.rules
+	
+-edit it:
+	alert http any any -> any any (content:"Mozilla/5.0";http_user_agent;msg: "Dont pick up the phone"; sid:777; rev:1;)
+	
+
+we alert when someone surfs to an http server with Mozilla/5.0 user agent
+
+
+-run suricata:
+sudo suricata -c /etc/suricata/suricata.yaml -i ens160
+
+-we bypass it by curling/editing our user agent to something else when surfing
+
+-we can see logs by cat /var/log/suricata/eve.json
+
+-by piping jq 'select(.event_type == "alert")' we can view only alerts
+
+cat /var/log/suricata/eve.json | jq 'select(.event_type == "alert")'

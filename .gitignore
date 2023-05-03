@@ -16,4 +16,5 @@
 !cyber/cryptography/**
 !cyber/application_layer2/**
 !cyber/kill_chain/**
+!cyber/network-based/**
 !.myfuncs
