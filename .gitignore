@@ -18,4 +18,5 @@
 !cyber/kill_chain/**
 !cyber/network-based/**
 !cyber/web_exploit/**
+!cyber/windows_intro/**
 !.myfuncs

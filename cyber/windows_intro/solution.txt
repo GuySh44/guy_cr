@@ -1,0 +1,15 @@
+Exercise 2:
+	-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run : 
+	add PuTTY : REG_SZ : <PuTTY.exe path>
+	
+Exercise 3:
+	-download advanced installer
+	
+	-open the PuTTY.msi
+	
+	-click 'Registry' - locate HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+	
+	-right click - add new value , name=PuTTY, in 'data' click File... and choose putty.exe
+	
+	-Run
+	
