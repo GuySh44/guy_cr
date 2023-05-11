@@ -1,6 +1,6 @@
 Exercise 2:
 	-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run : 
-	add PuTTY : REG_SZ : <PuTTY.exe path>
+	add PuTTY : REG_SZ : "<PuTTY.exe path>"
 	
 Exercise 3:
 	-download advanced installer
@@ -13,3 +13,14 @@ Exercise 3:
 	
 	-Run
 	
+Exercise: 7:
+	-download wdump7 and run it
+	
+	-???
+	
+	-profit
+	
+	the passwords are located in the SAM file which lives at:
+	lsass process, registry, secondary memory
+	
+	the file is encrypted
