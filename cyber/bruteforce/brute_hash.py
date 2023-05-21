@@ -29,7 +29,7 @@ def main():
         
     password = input("Enter the password\n")
     
-    print("cracking:")
+    print("cracking...")
     
     time_0 = time()
     
