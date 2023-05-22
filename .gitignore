@@ -19,4 +19,5 @@
 !cyber/network-based/**
 !cyber/web_exploit/**
 !cyber/windows_intro/**
+!cyber/bruteforce/dummy_site/*.php
 !.myfuncs
