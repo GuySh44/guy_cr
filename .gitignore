@@ -20,4 +20,6 @@
 !cyber/web_exploit/**
 !cyber/windows_intro/**
 !cyber/bruteforce/dummy_site/*.php
+!cyber/exploit/develop/**
+cyber/exploit/develop/*.class
 !.myfuncs
