@@ -21,4 +21,5 @@
 !cyber/windows_intro/**
 !cyber/bruteforce/dummy_site/*.php
 !cyber/exploit_develop/**
+!cyber/hardening/**
 !.myfuncs
