@@ -22,4 +22,5 @@
 !cyber/bruteforce/dummy_site/*.php
 !cyber/exploit_develop/**
 !cyber/hardening/**
+!cyber/SOC/sol.txt
 !.myfuncs
