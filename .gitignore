@@ -23,4 +23,5 @@
 !cyber/exploit_develop/**
 !cyber/hardening/**
 !cyber/SOC/sol.txt
+!cyber/meterpreter/**
 !.myfuncs
