@@ -24,4 +24,5 @@
 !cyber/hardening/**
 !cyber/SOC/sol.txt
 !cyber/meterpreter/**
+!cyber/exploitation/*.sh
 !.myfuncs
