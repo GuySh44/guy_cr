@@ -1,0 +1,17 @@
+Exercise2:
+
+-create Access Key
+aws managment console -> security credentials -> create access key
+
+-configure aws client:
+aws configure
+enter key id
+enter key
+enter region ("eu-north-1")
+enter format ("text")
+
+-run script
+
+
+other way:
+https://www.howtogeek.com/devops/how-to-automatically-turn-off-aws-ec2-instances/
