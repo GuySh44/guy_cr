@@ -1,0 +1,23 @@
+ex1:
+-create 2 instances
+
+-open a web server on each instance, make them different to spot change
+
+-create an application load balancer:
+internet-facing
+choose AZ's
+create and set load balancer security group
+create and set a target group including both instances, pointing to the webserver
+set the load-balancer to listen to http port 80
+
+-surf to load-balancer url, refresh the page to see different pages load
+
+ex5:
+-create vpc
+no ipv6 CIDR block
+2 AZ's
+2 public subnets
+2 private subnets
+1 NAT GW
+
+-edit routing tables, assign both privates to same routing table
