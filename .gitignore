@@ -25,5 +25,6 @@
 !cyber/SOC/sol.txt
 !cyber/meterpreter/**
 !cyber/exploitation/*.sh
+!cyber/ssl_tls/**
 !devops/**
 !.myfuncs
