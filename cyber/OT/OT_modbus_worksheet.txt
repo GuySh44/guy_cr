@@ -1,0 +1,79 @@
+Research:
+	1. Operational Technology (OT)	
+
+Keywords:
+
+    1. PLC (Programmable Logical Controller)
+    2. PLC ladder
+    3. PLC STL
+    4. PLC FBD
+    5. SCADA (Supervisory Control and Data Acquisition)
+    6. HMI
+    7. ICS (Industrial Control Systems)
+    8. DCS (Distributed control system)
+    9. Redundancy
+    10. Modbus protocol
+    11. DNP3 protocol
+    12. OPC protocol (Open Platform Communications)
+    13. Profibus
+    14. Profinet
+    15. TIA Portal
+    16. Simatic - Step7
+    17. Threat modeling
+    18. Network segmentation
+    19. Intrusion detection system
+    20. Advanced Persistent Threat
+    21. Stuxnet
+
+Questions:
+
+    1. Describe the common components of DCS, PLC and SCADA.
+    2. Whats the difference between a PLC and a regular computer
+    3. What is the difference between Operational Technology (OT) and Information Technology (IT)?
+    4. Explain the concept of cybersecurity in the context of OT systems.
+    5. What is the Modbus protocol, and how is it commonly used in OT environments?
+    6. In what ways is the modbus protocol vulnerable?
+    7. Why are OT systems considered attractive targets for cyber attacks?
+    8. Why is network segmentation important in OT environments? Provide an example.
+
+	https://tryhackme.com/room/attackingics1
+	https://tryhackme.com/room/attackingics2
+	
+	
+	https://www.modbusdriver.com/diagslave.html
+
+Exercises:
+	
+    Develop a Python script to read Modbus registers from a simulated or real-world OT device.
+        Use a Modbus library (e.g., pymodbus, minimalmodbus) to establish a connection and retrieve data.
+        Display the retrieved data in a user-friendly format.
+
+    Implement error handling mechanisms in your Modbus communication script.
+        Handle exceptions such as connection errors, timeouts, or invalid responses.
+        Add appropriate error messages and logging functionality.
+
+    Enhance the security of your Modbus communication script by implementing encryption.
+        Utilize a secure variant of Modbus, such as Modbus/TLS, to encrypt the data transmission.
+        Generate or obtain the required security certificates, and configure the script to establish secure connections.
+
+    Design and implement a script to perform vulnerability scanning of Modbus devices in an OT network.
+        Utilize a Modbus scanning library or develop custom logic to identify potential vulnerabilities.
+        Generate a report with identified vulnerabilities, including details and severity levels.
+
+    Develop a script to implement access control mechanisms for a Modbus-based OT system.
+        Define user roles and permissions.
+        Implement authentication and authorization mechanisms to restrict access to sensitive Modbus registers or functions.
+
+    Build an intrusion detection system (IDS) for Modbus-based OT networks.
+        Develop a script that monitors Modbus traffic and analyzes it for suspicious or unauthorized activities.
+        Implement rules or heuristics to trigger alerts or take preventive actions when potential intrusions are detected.
+
+    Create a script to automate the process of applying patches or firmware updates to Modbus devices.
+        Implement logic to detect device types, check for available updates, and perform the patching process.
+        Include mechanisms for backup and rollback in case of issues during the update.
+
+    Develop a script to log and analyze Modbus communication data for anomaly detection.
+        Capture and store Modbus traffic data, including requests and responses, in a log file or database.
+        Implement analysis algorithms or machine learning techniques to identify abnormal patterns or suspicious behavior.
+
+Remember to refer to the documentation of the specific Modbus library or framework you are using, and adapt the exercises based on your familiarity with programming languages and development environments. These exercises will help you gain hands-on experience in implementing and securing Modbus-based OT systems.

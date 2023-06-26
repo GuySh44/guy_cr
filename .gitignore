@@ -26,5 +26,6 @@
 !cyber/meterpreter/**
 !cyber/exploitation/*.sh
 !cyber/ssl_tls/**
+!cyber/OT/**
 !devops/**
 !.myfuncs
