@@ -27,5 +27,6 @@
 !cyber/exploitation/*.sh
 !cyber/ssl_tls/**
 !cyber/OT/**
+!cyber/pentest_ctf/**
 !devops/**
 !.myfuncs
