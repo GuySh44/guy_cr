@@ -1,4 +1,0 @@
-auth required pam_securetty.so
-auth required pam_access.so accessfile=/home/guy/git/cyber/pam_cyber.conf
-account required pam_access.so
-session required pam_access.so
